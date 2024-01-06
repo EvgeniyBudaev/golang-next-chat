@@ -15,7 +15,7 @@ type ICreateRoomUseCase interface {
 
 func CreateRoomHandler(uc ICreateRoomUseCase) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		logger.Log.Info("POST /api/v1/room/create")
+		logger.Log.Info("POST /api/v1/ws/room/create")
 		req := wsUseCase.CreateRoomRequest{}
 		if err := ctx.BodyParser(&req); err != nil {
 			logger.Log.Debug("error in method ctx.BodyParse", zap.Error(err))
