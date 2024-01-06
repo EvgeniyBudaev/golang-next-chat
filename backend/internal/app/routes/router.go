@@ -8,6 +8,7 @@ import (
 	wsEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	userUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/user"
 	wsUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/ws"
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,9 +31,18 @@ func InitPublicRoutes(app *fiber.App, config *config.Config) {
 	useCaseGetClientList := wsUseCase.NewGetClientListUseCase(hub)
 	// handlers
 	grp := app.Group(prefix)
+
+	app.Use("/ws/room/join/:roomId", func(ctx *fiber.Ctx) error {
+		if !websocket.IsWebSocketUpgrade(ctx) {
+			return fiber.ErrUpgradeRequired
+		}
+
+		return ctx.Next()
+	})
+
 	grp.Post("/user/register", registerHandler.PostRegisterHandler(useCaseRegister))
 	grp.Post("/ws/room/create", wsHandler.CreateRoomHandler(useCaseCreateRoom))
-	grp.Get("/ws/room/join/:roomId", wsHandler.JoinRoomHandler(useCaseJoinRoom))
+	grp.Get("/ws/room/join/:roomId", websocket.New(wsHandler.JoinRoomHandler(useCaseJoinRoom)))
 	grp.Get("/ws/room/list", wsHandler.GetRoomListHandler(useCaseGetRoomList))
 	grp.Get("/ws/room/:roomId/client/list", wsHandler.GetClientListHandler(useCaseGetClientList))
 }

@@ -2,11 +2,7 @@ package ws
 
 import (
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
-	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gorilla/websocket"
-	"go.uber.org/zap"
-	"net/http"
+	"github.com/gofiber/contrib/websocket"
 )
 
 type JoinRoomUseCase struct {
@@ -19,42 +15,21 @@ func NewJoinRoomUseCase(h *ws.Hub) *JoinRoomUseCase {
 	}
 }
 
-func (uc *JoinRoomUseCase) JoinRoom(ctx *fiber.Ctx) (string, error) {
-	upgrader := websocket.Upgrader{
-		// ReadBufferSize - размер буфера чтения
-		ReadBufferSize: 1024,
-		// WriteBufferSize - размер буфера записи
-		WriteBufferSize: 1024,
-		// функция проверки источника, которая проверяет запрос и возвращает логическое значение
-		CheckOrigin: func(r *http.Request) bool {
-			// TODO: убрать return true, после тестирования в postman
-			//origin := r.Header.Get("Origin")
-			//return origin == "http://localhost:3000"
-			return true
-		},
-	}
-	// TODO: требуется получить conn
-	conn, err := upgrader.Upgrade()
-	if err != nil {
-		return "", err
-	}
-	roomId := ctx.Params("roomId")
-	params := ws.QueryParamsJoinRoom{}
-	if err := ctx.QueryParser(&params); err != nil {
-		logger.Log.Debug("error in method ctx.QueryParser", zap.Error(err))
-		return "", err
-	}
+func (uc *JoinRoomUseCase) JoinRoom(conn *websocket.Conn) string {
+	roomId := conn.Params("roomId")
+	clientId := conn.Query("clientId")
+	username := conn.Query("username")
 	cl := &ws.Client{
-		ID:       params.ClientID,
+		ID:       clientId,
 		RoomID:   roomId,
-		Username: params.Username,
+		Username: username,
 		Conn:     conn,
 		Message:  make(chan *ws.Message),
 	}
 	m := &ws.Message{
 		Content:  "A new user has joined the room",
 		RoomID:   roomId,
-		Username: params.Username,
+		Username: username,
 	}
 	// Register a new client through the register channel
 	uc.hub.Register <- cl
@@ -62,5 +37,5 @@ func (uc *JoinRoomUseCase) JoinRoom(ctx *fiber.Ctx) (string, error) {
 	uc.hub.Broadcast <- m
 	go cl.WriteMessage()
 	cl.ReadMessage(uc.hub)
-	return "is joined", nil
+	return "is joined"
 }

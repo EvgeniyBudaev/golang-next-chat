@@ -1,8 +1,9 @@
 package ws
 
 import (
-	"github.com/gorilla/websocket"
 	"log"
+
+	"github.com/gofiber/contrib/websocket"
 )
 
 type Client struct {
