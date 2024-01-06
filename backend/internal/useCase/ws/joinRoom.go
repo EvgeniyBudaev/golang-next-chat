@@ -1,13 +1,10 @@
 package ws
 
 import (
-	"bufio"
-	"bytes"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/websocket"
-	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -20,42 +17,6 @@ func NewJoinRoomUseCase(h *ws.Hub) *JoinRoomUseCase {
 	return &JoinRoomUseCase{
 		hub: h,
 	}
-}
-
-type ResponseAdapter struct {
-	response *fasthttp.Response
-}
-
-func (r *ResponseAdapter) Header() http.Header {
-	return r.Header()
-}
-
-func (r *ResponseAdapter) Write(p []byte) (int, error) {
-	return r.Write(p)
-}
-
-func (r *ResponseAdapter) WriteHeader(statusCode int) {
-	r.response.SetStatusCode(statusCode)
-}
-
-func ConvertToHTTPRequest(fastHTTPRequest *fasthttp.Request) (*http.Request, error) {
-	// Создаем буфер для записи запроса
-	var buf bytes.Buffer
-	// Создаем bufio.Writer, использующий буфер
-	writer := bufio.NewWriter(&buf)
-	// Пишем данные из fasthttp.Request в bufio.Writer
-	err := fastHTTPRequest.Write(writer)
-	if err != nil {
-		return nil, err
-	}
-	// Принудительно сбрасываем оставшиеся данные из буфера в bufio.Writer
-	writer.Flush()
-	// Создаем http.Request, используя данные из буфера
-	httpRequest, err := http.ReadRequest(bufio.NewReader(&buf))
-	if err != nil {
-		return nil, err
-	}
-	return httpRequest, nil
 }
 
 func (uc *JoinRoomUseCase) JoinRoom(ctx *fiber.Ctx) (string, error) {
@@ -72,11 +33,8 @@ func (uc *JoinRoomUseCase) JoinRoom(ctx *fiber.Ctx) (string, error) {
 			return true
 		},
 	}
-	// адаптер для fasthttp.Response
-	adapterResponse := &ResponseAdapter{response: ctx.Response()}
-	// Преобразуем fasthttp.Request в http.Request
-	httpRequest, err := ConvertToHTTPRequest(ctx.Request())
-	conn, err := upgrader.Upgrade(adapterResponse, httpRequest, nil)
+	// TODO: требуется получить conn
+	conn, err := upgrader.Upgrade()
 	if err != nil {
 		return "", err
 	}
