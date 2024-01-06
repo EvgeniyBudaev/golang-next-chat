@@ -10,6 +10,7 @@ import (
 	r "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/response"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/shared/enums"
+	"github.com/Nerzal/gocloak/v13"
 	contribJwt "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 	golangJwt "github.com/golang-jwt/jwt/v5"

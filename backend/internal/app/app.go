@@ -1,18 +1,16 @@
 package app
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/app/routes"
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/config"
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/db"
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/logger"
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/middlewares"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/routes"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/config"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/db"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/middlewares"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 func Start() error {
@@ -52,27 +50,7 @@ func Start() error {
 		AllowHeaders: "Content-Type, X-Requested-With, Authorization",
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
-	// Hub
-	//hub := ws.NewHub()
-	//wsHandler := ws.NewHandler(hub)
-	// Router
-	//prefix := "/api/v1"
-	//grp := app.Group(prefix)
-	//grp.Post("/ws/room/create", func(ctx *fiber.Ctx) error {
-	//	return wsHandler.CreateRoom(ctx)
-	//})
-	// Запуск приложения
-	//if err := app.Listen(":3000"); err != nil {
-	//	return err
-	//}
-	// middlewares
+	// Routes
 	middlewares.InitFiberMiddlewares(app, cfg, routes.InitPublicRoutes, routes.InitProtectedRoutes)
-
 	return app.Listen(cfg.Port)
-}
-
-func contextMiddleware(ctx context.Context, h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		h.ServeHTTP(w, r.WithContext(ctx))
-	})
 }

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"go.uber.org/zap"

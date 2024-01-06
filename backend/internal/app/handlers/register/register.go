@@ -2,9 +2,9 @@ package register
 
 import (
 	"context"
-	r "github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/entities/response"
-	"github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/logger"
-	"github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/useCase/user"
+	r "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/response"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/user"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 	"net/http"
@@ -17,7 +17,7 @@ type IRegisterUseCase interface {
 func PostRegisterHandler(uc IRegisterUseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var ctx = c.UserContext()
-		logger.Log.Info("post to auth POST /api/v1/user/register")
+		logger.Log.Info("POST /api/v1/user/register")
 		var request = user.RegisterRequest{}
 		err := c.BodyParser(&request)
 		if err != nil {

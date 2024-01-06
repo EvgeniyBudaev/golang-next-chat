@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"fmt"
-	"github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gookit/goutil"
 	"go.uber.org/zap"

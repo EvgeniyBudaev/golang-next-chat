@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/Nerzal/gocloak/v13"
 	"go.uber.org/zap"
 	"strings"

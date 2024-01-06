@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/app"
-	"github.com/EvgeniyBudaev/golang-next-chat/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"go.uber.org/zap"
 	"log"
 )

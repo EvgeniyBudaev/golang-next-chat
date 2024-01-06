@@ -3,8 +3,8 @@ package identity
 import (
 	"context"
 	"fmt"
-	"github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/config"
-	"github.com/EvgeniyBudaev/golang-next-family-mart/backend/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/config"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
