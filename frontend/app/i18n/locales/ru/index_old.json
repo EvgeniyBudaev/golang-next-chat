@@ -1,0 +1,183 @@
+{
+  "pages": {
+    "login": {
+      "enter": "Войти",
+      "service": "Войти в сервис авторизации",
+      "title": "Вход",
+      "noAccount": "нет аккаунта?",
+      "signup": "Зарегистрироваться"
+    },
+    "admin": {
+      "title": "Панель администратора",
+      "attributes": {
+        "table": {
+          "columns": {
+            "info": {
+              "id": "ID",
+              "attributeId": "ID атрибута",
+              "uuid": "UUID",
+              "value": "Значение",
+              "name": "Наименование",
+              "alias": "Псевдоним",
+              "type": "Тип",
+              "updatedAt": "Дата обновления"
+            }
+          }
+        }
+      },
+      "attributeEdit": {
+        "addModal": "Добавление нового значения",
+        "editModal": "Редактирование значения"
+      },
+      "selectables": {
+        "table": {
+          "columns": {
+            "info": {
+              "id": "ID",
+              "attributeId": "ID атрибута",
+              "uuid": "UUID",
+              "value": "Значение",
+              "updatedAt": "Дата обновления"
+            }
+          }
+        }
+      },
+      "productAdd": {
+        "select": "Выбрать каталог"
+      }
+    },
+    "adminPanel": {
+      "attributeList": {
+        "table": {
+          "header": "Список атрибутов"
+        },
+        "title": "Список атрибутов"
+      },
+      "selectableList": {
+        "table": {
+          "header": "Список значений селекта"
+        }
+      },
+      "catalogList": {
+        "table": {
+          "header": "Список каталогов"
+        },
+        "title": "Список каталогов"
+      },
+      "productList": {
+        "table": {
+          "header": "Список продуктов"
+        },
+        "title": "Список продуктов"
+      },
+      "title": "Панель администратора",
+      "attributeAdd": {
+        "title": "Добавление атрибута"
+      },
+      "attributeEdit": {
+        "title": "Редактирование атрибута"
+      },
+      "catalogAdd": {
+        "title": "Добавление каталога"
+      },
+      "catalogEdit": {
+        "title": "Редактирование каталога"
+      },
+      "productAdd": {
+        "title": "Добавление продукта"
+      },
+      "productEdit": {
+        "title": "Редактирование продукта"
+      }
+    },
+    "catalog": {
+      "from": "из",
+      "goods": "товаров"
+    },
+    "signup": {
+      "register": "Зарегистрироваться",
+      "title": "Регистрация",
+      "haveAccount": "Есть аккаунт?",
+      "enter": "Войти"
+    }
+  },
+  "common": {
+    "actions": {
+      "create": "Create",
+      "update": "Обновить",
+      "cancel": "Отменить",
+      "apply": "Применить",
+      "delete": "Удалить",
+      "edit": "Редактировать",
+      "add": "Добавить",
+      "save": "Сохранить",
+      "search": "Поиск"
+    },
+    "previews": {
+      "defaultImage": "Изображение по умолчанию",
+      "addDefaultImage": "Добавить изображение по умолчанию",
+      "addImage": "Добавить новое изображение в галлерею",
+      "images": "Список загруженных изображений",
+      "deleteImage": "Удалить изображение"
+    },
+    "table": {
+      "options": {
+        "fields": "Поля таблицы",
+        "modal": "Настройка таблицы",
+        "sorting": {
+          "asc": "По возрастанию",
+          "default": "По умолчанию",
+          "desc": "По убыванию",
+          "hide": "Скрыть столбец"
+        }
+      }
+    },
+    "info": {
+      "noData": "Нет данных"
+    },
+    "modal": {
+      "deleteQuestion": "Вы действительно хотите удалить?"
+    }
+  },
+  "form": {
+    "userName": "Логин",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "mobileNumber": "Мобильный номер",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "passwordConfirm": "Подтверждение пароля",
+    "image": "Изображение",
+    "enabled": "Включено",
+    "alias": "Псевдоним",
+    "name": "Название",
+    "type": "Тип",
+    "isEnabled": "Включено",
+    "value": "Значение"
+  },
+  "table": {
+    "columns": {
+      "defaultImages": "Изображение по умолчанию",
+      "name": "Наименование",
+      "alias": "Псевдоним",
+      "type": "Тип",
+      "updatedAt": "Дата обновления",
+      "images": "Изображение"
+    }
+  },
+  "footer": {
+    "about": "О нас",
+    "shipping": "Доставка",
+    "contacts": "Контакты"
+  },
+  "header": {
+    "adminPanel": "Панель администратора",
+    "exit": "Выход",
+    "enter": "Войти"
+  },
+  "fileUploader": {
+    "title": "Перетащите свои файлы или нажмите, чтобы загрузить",
+    "subTitle": "Поддерживаемые типы файлов: {types}",
+    "action": "Добавить"
+  }
+}

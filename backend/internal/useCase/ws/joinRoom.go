@@ -17,7 +17,7 @@ func NewJoinRoomUseCase(h *ws.Hub) *JoinRoomUseCase {
 
 func (uc *JoinRoomUseCase) JoinRoom(conn *websocket.Conn) string {
 	roomId := conn.Params("roomId")
-	clientId := conn.Query("clientId")
+	clientId := conn.Query("userId")
 	username := conn.Query("username")
 	cl := &ws.Client{
 		ID:       clientId,

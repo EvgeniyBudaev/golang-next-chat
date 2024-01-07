@@ -1,0 +1,23 @@
+{
+  "errorBoundary": {
+    "common": {
+      "forbidden": "No access to the report",
+      "unexpectedError": "Unexpected error"
+    }
+  },
+  "common": {
+    "validation": {
+      "email": "Invalid email",
+      "cyrillicEmail": "Only Latin characters",
+      "empty": "Field cannot be empty",
+      "onlyLetters": "Allowed characters: letters only",
+      "passwordNotMatch": "Password mismatch",
+      "wrongCharacter": "Allowed characters: 0-9, \"-\", \" \", \"+\", \"(\", \")\"",
+      "file": {
+        "expectedFile": "You can only attach a file",
+        "maxSize": "Maximum size 200mb",
+        "maxAmount": "Maximum number of files 50"
+      }
+    }
+  }
+}
