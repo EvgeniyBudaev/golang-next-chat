@@ -5,6 +5,15 @@
       "unexpectedError": "Unexpected error"
     }
   },
+  "pages": {
+    "login": {
+      "keycloak": "Start messaging",
+      "title": "MyChat Desktop",
+      "description": "Welcome to the official MyChat Desktop app.",
+      "noAccount": "no account?",
+      "goToSignup": "Sign up"
+    }
+  },
   "common": {
     "validation": {
       "email": "Invalid email",

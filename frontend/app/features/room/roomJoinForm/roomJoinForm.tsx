@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useEffect, type FC, useState, useContext } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { roomJoinAction } from "@/app/actions/room/join/roomJoinAction";
@@ -20,7 +20,7 @@ export const RoomJoinForm: FC = () => {
   };
 
   const { setConn } = useContext(WebsocketContext);
-  const router = useRouter();
+  // const router = useRouter();
 
   const joinRoom = (roomId: string) => {
     const ws = new WebSocket(
@@ -31,7 +31,7 @@ export const RoomJoinForm: FC = () => {
       const path = createPath({
         route: ERoutes.App,
       });
-      router.push(path);
+      // router.push(path);
       return;
     }
   };

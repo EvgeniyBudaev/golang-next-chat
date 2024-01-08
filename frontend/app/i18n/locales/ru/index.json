@@ -5,6 +5,15 @@
       "unexpectedError": "Произошла непредвиденная ошибка"
     }
   },
+  "pages": {
+    "login": {
+      "keycloak": "Начать общаться",
+      "title": "MyChat Desktop",
+      "description": "Добро пожаловать в официальное приложение MyChat Desktop",
+      "noAccount": "нет аккаунта?",
+      "goToSignup": "Зарегистрироваться"
+    }
+  },
   "common": {
     "validation": {
       "email": "Email указан неправильно",

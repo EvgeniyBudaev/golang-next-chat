@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { type FC, useContext, useEffect, useRef, useState } from "react";
 import { API_URL } from "@/app/shared/constants";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
@@ -24,7 +24,7 @@ export const AppPage: FC = () => {
     username: "User1",
   };
 
-  const router = useRouter();
+  // const router = useRouter();
 
   // useEffect(() => {
   //   if (conn === null) {
@@ -57,7 +57,7 @@ export const AppPage: FC = () => {
     // }
 
     if (conn === null) {
-      router.push("/");
+      // router.push("/");
       return;
     }
 
@@ -87,7 +87,7 @@ export const AppPage: FC = () => {
   const sendMessage = () => {
     if (!textarea.current?.value) return;
     if (conn === null) {
-      router.push("/");
+      // router.push("/");
       return;
     }
 

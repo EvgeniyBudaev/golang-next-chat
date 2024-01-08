@@ -1,0 +1,9 @@
+@import "@/app/styles";
+
+.UserPanel {
+  background-color: $color-night;
+  border-top-left-radius: $border-layout;
+  border-bottom-left-radius: $border-layout;
+  max-width: 50px;
+  width: 100%;
+}

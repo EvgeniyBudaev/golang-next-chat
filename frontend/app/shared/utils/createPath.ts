@@ -1,6 +1,11 @@
 import { ERoutes } from "@/app/shared/enums";
 
-type TRoutes = ERoutes.Root | ERoutes.App;
+type TRoutes =
+  | ERoutes.Root
+  | ERoutes.App
+  | ERoutes.Signup
+  | ERoutes.Login
+  | ERoutes.PermissionDenied;
 
 type TRoutesWithParams = ERoutes.Room;
 

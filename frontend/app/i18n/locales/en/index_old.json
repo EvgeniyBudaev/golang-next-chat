@@ -3,8 +3,6 @@
     "login": {
       "enter": "Login",
       "service": "Login to the authorization service",
-      "title": "Entry",
-      "noAccount": "no account?",
       "signup": "Register"
     },
     "admin": {
