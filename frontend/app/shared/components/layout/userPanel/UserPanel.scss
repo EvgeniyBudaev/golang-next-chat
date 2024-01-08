@@ -1,9 +1,49 @@
 @import "@/app/styles";
 
 .UserPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background-color: $color-night;
   border-top-left-radius: $border-layout;
   border-bottom-left-radius: $border-layout;
-  max-width: 50px;
+  max-width: 70px;
   width: 100%;
+
+  &-Avatar {
+    position: relative;
+    margin-top: 30px;
+    margin-bottom: 60px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      height: 1px;
+      background-color: $color-pearl-white;
+      width: 46px;
+    }
+  }
+
+  &-List {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  &-ListItem {
+    margin-bottom: 30px;
+    padding: 8px;
+    cursor: pointer;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover .icon-dark {
+      fill: $color-primary-hover;
+    }
+  }
 }

@@ -11,10 +11,10 @@ export const Layout: FC<TProps> = ({ children, i18n }) => {
   return (
     <div className="Layout">
       <div className="Layout-Box">
-        {/*<UserPanel />*/}
-        {/*<RoomPanel />*/}
-        {/*<ChatPanel />*/}
-        {children}
+        <UserPanel />
+        <RoomPanel />
+        <ChatPanel />
+        {/*{children}*/}
       </div>
     </div>
   );

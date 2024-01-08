@@ -3,6 +3,7 @@ import type { TRoomListItem } from "@/app/api/room/list/types";
 import { useTranslation } from "@/app/i18n";
 import { MainPage } from "@/app/pages/mainPage";
 import { ErrorBoundary } from "@/app/shared/components/errorBoundary";
+import { Layout } from "@/app/shared/components/layout";
 
 async function loader() {
   try {
@@ -26,7 +27,11 @@ export default async function MainRoute(props: TProps) {
 
   try {
     const data = await loader();
-    return <MainPage roomList={data.roomList} />;
+    return (
+      <Layout i18n={{ lng, t }}>
+        <MainPage roomList={data.roomList} />
+      </Layout>
+    );
   } catch (error) {
     return <ErrorBoundary i18n={{ lng, t }} message={t(error?.message)} />;
   }
