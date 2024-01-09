@@ -4,8 +4,24 @@ import { useTranslation } from "@/app/i18n";
 import { MainPage } from "@/app/pages/mainPage";
 import { ErrorBoundary } from "@/app/shared/components/errorBoundary";
 import { Layout } from "@/app/shared/components/layout";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+import { createPath } from "@/app/shared/utils";
+import { ERoutes } from "@/app/shared/enums";
 
 async function loader() {
+  // TODO: пофиксить TS у authOptions
+  const session = await getServerSession(authOptions);
+  const isSession = Boolean(session);
+  // TODO: реализовать редирект на страницу логина, если пользователь не авторизован
+  if (isSession) {
+    // return redirect(
+    //     createPath({
+    //       route: ERoutes.Login,
+    //     }),
+    // );
+  }
   try {
     const [roomListResponse] = await Promise.all([getRoomList({})]);
     const roomList = roomListResponse.data as TRoomListItem[];

@@ -1,9 +1,9 @@
-import { type ChangeEvent, type FC, type MouseEvent } from "react";
-import "./Search.scss";
 import clsx from "clsx";
-import { EFormMethods } from "@/app/shared/enums";
+import { type ChangeEvent, type FC, type KeyboardEvent, type MouseEvent } from "react";
 import { EFormFields } from "@/app/entities/search/enums";
+import { EFormMethods } from "@/app/shared/enums";
 import { Icon } from "@/app/uikit/components/icon";
+import "./Search.scss";
 
 type TProps = {
   className?: string;
@@ -33,6 +33,7 @@ export const Search: FC<TProps> = ({
       })}
     >
       <form className="Search-Form" method={EFormMethods.Get} onChange={onSubmit}>
+        <Icon className="Search-Icon" type="Search" />
         <div className="Search-InputWrapper">
           <input
             autoComplete="off"
@@ -47,7 +48,6 @@ export const Search: FC<TProps> = ({
             onKeyDown={onKeyDown}
           />
         </div>
-        <Icon className="Search-Icon" type="Search" />
       </form>
     </div>
   );

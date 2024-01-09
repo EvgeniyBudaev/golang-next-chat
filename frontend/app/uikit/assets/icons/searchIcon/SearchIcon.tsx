@@ -6,7 +6,6 @@ export const SearchIcon: FC<TIconProps> = ({ height = 24, width = 24, ...props }
     height={height}
     width={width}
     version="1.1"
-    fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
     x="0px"
     y="0px"

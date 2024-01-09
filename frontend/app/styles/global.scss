@@ -28,8 +28,8 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   font-family: $base-font-family;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: $base-font-size;
+  font-weight: $base-font-weight;
   font-style: $base-font-style;
   line-height: $base-line-height;
   background-image: url("/assets/images/bg.jpg");

@@ -7,12 +7,12 @@
   background-color: $color-night;
   border-top-left-radius: $border-layout;
   border-bottom-left-radius: $border-layout;
+  padding: 30px 0;
   max-width: 70px;
   width: 100%;
 
   &-Avatar {
     position: relative;
-    margin-top: 30px;
     margin-bottom: 60px;
 
     &::before {
