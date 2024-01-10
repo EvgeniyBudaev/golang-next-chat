@@ -10,13 +10,15 @@ import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { WEBSOCKET_URL } from "@/app/shared/constants";
 import { ERoutes } from "@/app/shared/enums";
 import { createPath } from "@/app/shared/utils";
+import { useSessionNext } from "@/app/shared/hooks";
 
 export const RoomJoinForm: FC = () => {
+  const { data: session, status } = useSessionNext();
   const { t } = useTranslation("index");
   const [state, formAction] = useFormState(roomJoinAction, {});
   const user = {
-    id: "1",
-    username: "User1",
+    id: session?.user?.name,
+    username: session?.user?.name,
   };
 
   const { setConn } = useContext(WebsocketContext);

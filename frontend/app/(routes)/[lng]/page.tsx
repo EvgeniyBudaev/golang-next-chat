@@ -43,11 +43,7 @@ export default async function MainRoute(props: TProps) {
 
   try {
     const data = await loader();
-    return (
-      <Layout i18n={{ lng, t }}>
-        <MainPage roomList={data.roomList} />
-      </Layout>
-    );
+    return <Layout roomList={data.roomList} i18n={{ lng, t }} />;
   } catch (error) {
     return <ErrorBoundary i18n={{ lng, t }} message={t(error?.message)} />;
   }

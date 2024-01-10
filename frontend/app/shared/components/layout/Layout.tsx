@@ -5,14 +5,17 @@ import { RoomPanel } from "@/app/shared/components/layout/roomPanel";
 import { UserPanel } from "@/app/shared/components/layout/userPanel";
 import "./Layout.scss";
 
-type TProps = {} & PropsWithChildren & I18nProps;
+type TProps = {
+  roomList: any;
+} & PropsWithChildren &
+  I18nProps;
 
-export const Layout: FC<TProps> = ({ children, i18n }) => {
+export const Layout: FC<TProps> = ({ children, i18n, roomList }) => {
   return (
     <div className="Layout">
       <div className="Layout-Box">
         <UserPanel />
-        <RoomPanel />
+        <RoomPanel roomList={roomList} />
         <ChatPanel />
         {/*{children}*/}
       </div>
