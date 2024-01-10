@@ -1,0 +1,7 @@
+@import "@/app/styles";
+
+.ChatHeader {
+  background: linear-gradient(to right, $color-purple, $color-primary-hover);
+  border-top-right-radius: $border-layout;
+  padding: 43px 0;
+}

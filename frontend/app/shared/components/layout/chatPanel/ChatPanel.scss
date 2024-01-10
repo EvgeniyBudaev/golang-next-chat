@@ -1,9 +1,8 @@
 @import "@/app/styles";
 
 .ChatPanel {
-  background: linear-gradient(to right, $color-purple, $color-primary);
-  border-top-right-radius: $border-layout;
-  border-bottom-right-radius: $border-layout;
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
   width: 100%;
 }
