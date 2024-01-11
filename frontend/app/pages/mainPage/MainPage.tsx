@@ -1,12 +1,14 @@
 "use client";
 
 import { type FC } from "react";
-import { RoomCreateForm } from "@/app/features/room/roomCreateForm";
-import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
+import { type TRoomListItem } from "@/app/api/room/list/types";
+import { UserPanel } from "@/app/widgets/userPanel";
+import { RoomPanel } from "@/app/widgets/roomPanel";
+import { ChatPanel } from "@/app/widgets/chatPanel";
 import "./MainPage.scss";
 
 type TProps = {
-  roomList: any;
+  roomList: TRoomListItem[];
 };
 
 export const MainPage: FC<TProps> = ({ roomList = [] }) => {
@@ -14,22 +16,10 @@ export const MainPage: FC<TProps> = ({ roomList = [] }) => {
 
   return (
     <div className="MainPage">
-      <div>
-        <RoomCreateForm />
-        <div>
-          <div>Available Rooms:</div>
-          <div>
-            {(roomList ?? []).map((room, index) => (
-              <div key={index}>
-                <div>
-                  <div>Комната:</div>
-                  <div>{room.name}</div>
-                </div>
-                <RoomJoinForm />
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="MainPage-Box">
+        <UserPanel />
+        <RoomPanel roomList={roomList} />
+        <ChatPanel />
       </div>
     </div>
   );

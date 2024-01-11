@@ -6,16 +6,15 @@ import { API_URL } from "@/app/shared/constants";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { ChatBody } from "@/app/shared/components/chatBody";
 
-export type Message = {
+export type TMessage = {
   content: string;
-  client_id: string;
   username: string;
   room_id: string;
   type: "recv" | "self";
 };
 
 export const AppPage: FC = () => {
-  const [messages, setMessage] = useState<Array<Message>>([]);
+  const [messages, setMessage] = useState<Array<TMessage>>([]);
   const textarea = useRef<HTMLTextAreaElement | null>(null);
   const { conn } = useContext(WebsocketContext);
   const [users, setUsers] = useState<Array<{ username: string }>>([]);

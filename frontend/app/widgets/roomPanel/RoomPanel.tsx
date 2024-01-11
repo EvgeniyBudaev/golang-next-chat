@@ -1,11 +1,12 @@
 import { type FC } from "react";
+import { type TRoomListItem } from "@/app/api/room/list/types";
 import { Search } from "@/app/entities/search";
 import { RoomCreateForm } from "@/app/features/room/roomCreateForm";
 import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
 import "./RoomPanel.scss";
 
 type TProps = {
-  roomList: any;
+  roomList: TRoomListItem[];
 };
 
 export const RoomPanel: FC<TProps> = ({ roomList }) => {
@@ -23,7 +24,7 @@ export const RoomPanel: FC<TProps> = ({ roomList }) => {
                   <div>Комната:</div>
                   <div>{room.name}</div>
                 </div>
-                <RoomJoinForm />
+                <RoomJoinForm room={room} />
               </div>
             ))}
           </div>

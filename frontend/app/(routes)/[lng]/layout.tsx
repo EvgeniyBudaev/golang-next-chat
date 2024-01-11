@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { type ReactNode } from "react";
 import { useTranslation } from "@/app/i18n";
 import { I18nContextProvider } from "@/app/i18n/context";
-import { Layout } from "@/app/shared/components/layout";
 import { WebSocketProvider } from "@/app/shared/context";
 import { SessionProviderWrapper } from "@/app/shared/utils/auth";
 
@@ -26,10 +25,7 @@ export default async function RootLayout({
       <SessionProviderWrapper>
         <I18nContextProvider lng={lng}>
           <html lang={lng} dir={dir(lng)}>
-            <body>
-              {/*<Layout i18n={{ lng, t }}>{children}</Layout>*/}
-              {children}
-            </body>
+            <body>{children}</body>
           </html>
         </I18nContextProvider>
       </SessionProviderWrapper>

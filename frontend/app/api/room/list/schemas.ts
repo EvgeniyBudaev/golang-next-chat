@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-export const roomListItemSchema = z.any();
+export const roomListItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
 
 export const roomListParamsSchema = z.any();
 

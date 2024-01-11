@@ -1,53 +1,44 @@
 "use client";
 
-// import { useRouter } from "next/navigation";
-import { useEffect, type FC, useState, useContext } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { type FC, useContext } from "react";
+import { useFormState } from "react-dom";
 import { roomJoinAction } from "@/app/actions/room/join/roomJoinAction";
+import { type TRoomListItem } from "@/app/api/room/list/types";
 import { useTranslation } from "@/app/i18n/client";
 import { EFormFields } from "@/app/features/room/roomJoinForm/enums";
-import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { WEBSOCKET_URL } from "@/app/shared/constants";
-import { ERoutes } from "@/app/shared/enums";
-import { createPath } from "@/app/shared/utils";
+import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { useSessionNext } from "@/app/shared/hooks";
 
-export const RoomJoinForm: FC = () => {
+type TProps = {
+  room: TRoomListItem;
+};
+
+export const RoomJoinForm: FC<TProps> = ({ room }) => {
   const { data: session, status } = useSessionNext();
   const { t } = useTranslation("index");
   const [state, formAction] = useFormState(roomJoinAction, {});
-  const user = {
-    id: session?.user?.name,
-    username: session?.user?.name,
-  };
-
   const { setConn } = useContext(WebsocketContext);
-  // const router = useRouter();
 
   const joinRoom = (roomId: string) => {
     const ws = new WebSocket(
-      `${WEBSOCKET_URL}/ws/room/join/${roomId}?userId=${user.id}&username=${user.username}`,
+      `${WEBSOCKET_URL}/ws/room/join/${roomId}?userId=${session?.user?.id}&username=${session?.user?.username}`,
     );
     if (ws.OPEN) {
       setConn(ws);
-      const path = createPath({
-        route: ERoutes.App,
-      });
-      // router.push(path);
-      return;
     }
   };
 
   const handleSubmit = (formData: FormData) => {
     formAction(formData);
-    joinRoom("1");
+    joinRoom(room.id);
   };
 
   return (
     <form action={handleSubmit} className="Form">
-      <input defaultValue={"1"} name={EFormFields.RoomId} type="hidden" />
-      <input defaultValue={user.id} name={EFormFields.UserId} type="hidden" />
-      <input defaultValue={user.username} name={EFormFields.UserName} type="hidden" />
+      <input defaultValue={room.id} name={EFormFields.RoomId} type="hidden" />
+      <input defaultValue={session?.user?.id} name={EFormFields.UserId} type="hidden" />
+      <input defaultValue={session?.user?.username} name={EFormFields.UserName} type="hidden" />
       <button type="submit">join</button>
     </form>
   );

@@ -1,4 +1,19 @@
 @import "@/app/styles";
 
 .MainPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /*ширина контейнера чистая 1200px*/
+  margin: 0 auto;
+  padding: 15px;
+  max-width: 1470px;
+  width: 100%;
+
+  &-Box {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
 }

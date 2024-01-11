@@ -2,12 +2,12 @@
 
 import { type FC, useContext, useEffect, useRef, useState } from "react";
 import { Message } from "@/app/pages/appPage/AppPage";
-import { ChatBody } from "@/app/shared/components/layout/chatPanel/chatBody";
-import { ChatFooter } from "@/app/shared/components/layout/chatPanel/chatFooter";
-import { ChatHeader } from "@/app/shared/components/layout/chatPanel/chatHeader";
+import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
+import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
+import { ChatHeader } from "@/app/widgets/chatPanel/chatHeader";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
-import "./ChatPanel.scss";
 import { useSessionNext } from "@/app/shared/hooks";
+import "./ChatPanel.scss";
 
 export const ChatPanel: FC = () => {
   const { data: session, status } = useSessionNext();
@@ -52,16 +52,21 @@ export const ChatPanel: FC = () => {
   }, [textareaRef, messageList, conn, users]);
 
   const sendMessage = () => {
+    console.log("sendMessage");
+    console.log("textareaRef", textareaRef.current?.value);
     if (!textareaRef.current?.value) return;
     if (conn === null) {
+      console.log("conn === null", conn);
       // router.push("/");
       return;
     }
 
     if ("value" in textareaRef.current) {
+      console.log("textareaRef_1", textareaRef.current.value);
       conn.send(textareaRef.current.value);
     }
     if ("value" in textareaRef.current) {
+      console.log("textareaRef_2", textareaRef.current.value);
       textareaRef.current.value = "";
     }
   };
@@ -70,7 +75,7 @@ export const ChatPanel: FC = () => {
     <div className="ChatPanel">
       <ChatHeader />
       <ChatBody messageList={messageList} />
-      <ChatFooter onSendMessage={sendMessage} />
+      <ChatFooter onSendMessage={sendMessage} ref={textareaRef} />
     </div>
   );
 };

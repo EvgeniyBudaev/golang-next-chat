@@ -28,7 +28,7 @@ async function refreshAccessToken(token) {
   };
 }
 
-export const authOptions = {
+export const authOptions: any = {
   providers: [
     KeycloakProvider({
       clientId: `${process.env.CLIENT_ID}`,
@@ -40,7 +40,6 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, account }) {
       const nowTimeStamp = Math.floor(Date.now() / 1000);
-      console.log("token: ", token);
 
       if (account) {
         // account is only available the first time this callback is called on a new session (after the user signs in)
@@ -72,6 +71,10 @@ export const authOptions = {
       session.id_token = encrypt(token.id_token); // see utils/sessionTokenAccessor.js
       session.roles = token.decoded.realm_access.roles;
       session.error = token.error;
+      if (token.decoded) {
+        session.user.id = token.decoded.sub;
+        session.user.username = token.decoded.preferred_username;
+      }
       return session;
     },
   },

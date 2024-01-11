@@ -1,0 +1,44 @@
+@import "@/app/styles";
+
+.Message {
+  $this: &;
+  margin-top: 8px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &-Block {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+
+  &-Content {
+    background-color: $color-pink;
+    max-width: max-content;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 10px 10px 0 10px;
+  }
+
+  &-Avatar {
+    margin-right: 8px;
+  }
+
+  &-Text {
+  }
+
+  &__isReceiver {
+    #{$this}-Block {
+      justify-content: flex-start;
+    }
+
+    #{$this}-Content {
+      background-color: $color-primary;
+      border-radius: 10px 10px 10px 0;
+    }
+  }
+}
