@@ -32,7 +32,7 @@ export const LoginPage: FC<I18nProps> = ({ i18n }) => {
             />
             <Link
               href={createPath({
-                route: ERoutes.Signup,
+                route: ERoutes.Register,
               })}
             >
               <Typography

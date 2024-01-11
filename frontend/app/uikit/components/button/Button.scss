@@ -30,18 +30,18 @@
   }
 
   &.Button__disabled {
-    color: $color-silver-gray;
-    background-color: $color-pearl-white;
-    border-color: $color-silver-gray;
+    color: $color-white;
+    background-color: $color-gray;
+    border-color: $color-white;
 
     &:active {
       transform: none;
     }
 
     &:hover {
-      color: $color-silver-gray;
-      background-color: $color-pearl-white;
-      border-color: $color-silver-gray;
+      color: $color-white;
+      background-color: $color-gray;
+      border-color: $color-white;
       cursor: not-allowed;
     }
   }

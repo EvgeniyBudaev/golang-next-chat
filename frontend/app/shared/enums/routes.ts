@@ -3,6 +3,6 @@ export enum ERoutes {
   App = "/app",
   Room = "/room/:roomId",
   Login = "/login",
-  Signup = "/signup",
+  Register = "/register",
   PermissionDenied = "/403",
 }

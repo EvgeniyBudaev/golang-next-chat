@@ -12,7 +12,22 @@
       "description": "Welcome to the official MyChat Desktop app.",
       "noAccount": "no account?",
       "goToSignup": "Sign up"
+    },
+    "register": {
+      "button": "Register",
+      "title": "Registration",
+      "haveAccount": "Have an account?",
+      "enter": "Enter"
     }
+  },
+  "form": {
+    "userName": "Login",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "mobileNumber": "Mobile number",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm": "Password confirm"
   },
   "common": {
     "validation": {

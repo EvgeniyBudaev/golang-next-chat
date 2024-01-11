@@ -1,0 +1,48 @@
+@import "@/app/styles";
+
+.RegisterPage {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+
+  &-Center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    flex-direction: column;
+    max-width: 470px;
+    width: 100%;
+  }
+
+  &-Content {
+    padding: 24px;
+    width: 100%;
+    height: auto;
+    border-radius: $border-radius;
+    background-color: $color-dark;
+  }
+
+  &-Title {
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  &-HaveAccount {
+    text-align: center;
+
+    span {
+      margin-right: 10px;
+    }
+
+    a,
+    a span {
+      color: $color-primary;
+      transition: all $transition;
+
+      &:hover {
+        color: $color-primary-hover;
+      }
+    }
+  }
+}

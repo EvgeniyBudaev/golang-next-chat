@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Error } from "@/app/shared/components/error";
+import { Error } from "@/app/entities/error";
 import { I18nProps } from "@/app/i18n/props";
 
 type TProps = {

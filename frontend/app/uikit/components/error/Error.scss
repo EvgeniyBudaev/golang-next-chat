@@ -1,0 +1,12 @@
+.Error {
+  &-List {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-ListItem {
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

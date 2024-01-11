@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "@/app/i18n/client";
-import { ErrorBoundary } from "@/app/shared/components/errorBoundary";
+import { ErrorBoundary } from "../../entities/errorBoundary";
 
 export default function Error({
   error,

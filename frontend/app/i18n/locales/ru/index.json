@@ -12,7 +12,22 @@
       "description": "Добро пожаловать в официальное приложение MyChat Desktop",
       "noAccount": "нет аккаунта?",
       "goToSignup": "Зарегистрироваться"
+    },
+    "register": {
+      "button": "Зарегистрироваться",
+      "title": "Регистрация",
+      "haveAccount": "Есть аккаунт?",
+      "enter": "Войти"
     }
+  },
+  "form": {
+    "userName": "Логин",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "mobileNumber": "Мобильный номер",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "passwordConfirm": "Подтверждение пароля"
   },
   "common": {
     "validation": {

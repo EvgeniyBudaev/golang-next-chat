@@ -138,13 +138,6 @@
     }
   },
   "form": {
-    "userName": "Логин",
-    "firstName": "Имя",
-    "lastName": "Фамилия",
-    "mobileNumber": "Мобильный номер",
-    "email": "Электронная почта",
-    "password": "Пароль",
-    "passwordConfirm": "Подтверждение пароля",
     "image": "Изображение",
     "enabled": "Включено",
     "alias": "Псевдоним",

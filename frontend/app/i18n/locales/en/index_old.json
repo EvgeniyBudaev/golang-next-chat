@@ -138,13 +138,6 @@
     }
   },
   "form": {
-    "userName": "Login",
-    "firstName": "First name",
-    "lastName": "Last name",
-    "mobileNumber": "Mobile number",
-    "email": "Email",
-    "password": "Password",
-    "passwordConfirm": "Password confirm",
     "image": "Image",
     "enabled": "Enabled",
     "alias": "Alias",
