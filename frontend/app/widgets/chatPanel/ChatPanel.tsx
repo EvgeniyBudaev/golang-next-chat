@@ -1,7 +1,7 @@
 "use client";
 
 import { type FC, useContext, useEffect, useRef, useState } from "react";
-import { Message } from "@/app/pages/appPage/AppPage";
+import { type TMessage } from "@/app/shared/types/message";
 import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
 import { ChatHeader } from "@/app/widgets/chatPanel/chatHeader";
@@ -12,7 +12,7 @@ import "./ChatPanel.scss";
 export const ChatPanel: FC = () => {
   const { data: session, status } = useSessionNext();
   console.log("session: ", session);
-  const [messageList, setMessageList] = useState<Message[]>([]);
+  const [messageList, setMessageList] = useState<TMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { conn } = useContext(WebsocketContext);
   const [users, setUsers] = useState<Array<{ username: string }>>([]);
@@ -30,7 +30,7 @@ export const ChatPanel: FC = () => {
 
     conn.onmessage = (message) => {
       console.log("conn.onmessage: ", message);
-      const m: Message = JSON.parse(message.data);
+      const m: TMessage = JSON.parse(message.data);
       if (m.content == "A new user has joined the room") {
         setUsers([...users, { username: m.username }]);
       }
@@ -42,7 +42,9 @@ export const ChatPanel: FC = () => {
         return;
       }
 
-      session?.user?.name == m.username ? (m.type = "self") : (m.type = "recv");
+      console.log("session?.user?.username: ", session?.user?.username);
+      console.log("m.username: ", m.username);
+      session?.user?.username === m.username ? (m.type = "self") : (m.type = "recv");
       setMessageList([...messageList, m]);
     };
 

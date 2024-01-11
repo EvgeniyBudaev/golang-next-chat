@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import type { FC } from "react";
-import { type TMessage } from "@/app/pages/appPage/AppPage";
+import { type TMessage } from "@/app/shared/types/message";
 import { Avatar } from "@/app/uikit/components/avatar";
 import "./Message.scss";
 
@@ -9,7 +9,7 @@ type TProps = {
 };
 
 export const Message: FC<TProps> = ({ message }) => {
-  const isReceiver = message.type !== "recv";
+  const isReceiver = message.type === "recv";
 
   return (
     <div

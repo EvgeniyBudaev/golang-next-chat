@@ -5,13 +5,7 @@ import { type FC, useContext, useEffect, useRef, useState } from "react";
 import { API_URL } from "@/app/shared/constants";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { ChatBody } from "@/app/shared/components/chatBody";
-
-export type TMessage = {
-  content: string;
-  username: string;
-  room_id: string;
-  type: "recv" | "self";
-};
+import { type TMessage } from "@/app/shared/types/message";
 
 export const AppPage: FC = () => {
   const [messages, setMessage] = useState<Array<TMessage>>([]);
@@ -62,7 +56,7 @@ export const AppPage: FC = () => {
 
     conn.onmessage = (message) => {
       console.log("conn.onmessage: ", message);
-      const m: Message = JSON.parse(message.data);
+      const m: TMessage = JSON.parse(message.data);
       if (m.content == "A new user has joined the room") {
         setUsers([...users, { username: m.username }]);
       }
