@@ -10,6 +10,7 @@
     "generate:translations": "i18next"
   },
   "dependencies": {
+    "@mona-health/react-input-mask": "^3.0.1",
     "accept-language": "^3.0.18",
     "clsx": "^2.1.0",
     "cryptr": "^6.3.0",
@@ -25,7 +26,6 @@
     "react-cookie": "^7.0.1",
     "react-dom": "^18",
     "react-i18next": "^14.0.0",
-    "react-input-mask": "^3.0.0-alpha.2",
     "zod": "^3.22.4",
     "zod-form-data": "^2.0.2"
   },

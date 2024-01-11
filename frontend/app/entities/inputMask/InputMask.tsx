@@ -3,8 +3,9 @@
 import isFunction from "lodash/isFunction";
 import { memo, useCallback, useEffect, useState } from "react";
 import type { ChangeEventHandler, FC } from "react";
-import ReactInputMask from "react-input-mask";
-import type { BeforeMaskedStateChangeStates, InputState } from "react-input-mask";
+// https://github.com/mona-health/react-input-mask
+import ReactInputMask from "@mona-health/react-input-mask";
+import type { BeforeMaskedStateChangeStates, InputState } from "@types/react-input-mask";
 import { Input as InputUi } from "@/app/uikit/components/input";
 import { IInputProps as TInputPropsUi } from "@/app/uikit/components/input/Input";
 

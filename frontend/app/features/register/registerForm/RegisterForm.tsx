@@ -15,8 +15,8 @@ export const RegisterForm: FC = () => {
   const { t } = useTranslation("index");
 
   return (
-    <form action={formAction} className="Form">
-      <div className="Form-FormFieldGroup">
+    <form action={formAction} className="RegisterForm">
+      <div className="RegisterForm-FieldGroup">
         <Input
           errors={state?.errors?.userName}
           isRequired={true}
@@ -66,7 +66,7 @@ export const RegisterForm: FC = () => {
           type="text"
         />
       </div>
-      <div className="Form-Button">
+      <div className="RegisterForm-Button">
         <SubmitButton buttonText={t("pages.register.button")} />
       </div>
     </form>
