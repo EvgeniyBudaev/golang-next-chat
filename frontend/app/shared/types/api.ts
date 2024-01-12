@@ -6,9 +6,15 @@ export type TApiConfig = {
   retry: number;
 };
 
-export type TApiOptions = Omit<RequestInit, "body"> & { body?: any; retry?: number };
+export type TApiOptions = Omit<RequestInit, "body"> & {
+  body?: any;
+  retry?: number;
+};
 
-export type TApiFunction = <T>(path: string, options?: TApiOptions) => Promise<T>;
+export type TApiFunction = <T>(
+  path: string,
+  options?: TApiOptions,
+) => Promise<T>;
 
 /**
  * Запрос с ошибкой

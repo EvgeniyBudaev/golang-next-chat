@@ -2,17 +2,28 @@
 
 import clsx from "clsx";
 import { forwardRef, memo, useState } from "react";
-import type { DetailedHTMLProps, ForwardedRef, HTMLAttributes, FocusEvent } from "react";
+import type {
+  DetailedHTMLProps,
+  ForwardedRef,
+  HTMLAttributes,
+  FocusEvent,
+} from "react";
 import { Error } from "@/app/uikit/components/error";
-import { ETypographyVariant, Typography } from "@/app/uikit/components/typography";
+import {
+  ETypographyVariant,
+  Typography,
+} from "@/app/uikit/components/typography";
 import "./Input.scss";
 
 export interface IInputProps
-  extends DetailedHTMLProps<HTMLAttributes<HTMLInputElement>, HTMLInputElement> {
+  extends DetailedHTMLProps<
+    HTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
   autoComplete?: string;
   className?: string;
   dataTestId?: string;
-  errors?: string[];
+  errors?: string[] | string;
   hidden?: boolean;
   isDisabled?: boolean;
   isFocused?: boolean;
@@ -121,7 +132,9 @@ const InputComponent = forwardRef<HTMLInputElement, IInputProps>(
             <Typography
               value={label}
               variant={
-                !isFocused ? ETypographyVariant.TextB3Regular : ETypographyVariant.TextB4Regular
+                !isFocused
+                  ? ETypographyVariant.TextB3Regular
+                  : ETypographyVariant.TextB4Regular
               }
             />
             {isRequired && <span className="InputField-LabelRequired"> *</span>}

@@ -1,5 +1,9 @@
 import { EErrorTypes } from "../enums";
-import { TApiConfig, TApiFunction, TErrorResponse } from "@/app/shared/types/api";
+import {
+  TApiConfig,
+  TApiFunction,
+  TErrorResponse,
+} from "@/app/shared/types/api";
 import { gatewayTimeout } from "@/app/shared/utils/gatewayTimeout";
 import { internalError } from "@/app/shared/utils/internalError";
 import { processError } from "@/app/shared/utils/processError";
@@ -26,7 +30,9 @@ export function createApi(config: TApiConfig): {
   const fetchApi: TApiFunction = async (path, options) => {
     const accessToken = await getAccessToken();
     const url = basePath + path;
-    let contentType: { "Content-Type"?: string } = { "Content-Type": "application/json" };
+    let contentType: { "Content-Type"?: string } = {
+      "Content-Type": "application/json",
+    };
     let body;
 
     if (options?.body) {

@@ -1,8 +1,17 @@
 import { useTranslation } from "@/app/i18n";
 import { ErrorBoundary } from "../../../entities/errorBoundary";
 
-export default async function PermissionDenied({ params: { lng } }: { params: { lng: string } }) {
+export default async function PermissionDenied({
+  params: { lng },
+}: {
+  params: { lng: string };
+}) {
   const { t } = await useTranslation(lng, "index");
 
-  return <ErrorBoundary i18n={{ lng, t }} message={t("errorBoundary.common.forbidden")} />;
+  return (
+    <ErrorBoundary
+      i18n={{ lng, t }}
+      message={t("errorBoundary.common.forbidden")}
+    />
+  );
 }

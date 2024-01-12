@@ -13,7 +13,9 @@ const CONTENT_TYPE_BLOBS = [
  *
  * @param response
  */
-export const processSuccessResponse = async <T>(response: Response): Promise<T> => {
+export const processSuccessResponse = async <T>(
+  response: Response,
+): Promise<T> => {
   try {
     let result;
     const contentType = response?.headers.get("Content-Type");

@@ -18,7 +18,13 @@ export const Message: FC<TProps> = ({ message }) => {
       })}
     >
       <div className="Message-Block">
-        {isReceiver && <Avatar className="Message-Avatar" size={32} user={message.username} />}
+        {isReceiver && (
+          <Avatar
+            className="Message-Avatar"
+            size={32}
+            user={message.username}
+          />
+        )}
         <div className="Message-Content">
           <div className="Message-Text">{message.content}</div>
           {/*<div>{message.img && <img src={message.img} alt="" />}</div>*/}

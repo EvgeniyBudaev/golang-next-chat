@@ -1,7 +1,10 @@
 import { type FC } from "react";
 import { LoginForm } from "@/app/features/login/loginForm";
 import { I18nProps } from "@/app/i18n/props";
-import { ETypographyVariant, Typography } from "@/app/uikit/components/typography";
+import {
+  ETypographyVariant,
+  Typography,
+} from "@/app/uikit/components/typography";
 import "./LoginPage.scss";
 import { ERoutes } from "@/app/shared/enums";
 import { createPath } from "@/app/shared/utils";

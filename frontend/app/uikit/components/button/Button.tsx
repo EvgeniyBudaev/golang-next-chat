@@ -8,6 +8,7 @@ export interface IButtonProps extends DOMAttributes<HTMLButtonElement> {
   className?: string;
   dataTestId?: string;
   isDisabled?: boolean;
+  type?: "submit" | "reset" | "button";
 }
 
 const ButtonComponent: FC<IButtonProps> = ({
@@ -15,6 +16,7 @@ const ButtonComponent: FC<IButtonProps> = ({
   children,
   dataTestId = "uikit__button",
   isDisabled = false,
+  type,
   ...rest
 }) => {
   return (
@@ -24,6 +26,7 @@ const ButtonComponent: FC<IButtonProps> = ({
       })}
       data-testid={dataTestId}
       disabled={isDisabled}
+      type={type}
       {...rest}
     >
       <span>{children}</span>

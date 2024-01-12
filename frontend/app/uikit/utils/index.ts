@@ -1,3 +1,7 @@
-import { formatInitialUserName, formatToCapitalize, formatToStringWithPx } from "./format";
+import {
+  formatInitialUserName,
+  formatToCapitalize,
+  formatToStringWithPx,
+} from "./format";
 
 export { formatInitialUserName, formatToCapitalize, formatToStringWithPx };

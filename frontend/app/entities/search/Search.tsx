@@ -1,5 +1,10 @@
 import clsx from "clsx";
-import { type ChangeEvent, type FC, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  type ChangeEvent,
+  type FC,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import { EFormFields } from "@/app/entities/search/enums";
 import { EFormMethods } from "@/app/shared/enums";
 import { Icon } from "@/app/uikit/components/icon";
@@ -32,7 +37,11 @@ export const Search: FC<TProps> = ({
         Search__active: isActive,
       })}
     >
-      <form className="Search-Form" method={EFormMethods.Get} onChange={onSubmit}>
+      <form
+        className="Search-Form"
+        method={EFormMethods.Get}
+        onChange={onSubmit}
+      >
         <Icon className="Search-Icon" type="Search" />
         <div className="Search-InputWrapper">
           <input

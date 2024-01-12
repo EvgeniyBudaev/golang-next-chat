@@ -17,7 +17,11 @@ const Component = (props: TProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
         placeholder={"Write a message"}
         style={{ resize: "none" }}
       />
-      <Icon className="ChatFooter-IconSend" onClick={props.onSendMessage} type="ArrowUp" />
+      <Icon
+        className="ChatFooter-IconSend"
+        onClick={props.onSendMessage}
+        type="ArrowUp"
+      />
     </div>
   );
 };

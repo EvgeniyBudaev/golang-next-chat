@@ -7,7 +7,10 @@ export const ChatBody: FC = ({ data }: { data: Array<Message> }) => {
       {data.map((message: Message, index: number) => {
         if (message.type == "self") {
           return (
-            <div className="flex flex-col mt-2 w-full text-right justify-end" key={index}>
+            <div
+              className="flex flex-col mt-2 w-full text-right justify-end"
+              key={index}
+            >
               <div className="text-sm">{message.username}</div>
               <div>
                 <div className="bg-blue text-white px-4 py-1 rounded-md inline-block mt-1">

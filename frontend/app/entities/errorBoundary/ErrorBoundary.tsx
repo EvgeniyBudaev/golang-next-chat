@@ -7,6 +7,10 @@ type TProps = {
   message?: string;
 } & I18nProps;
 
-export const ErrorBoundary: FC<TProps> = ({ error, i18n, message = message }) => {
+export const ErrorBoundary: FC<TProps> = ({
+  error,
+  i18n,
+  message = message,
+}) => {
   return <Error error={error} i18n={i18n} message={message} />;
 };

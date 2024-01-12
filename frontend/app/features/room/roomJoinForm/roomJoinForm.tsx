@@ -37,8 +37,16 @@ export const RoomJoinForm: FC<TProps> = ({ room }) => {
   return (
     <form action={handleSubmit} className="Form">
       <input defaultValue={room.id} name={EFormFields.RoomId} type="hidden" />
-      <input defaultValue={session?.user?.id} name={EFormFields.UserId} type="hidden" />
-      <input defaultValue={session?.user?.username} name={EFormFields.UserName} type="hidden" />
+      <input
+        defaultValue={session?.user?.id}
+        name={EFormFields.UserId}
+        type="hidden"
+      />
+      <input
+        defaultValue={session?.user?.username}
+        name={EFormFields.UserName}
+        type="hidden"
+      />
       <button type="submit">join</button>
     </form>
   );

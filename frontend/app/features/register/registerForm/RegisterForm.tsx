@@ -1,6 +1,7 @@
 "use client";
 
-import { type FC } from "react";
+import isNil from "lodash/isNil";
+import { type FC, useEffect } from "react";
 import { useFormState } from "react-dom";
 import { registerAction } from "@/app/actions/register/registerAction";
 import { PhoneInputMask } from "@/app/entities/phoneInputMask";
@@ -8,11 +9,28 @@ import { SubmitButton } from "@/app/entities/submitButton";
 import { EFormFields } from "@/app/features/register/registerForm/enums";
 import { useTranslation } from "@/app/i18n/client";
 import { Input } from "@/app/uikit/components/input";
+import { notify } from "@/app/uikit/components/toast/utils";
 import "./RegisterForm.scss";
 
 export const RegisterForm: FC = () => {
-  const [state, formAction] = useFormState(registerAction, {});
+  const initialState = {
+    data: undefined,
+    error: undefined,
+    errors: undefined,
+    success: false,
+  };
+  const [state, formAction] = useFormState(registerAction, initialState);
   const { t } = useTranslation("index");
+  console.log("state: ", state);
+
+  useEffect(() => {
+    if (state?.error) {
+      notify.error({ title: state?.error });
+    }
+    if (!isNil(state.data) && state.success && !state?.error) {
+      notify.success({ title: "Ok" });
+    }
+  }, [state]);
 
   return (
     <form action={formAction} className="RegisterForm">

@@ -8,7 +8,10 @@ type TProps = {
   dataTestId?: string;
 };
 
-const FadeInComponent: FC<TProps> = ({ children, dataTestId = "uikit__fade-in" }) => {
+const FadeInComponent: FC<TProps> = ({
+  children,
+  dataTestId = "uikit__fade-in",
+}) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

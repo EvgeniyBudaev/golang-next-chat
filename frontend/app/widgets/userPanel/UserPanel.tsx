@@ -20,7 +20,11 @@ export const UserPanel: FC = () => {
   const isSession = Boolean(session);
 
   useEffect(() => {
-    if (status != "loading" && session && session?.error === "RefreshAccessTokenError") {
+    if (
+      status != "loading" &&
+      session &&
+      session?.error === "RefreshAccessTokenError"
+    ) {
       signOut({ callbackUrl: "/" });
     }
   }, [session, status]);

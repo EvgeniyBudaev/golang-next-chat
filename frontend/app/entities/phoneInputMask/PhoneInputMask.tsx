@@ -35,10 +35,16 @@ const PhoneInputMaskComponent: FC<TPhoneInputMaskProps> = ({
     // '+7 (+7' нужно заменить на +7. Когда пользователь просто вставляет номер телефона в поле,
     // то к нему добавляется +7 из маски и номер телефона ломается
     if (currentState?.value.includes(PAST_BUG_PHONE)) {
-      return { ...currentState, value: currentState.value.replace(PAST_BUG_PHONE, "+7") };
+      return {
+        ...currentState,
+        value: currentState.value.replace(PAST_BUG_PHONE, "+7"),
+      };
     }
     if (currentState?.value.includes(PAST_BUG_8_PHONE)) {
-      return { ...currentState, value: currentState.value.replace(PAST_BUG_8_PHONE, "+7") };
+      return {
+        ...currentState,
+        value: currentState.value.replace(PAST_BUG_8_PHONE, "+7"),
+      };
     }
     return nextState;
   };
@@ -46,7 +52,9 @@ const PhoneInputMaskComponent: FC<TPhoneInputMaskProps> = ({
   return (
     <InputMask
       {...props}
-      beforeMaskedStateChange={beforeMaskedStateChange ?? handleBeforeMaskedStateChange}
+      beforeMaskedStateChange={
+        beforeMaskedStateChange ?? handleBeforeMaskedStateChange
+      }
       label={hasLabel && label ? label : undefined}
       mask={mask}
       maskPlaceholder={maskPlaceholder}

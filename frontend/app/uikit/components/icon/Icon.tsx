@@ -30,7 +30,11 @@ export const Icon: FC<TProps> = ({
   const mainStyles = clsx(`${EColorType.Icon}-${color}`);
 
   return (
-    <div className={clsx("Icon", className, mainStyles)} data-testid={dataTestId} {...rest}>
+    <div
+      className={clsx("Icon", className, mainStyles)}
+      data-testid={dataTestId}
+      {...rest}
+    >
       {getIcon(type)}
     </div>
   );

@@ -4,7 +4,10 @@ import { RegisterForm } from "@/app/features/register/registerForm";
 import { I18nProps } from "@/app/i18n/props";
 import { ERoutes } from "@/app/shared/enums";
 import { createPath } from "@/app/shared/utils";
-import { ETypographyVariant, Typography } from "@/app/uikit/components/typography";
+import {
+  ETypographyVariant,
+  Typography,
+} from "@/app/uikit/components/typography";
 import "./RegisterPage.scss";
 
 export const RegisterPage: FC<I18nProps> = ({ i18n }) => {

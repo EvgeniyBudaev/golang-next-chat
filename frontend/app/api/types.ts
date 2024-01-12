@@ -1,1 +1,3 @@
-export type TApiFunction<TParams, TResponse> = (params: TParams) => Promise<TResponse>;
+export type TApiFunction<TParams, TResponse> = (
+  params: TParams,
+) => Promise<TResponse>;

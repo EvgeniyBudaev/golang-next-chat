@@ -9,7 +9,8 @@ type TProps = {
 } & I18nProps;
 
 export const Error: FC<TProps> = ({ error, i18n, message }) => {
-  const errorMessage = message || error?.message || i18n.t("errorBoundary.common.unexpectedError");
+  const errorMessage =
+    message || error?.message || i18n.t("errorBoundary.common.unexpectedError");
 
   return (
     <section className="Error">

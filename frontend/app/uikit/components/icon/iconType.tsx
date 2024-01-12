@@ -1,4 +1,9 @@
-import { ArrowUpIcon, AttentionIcon, ExitIcon, SearchIcon } from "@/app/uikit/assets/icons";
+import {
+  ArrowUpIcon,
+  AttentionIcon,
+  ExitIcon,
+  SearchIcon,
+} from "@/app/uikit/assets/icons";
 
 export type IconType = "ArrowUp" | "Attention" | "Exit" | "Search";
 

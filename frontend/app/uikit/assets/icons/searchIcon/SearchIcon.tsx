@@ -1,7 +1,11 @@
 import type { FC } from "react";
 import { TIconProps } from "@/app/uikit/assets/icons/types";
 
-export const SearchIcon: FC<TIconProps> = ({ height = 24, width = 24, ...props }) => (
+export const SearchIcon: FC<TIconProps> = ({
+  height = 24,
+  width = 24,
+  ...props
+}) => (
   <svg
     height={height}
     width={width}

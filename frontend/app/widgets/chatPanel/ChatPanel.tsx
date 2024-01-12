@@ -44,7 +44,9 @@ export const ChatPanel: FC = () => {
 
       console.log("session?.user?.username: ", session?.user?.username);
       console.log("m.username: ", m.username);
-      session?.user?.username === m.username ? (m.type = "self") : (m.type = "recv");
+      session?.user?.username === m.username
+        ? (m.type = "self")
+        : (m.type = "recv");
       setMessageList([...messageList, m]);
     };
 
