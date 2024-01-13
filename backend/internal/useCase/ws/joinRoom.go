@@ -31,7 +31,7 @@ func (uc *JoinRoomUseCase) JoinRoom(conn *websocket.Conn) string {
 		RoomID:   roomId,
 		Username: username,
 	}
-	// Register a new client through the register channel
+	// Register a new client through the user channel
 	uc.hub.Register <- cl
 	// Broadcast that message
 	uc.hub.Broadcast <- m

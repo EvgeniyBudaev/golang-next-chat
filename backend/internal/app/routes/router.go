@@ -1,7 +1,7 @@
 package routes
 
 import (
-	registerHandler "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/handlers/register"
+	userHandler "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/handlers/user"
 	wsHandler "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/handlers/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/config"
 	identityEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/identity"
@@ -24,7 +24,7 @@ func InitPublicRoutes(app *fiber.App, config *config.Config) {
 	hub := wsEntity.NewHub()
 	go hub.Run()
 	// useCase
-	useCaseRegister := userUseCase.NewRegisterUseCase(identityManager)
+	useCaseUser := userUseCase.NewUserUseCase(identityManager)
 	useCaseCreateRoom := wsUseCase.NewCreateRoomUseCase(hub)
 	useCaseJoinRoom := wsUseCase.NewJoinRoomUseCase(hub)
 	useCaseGetRoomList := wsUseCase.NewGetRoomListUseCase(hub)
@@ -40,7 +40,8 @@ func InitPublicRoutes(app *fiber.App, config *config.Config) {
 		return ctx.Next()
 	})
 
-	grp.Post("/user/register", registerHandler.PostRegisterHandler(useCaseRegister))
+	grp.Post("/user/register", userHandler.PostRegisterHandler(useCaseUser))
+	grp.Get("/user/list", userHandler.GetUserListHandler(useCaseUser))
 	grp.Post("/ws/room/create", wsHandler.CreateRoomHandler(useCaseCreateRoom))
 	grp.Get("/ws/room/join/:roomId", websocket.New(wsHandler.JoinRoomHandler(useCaseJoinRoom)))
 	grp.Get("/ws/room/list", wsHandler.GetRoomListHandler(useCaseGetRoomList))

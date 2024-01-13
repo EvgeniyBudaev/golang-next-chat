@@ -7,4 +7,5 @@ import (
 
 type IIdentity interface {
 	CreateUser(ctx context.Context, user gocloak.User, password string, role string) (*gocloak.User, error)
+	GetUserList(ctx context.Context, query QueryParamsUserList) ([]*gocloak.User, error)
 }

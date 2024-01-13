@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/config"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/user"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -32,7 +33,7 @@ func (i *Identity) loginRestApiClient(ctx context.Context) (*gocloak.JWT, error)
 	token, err := client.LoginClient(ctx, i.ClientId, i.ClientSecret, i.Realm)
 	if err != nil {
 		logger.Log.Debug(
-			"error while identity.loginRestApiClient. Unable to login the rest client",
+			"error unable to login the rest client by path entity/identity/identity.go",
 			zap.Error(err))
 		return nil, errors.Wrap(err, "unable to login the rest client")
 	}
@@ -47,32 +48,53 @@ func (i *Identity) CreateUser(ctx context.Context, user gocloak.User, password s
 	client := gocloak.NewClient(i.BaseUrl)
 	isUniqueMobileNumber, err := i.validateMobileNumbers(ctx, (*user.Attributes)["mobileNumber"], token, client)
 	if err != nil {
+		logger.Log.Debug(
+			"error get users for validation mobile number is invalid by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, "get users for validation mobile number is invalid")
 	}
 	if !isUniqueMobileNumber {
+		logger.Log.Debug(
+			"error mobile number must be unique by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.New("mobile number must be unique")
 	}
 	userId, err := client.CreateUser(ctx, token.AccessToken, i.Realm, user)
 	if err != nil {
+		logger.Log.Debug(
+			"error unable to create the user by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, "unable to create the user")
 	}
 	err = client.SetPassword(ctx, token.AccessToken, userId, i.Realm, password, false)
 	if err != nil {
+		logger.Log.Debug(
+			"error unable to set the password for the user by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, "unable to set the password for the user")
 	}
 	var roleNameLowerCase = strings.ToLower(role)
 	roleKeycloak, err := client.GetRealmRole(ctx, token.AccessToken, i.Realm, roleNameLowerCase)
 	if err != nil {
+		logger.Log.Debug(
+			"error unable to get role by name by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, fmt.Sprintf("unable to get role by name: '%v'", roleNameLowerCase))
 	}
 	err = client.AddRealmRoleToUser(ctx, token.AccessToken, i.Realm, userId, []gocloak.Role{
 		*roleKeycloak,
 	})
 	if err != nil {
+		logger.Log.Debug(
+			"error unable to add a realm role to user by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, "unable to add a realm role to user")
 	}
 	userKeycloak, err := client.GetUserByID(ctx, token.AccessToken, i.Realm, userId)
 	if err != nil {
+		logger.Log.Debug(
+			"error unable to get recently created user by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, "unable to get recently created user")
 	}
 	return userKeycloak, nil
@@ -82,9 +104,26 @@ func (i *Identity) RetrospectToken(ctx context.Context, accessToken string) (*go
 	client := gocloak.NewClient(i.BaseUrl)
 	rptResult, err := client.RetrospectToken(ctx, accessToken, i.ClientId, i.ClientSecret, i.Realm)
 	if err != nil {
+		logger.Log.Debug(
+			"error unable to retrospect token by path entity/identity/identity.go",
+			zap.Error(err))
 		return nil, errors.Wrap(err, "unable to retrospect token")
 	}
 	return rptResult, nil
+}
+
+func (i *Identity) GetUserList(ctx context.Context, query user.QueryParamsUserList) ([]*gocloak.User, error) {
+	fmt.Println("[identity query] ", query.Search)
+	token, err := i.loginRestApiClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	client := gocloak.NewClient(i.BaseUrl)
+	users, err := client.GetUsers(ctx, token.AccessToken, i.Realm, gocloak.GetUsersParams{Search: &query.Search})
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 func (i *Identity) validateMobileNumbers(ctx context.Context, mobileNumberList []string, token *gocloak.JWT, client *gocloak.GoCloak) (bool, error) {
