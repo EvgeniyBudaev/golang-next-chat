@@ -11,12 +11,12 @@ import (
 	"net/http"
 )
 
-type IUserUseCase interface {
-	Register(ctx context.Context, request user.RegisterRequest) (*user.RegisterResponse, error)
+type UseCaseUser interface {
+	Register(ctx context.Context, request user.RegisterRequest) (*gocloak.User, error)
 	GetUserList(ctx context.Context, query user.QueryParamsUserList) ([]*gocloak.User, error)
 }
 
-func PostRegisterHandler(uc IUserUseCase) fiber.Handler {
+func PostRegisterHandler(uc UseCaseUser) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var ctx = c.UserContext()
 		logger.Log.Info("POST /api/v1/user/user")
@@ -35,7 +35,7 @@ func PostRegisterHandler(uc IUserUseCase) fiber.Handler {
 	}
 }
 
-func GetUserListHandler(uc IUserUseCase) fiber.Handler {
+func GetUserListHandler(uc UseCaseUser) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var ctx = c.UserContext()
 		logger.Log.Info("GET /api/v1/user/list")
