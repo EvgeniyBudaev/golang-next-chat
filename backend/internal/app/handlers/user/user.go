@@ -23,12 +23,14 @@ func PostRegisterHandler(uc UseCaseUser) fiber.Handler {
 		var request = user.RegisterRequest{}
 		err := c.BodyParser(&request)
 		if err != nil {
-			logger.Log.Debug("error while PostRegisterHandler. Error in BodyParser", zap.Error(err))
+			logger.Log.Debug("error func PostRegisterHandler, method BodyParser by path handlers/user/user.go",
+				zap.Error(err))
 			return r.WrapError(c, err, http.StatusBadRequest)
 		}
 		response, err := uc.Register(ctx, request)
 		if err != nil {
-			logger.Log.Debug("error while PostRegisterHandler. Error in Register", zap.Error(err))
+			logger.Log.Debug("error func PostRegisterHandler, method Register by path handlers/user/user.go",
+				zap.Error(err))
 			return r.WrapError(c, err, http.StatusBadRequest)
 		}
 		return r.WrapCreated(c, response)
@@ -41,12 +43,12 @@ func GetUserListHandler(uc UseCaseUser) fiber.Handler {
 		logger.Log.Info("GET /api/v1/user/list")
 		query := user.QueryParamsUserList{}
 		if err := c.QueryParser(&query); err != nil {
-			logger.Log.Debug("error while GetCatalogList. error in method QueryParser", zap.Error(err))
+			logger.Log.Debug("error func GetUserListHandler, method QueryParser", zap.Error(err))
 			return err
 		}
 		response, err := uc.GetUserList(ctx, query)
 		if err != nil {
-			logger.Log.Debug("error while PostRegisterHandler. Error in Register", zap.Error(err))
+			logger.Log.Debug("error func GetUserListHandler, method Register", zap.Error(err))
 			return r.WrapError(c, err, http.StatusBadRequest)
 		}
 		return r.WrapOk(c, response)

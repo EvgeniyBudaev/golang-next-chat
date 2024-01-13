@@ -20,15 +20,17 @@ type UseCaseRoom interface {
 
 func CreateRoomHandler(uc UseCaseRoom) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		logger.Log.Info("POST /api/v1/room/room/create")
+		logger.Log.Info("POST /api/v1/room/create")
 		req := wsUseCase.CreateRoomRequest{}
 		if err := ctx.BodyParser(&req); err != nil {
-			logger.Log.Debug("error in method ctx.BodyParse", zap.Error(err))
+			logger.Log.Debug("error func CreateRoomHandler, method ctx.BodyParse by path handlers/room/room.go",
+				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
 		response, err := uc.CreateRoom(ctx, req)
 		if err != nil {
-			logger.Log.Debug("error in method uc.CreateRoom", zap.Error(err))
+			logger.Log.Debug("error func CreateRoomHandler, method uc.CreateRoom by path handlers/room/room.go",
+				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
 		return r.WrapCreated(ctx, response)
@@ -40,7 +42,9 @@ func GetClientListHandler(uc UseCaseRoom) fiber.Handler {
 		logger.Log.Info("GET /api/v1/room/:roomId/client/list")
 		response, err := uc.GetClientList(ctx)
 		if err != nil {
-			logger.Log.Debug("error in method uc.GetClientList", zap.Error(err))
+			logger.Log.Debug(
+				"error func GetClientListHandler, method uc.GetClientList by path handlers/room/room.go",
+				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
 		return r.WrapOk(ctx, response)
@@ -49,10 +53,11 @@ func GetClientListHandler(uc UseCaseRoom) fiber.Handler {
 
 func GetRoomListHandler(uc UseCaseRoom) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		logger.Log.Info("GET /api/v1/room/room/list")
+		logger.Log.Info("GET /api/v1/room/list")
 		response, err := uc.GetRoomList(ctx)
 		if err != nil {
-			logger.Log.Debug("error in method uc.GetRoomList", zap.Error(err))
+			logger.Log.Debug("error func GetRoomListHandler, method uc.GetRoomList by path handlers/room/room.go",
+				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
 		return r.WrapOk(ctx, response)
@@ -61,7 +66,7 @@ func GetRoomListHandler(uc UseCaseRoom) fiber.Handler {
 
 func JoinRoomHandler(uc UseCaseRoom) func(c *websocket.Conn) {
 	return func(conn *websocket.Conn) {
-		logger.Log.Info("GET /api/v1/room/room/join/:roomId?username=user")
+		logger.Log.Info("GET /api/v1/room/join/:roomId?username=user")
 		uc.JoinRoom(conn)
 	}
 }

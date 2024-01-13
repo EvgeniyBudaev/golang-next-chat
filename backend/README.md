@@ -58,7 +58,7 @@ sudo rm migrate.list
 
 Создание миграционного репозитория
 ```
-migrate create -ext sql -dir migrations CatalogsCreationMigration
+migrate create -ext sql -dir migrations ProfilesCreationMigration
 ```
 
 Создание up sql файлов
@@ -74,7 +74,7 @@ migrate -path migrations -database "postgres://localhost:5432/familymart?sslmode
 
 Если ошибка Dirty database version 1. Fix and force version
 ```
-migrate create -ext sql -dir migrations UsersCreationMigration force 20231226053322
+migrate create -ext sql -dir migrations ProfilesCreationMigration force 20240113174734
 ```
 
 SQLx

@@ -38,7 +38,7 @@ func Start() error {
 		logger.Log.Debug("error in method sql.Open", zap.Error(err))
 		return err
 	}
-	db.NewDatabase(conn)
+	database := db.NewDatabase(conn)
 	err = conn.Ping()
 	if err != nil {
 		logger.Log.Debug("error in method conn.Ping", zap.Error(err))
@@ -51,6 +51,6 @@ func Start() error {
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
 	// Routes
-	middlewares.InitFiberMiddlewares(app, cfg, routes.InitPublicRoutes, routes.InitProtectedRoutes)
+	middlewares.InitFiberMiddlewares(app, cfg, database, routes.InitPublicRoutes, routes.InitProtectedRoutes)
 	return app.Listen(cfg.Port)
 }
