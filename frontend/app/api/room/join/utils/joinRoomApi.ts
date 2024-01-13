@@ -6,7 +6,7 @@ import { TRoomJoinParams, TRoomJoinResponse } from "@/app/api/room/join/types";
 export const joinRoomApi: TApiFunction<TRoomJoinParams, TRoomJoinResponse> = (
   params,
 ) => {
-  const url = `/api/v1/ws/room/join/${params.roomId}?userId=${params.userId}&username=${params.username}`;
+  const url = `/api/v1/room/join/${params.roomId}?userId=${params.userId}&username=${params.username}`;
   console.log("url: ", url);
   return fetchApi<TRoomJoinResponse>(url, {
     method: EFormMethods.Post,

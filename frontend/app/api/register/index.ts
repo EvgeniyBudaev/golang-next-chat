@@ -1,11 +1,11 @@
-import { signup } from "./domain";
-import { signupSchema, signupSchemaSchema } from "./schemas";
-import { TSignup, TSignupParams } from "./types";
+import { register } from "./domain";
+import { registerSchema, registerParamsSchema } from "./schemas";
+import { TRegister, TRegisterParams } from "./types";
 
 export {
-  signup,
-  signupSchemaSchema,
-  signupSchema,
-  type TSignup,
-  type TSignupParams,
+  register,
+  registerParamsSchema,
+  registerSchema,
+  type TRegister,
+  type TRegisterParams,
 };

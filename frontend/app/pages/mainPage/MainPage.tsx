@@ -24,7 +24,7 @@ export const MainPage: FC<TProps> = ({ roomList = [] }) => {
   //
   //   async function getUsers() {
   //     try {
-  //       const res = await fetch(`${API_URL}/ws/room/${roomId}/client/list`, {
+  //       const res = await fetch(`${API_URL}/room/room/${roomId}/client/list`, {
   //         method: "GET",
   //         headers: {"Content-Type": "application/json"},
   //       });

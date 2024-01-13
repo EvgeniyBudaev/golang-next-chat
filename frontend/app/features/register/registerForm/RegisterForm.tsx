@@ -24,7 +24,7 @@ export const RegisterForm: FC = () => {
   };
   const [state, formAction] = useFormState(registerAction, initialState);
   const { t } = useTranslation("index");
-  console.log("state: ", state);
+  console.log("RegisterForm state: ", state);
 
   useEffect(() => {
     if (state?.error) {

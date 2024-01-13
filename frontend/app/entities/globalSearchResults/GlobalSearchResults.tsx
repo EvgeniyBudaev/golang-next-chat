@@ -1,7 +1,7 @@
 "use client";
 
 import { type FC } from "react";
-import { TUserListItem } from "@/app/api/user/list/types";
+import { TUser } from "@/app/api/user/list/types";
 import { useTranslation } from "@/app/i18n/client";
 import { Avatar } from "@/app/uikit/components/avatar";
 import "./GlobalSearchResults.scss";
@@ -11,7 +11,7 @@ import {
 } from "@/app/uikit/components/typography";
 
 type TProps = {
-  userList: TUserListItem[];
+  userList: TUser[];
 };
 
 export const GlobalSearchResults: FC<TProps> = ({ userList }) => {

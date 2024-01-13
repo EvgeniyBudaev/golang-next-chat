@@ -12,6 +12,7 @@ import {
   createPath,
 } from "@/app/shared/utils";
 import { ERoutes } from "@/app/shared/enums";
+import { createRoom } from "@/app/api/room/create/domain";
 
 export async function registerAction(prevState: any, formData: FormData) {
   const resolver = signupFormSchema.safeParse(
@@ -34,14 +35,22 @@ export async function registerAction(prevState: any, formData: FormData) {
       mobileNumber: normalizePhoneNumber(resolver.data?.mobileNumber),
     };
     const mapperParams = mapRegisterToDto(formattedParams);
-    const response = await register(mapperParams);
+    const userResponse = await register(mapperParams);
+    if (userResponse.success) {
+      const roomName = `${userResponse.data.firstName} ${userResponse.data.lastName}`;
+      const roomDto = {
+        id: userResponse.data.id,
+        name: roomName,
+      };
+      await createRoom(roomDto);
+    }
     const path = createPath({
       route: ERoutes.Register,
     });
     revalidatePath(path);
 
     return {
-      data: response,
+      data: userResponse.data,
       error: undefined,
       errors: undefined,
       success: true,

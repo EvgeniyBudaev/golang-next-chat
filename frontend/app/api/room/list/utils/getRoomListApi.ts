@@ -6,7 +6,7 @@ export const getRoomListApi: TApiFunction<
   TRoomListParams,
   TRoomListResponse
 > = (params) => {
-  const url = `/api/v1/ws/room/list?${new URLSearchParams(params)}`;
+  const url = `/api/v1/room/list?${new URLSearchParams(params)}`;
   console.log("url: ", url);
   return fetchApi<TRoomListResponse>(url, {
     method: EFormMethods.Get,

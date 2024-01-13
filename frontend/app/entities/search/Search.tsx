@@ -13,7 +13,7 @@ import {
 } from "react";
 import { useFormState } from "react-dom";
 import { userGetListAction } from "@/app/actions/user/list/userGetListAction";
-import { TUserListItem } from "@/app/api/user/list/types";
+import { TUser } from "@/app/api/user/list/types";
 import { EFormFields } from "@/app/entities/search/enums";
 import { EFormMethods } from "@/app/shared/enums";
 import { Icon } from "@/app/uikit/components/icon";
@@ -22,7 +22,7 @@ import "./Search.scss";
 type TProps = {
   className?: string;
   onChangeInputValue?: (event: ChangeEvent<HTMLInputElement>) => void;
-  onChangeSearchState?: (userList: TUserListItem[]) => void;
+  onChangeSearchState?: (userList: TUser[]) => void;
 };
 
 export const Search: FC<TProps> = ({
@@ -44,7 +44,7 @@ export const Search: FC<TProps> = ({
 
   useEffect(() => {
     if (!state) return;
-    onChangeSearchState?.(state?.data as TUserListItem[]);
+    onChangeSearchState?.(state?.data as TUser[]);
   }, [onChangeSearchState, state]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,11 +80,7 @@ export const Search: FC<TProps> = ({
         Search__active: isActive,
       })}
     >
-      <form
-        action={formAction}
-        className="Search-Form"
-        method={EFormMethods.Post}
-      >
+      <form action={formAction} className="Search-Form">
         <Icon className="Search-Icon" type="Search" />
         <div className="Search-InputWrapper">
           <input

@@ -1,13 +1,13 @@
 package routes
 
 import (
+	wsHandler "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/handlers/room"
 	userHandler "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/handlers/user"
-	wsHandler "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/app/handlers/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/config"
 	identityEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/identity"
 	wsEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
+	wsUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/room"
 	userUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/user"
-	wsUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/ws"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,14 +25,11 @@ func InitPublicRoutes(app *fiber.App, config *config.Config) {
 	go hub.Run()
 	// useCase
 	useCaseUser := userUseCase.NewUserUseCase(identityManager)
-	useCaseCreateRoom := wsUseCase.NewCreateRoomUseCase(hub)
-	useCaseJoinRoom := wsUseCase.NewJoinRoomUseCase(hub)
-	useCaseGetRoomList := wsUseCase.NewGetRoomListUseCase(hub)
-	useCaseGetClientList := wsUseCase.NewGetClientListUseCase(hub)
+	useCaseRoom := wsUseCase.NewUseCaseRoom(hub)
 	// handlers
 	grp := app.Group(prefix)
 
-	app.Use("/ws/room/join/:roomId", func(ctx *fiber.Ctx) error {
+	app.Use("/room/room/join/:roomId", func(ctx *fiber.Ctx) error {
 		if !websocket.IsWebSocketUpgrade(ctx) {
 			return fiber.ErrUpgradeRequired
 		}
@@ -42,10 +39,10 @@ func InitPublicRoutes(app *fiber.App, config *config.Config) {
 
 	grp.Post("/user/register", userHandler.PostRegisterHandler(useCaseUser))
 	grp.Get("/user/list", userHandler.GetUserListHandler(useCaseUser))
-	grp.Post("/ws/room/create", wsHandler.CreateRoomHandler(useCaseCreateRoom))
-	grp.Get("/ws/room/join/:roomId", websocket.New(wsHandler.JoinRoomHandler(useCaseJoinRoom)))
-	grp.Get("/ws/room/list", wsHandler.GetRoomListHandler(useCaseGetRoomList))
-	grp.Get("/ws/room/:roomId/client/list", wsHandler.GetClientListHandler(useCaseGetClientList))
+	grp.Post("/room/create", wsHandler.CreateRoomHandler(useCaseRoom))
+	grp.Get("/room/join/:roomId", websocket.New(wsHandler.JoinRoomHandler(useCaseRoom)))
+	grp.Get("/room/list", wsHandler.GetRoomListHandler(useCaseRoom))
+	grp.Get("/room/:roomId/client/list", wsHandler.GetClientListHandler(useCaseRoom))
 }
 
 func InitProtectedRoutes(app *fiber.App, config *config.Config) {

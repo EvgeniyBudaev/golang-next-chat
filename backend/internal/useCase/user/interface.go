@@ -5,7 +5,7 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 )
 
-type IIdentity interface {
+type Identity interface {
 	CreateUser(ctx context.Context, user gocloak.User, password string, role string) (*gocloak.User, error)
 	GetUserList(ctx context.Context, query QueryParamsUserList) ([]*gocloak.User, error)
 }

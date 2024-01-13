@@ -10,7 +10,7 @@ export const createRoomApi: TApiFunction<
   TRoomCreateParams,
   TRoomCreateResponse
 > = (params) => {
-  const url = "/api/v1/ws/room/create";
+  const url = "/api/v1/room/create";
   console.log("url: ", url);
   return fetchApi<TRoomCreateResponse>(url, {
     method: EFormMethods.Post,
