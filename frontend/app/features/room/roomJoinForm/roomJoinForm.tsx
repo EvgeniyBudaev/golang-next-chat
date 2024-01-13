@@ -15,9 +15,15 @@ type TProps = {
 };
 
 export const RoomJoinForm: FC<TProps> = ({ room }) => {
+  const initialState = {
+    data: undefined,
+    error: undefined,
+    errors: undefined,
+    success: false,
+  };
   const { data: session, status } = useSessionNext();
   const { t } = useTranslation("index");
-  const [state, formAction] = useFormState(roomJoinAction, {});
+  const [state, formAction] = useFormState(roomJoinAction, initialState);
   const { setConn } = useContext(WebsocketContext);
 
   const joinRoom = (roomId: string) => {

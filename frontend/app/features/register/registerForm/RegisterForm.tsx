@@ -1,6 +1,7 @@
 "use client";
 
 import isNil from "lodash/isNil";
+import { redirect } from "next/navigation";
 import { type FC, useEffect } from "react";
 import { useFormState } from "react-dom";
 import { registerAction } from "@/app/actions/register/registerAction";
@@ -8,6 +9,8 @@ import { PhoneInputMask } from "@/app/entities/phoneInputMask";
 import { SubmitButton } from "@/app/entities/submitButton";
 import { EFormFields } from "@/app/features/register/registerForm/enums";
 import { useTranslation } from "@/app/i18n/client";
+import { ERoutes } from "@/app/shared/enums";
+import { createPath } from "@/app/shared/utils";
 import { Input } from "@/app/uikit/components/input";
 import { notify } from "@/app/uikit/components/toast/utils";
 import "./RegisterForm.scss";
@@ -29,6 +32,11 @@ export const RegisterForm: FC = () => {
     }
     if (!isNil(state.data) && state.success && !state?.error) {
       notify.success({ title: "Ok" });
+      return redirect(
+        createPath({
+          route: ERoutes.Login,
+        }),
+      );
     }
   }, [state]);
 

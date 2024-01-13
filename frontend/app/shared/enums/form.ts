@@ -1,7 +1,7 @@
 export enum EFormMethods {
-  Get = "get",
-  Post = "post",
-  Patch = "patch",
-  Put = "put",
-  Delete = "delete",
+  Get = "GET",
+  Post = "POST",
+  Patch = "PATCH",
+  Put = "PUT",
+  Delete = "DELETE",
 }

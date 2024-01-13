@@ -7,8 +7,14 @@ import { useTranslation } from "@/app/i18n/client";
 import { EFormFields } from "@/app/features/room/roomCreateForm/enums";
 
 export const RoomCreateForm: FC = () => {
+  const initialState = {
+    data: undefined,
+    error: undefined,
+    errors: undefined,
+    success: false,
+  };
   const { t } = useTranslation("index");
-  const [state, formAction] = useFormState(roomCreateAction, {});
+  const [state, formAction] = useFormState(roomCreateAction, initialState);
   const [roomName, setRoomName] = useState("");
 
   return (

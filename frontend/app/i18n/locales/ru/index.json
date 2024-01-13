@@ -5,6 +5,9 @@
       "unexpectedError": "Произошла непредвиденная ошибка"
     }
   },
+  "globalSearchResults": {
+    "title": "Глобальный результат поиска"
+  },
   "pages": {
     "login": {
       "keycloak": "Начать общаться",

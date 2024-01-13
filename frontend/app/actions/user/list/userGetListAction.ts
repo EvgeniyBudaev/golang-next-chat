@@ -1,20 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { signupFormSchema } from "@/app/actions/register/schemas";
-import { register } from "@/app/api/register/domain";
-import { mapRegisterToDto } from "@/app/api/register/utils";
+import { ERoutes } from "@/app/shared/enums";
 import { TCommonResponseError } from "@/app/shared/types/error";
 import {
-  getResponseError,
-  getErrorsResolver,
-  normalizePhoneNumber,
   createPath,
+  getErrorsResolver,
+  getResponseError,
 } from "@/app/shared/utils";
-import { ERoutes } from "@/app/shared/enums";
+import { userGetListFormSchema } from "@/app/actions/user/list/schemas";
+import { getUserList } from "@/app/api/user/list/domain";
+import { mapParamsToDto } from "@/app/api/user/list/utils";
 
-export async function registerAction(prevState: any, formData: FormData) {
-  const resolver = signupFormSchema.safeParse(
+export async function userGetListAction(prevState: any, formData: FormData) {
+  console.log("[userGetListAction] ", userGetListAction);
+  const resolver = userGetListFormSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
 
@@ -31,17 +31,16 @@ export async function registerAction(prevState: any, formData: FormData) {
   try {
     const formattedParams = {
       ...resolver.data,
-      mobileNumber: normalizePhoneNumber(resolver.data?.mobileNumber),
     };
-    const mapperParams = mapRegisterToDto(formattedParams);
-    const response = await register(mapperParams);
+    const paramsToDto = mapParamsToDto(formattedParams);
+    const response = await getUserList(paramsToDto);
     const path = createPath({
-      route: ERoutes.Register,
+      route: ERoutes.Root,
     });
     revalidatePath(path);
 
     return {
-      data: response,
+      data: response.data,
       error: undefined,
       errors: undefined,
       success: true,

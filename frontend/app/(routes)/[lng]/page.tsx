@@ -11,7 +11,11 @@ import { createPath } from "@/app/shared/utils";
 async function loader() {
   const session = await getServerSession(authOptions);
   if (!session) {
-    return { isSession: false, roomList: undefined };
+    return redirect(
+      createPath({
+        route: ERoutes.Login,
+      }),
+    );
   }
   try {
     const [roomListResponse] = await Promise.all([getRoomList({})]);
@@ -31,12 +35,5 @@ export default async function MainRoute(props: TProps) {
   const { lng } = params;
   const [{ t }] = await Promise.all([useTranslation(lng, "index")]);
   const data = await loader();
-  if (!data.isSession) {
-    return redirect(
-      createPath({
-        route: ERoutes.Login,
-      }),
-    );
-  }
   return <MainPage roomList={data.roomList ?? []} />;
 }

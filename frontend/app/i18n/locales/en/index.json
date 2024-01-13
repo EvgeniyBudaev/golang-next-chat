@@ -5,6 +5,9 @@
       "unexpectedError": "Unexpected error"
     }
   },
+  "globalSearchResults": {
+    "title": "Global search results"
+  },
   "pages": {
     "login": {
       "keycloak": "Start messaging",
