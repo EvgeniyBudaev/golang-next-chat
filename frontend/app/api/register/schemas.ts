@@ -10,7 +10,7 @@ export const registerParamsSchema = z.object({
   userName: z.string(),
 });
 
-export const registerSchema = z.object({
+export const registerResponseSchema = z.object({
   data: userListItemSchema,
   message: z.string().optional(),
   statusCode: z.number(),

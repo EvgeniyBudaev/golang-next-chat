@@ -13,6 +13,10 @@ import {
 } from "@/app/shared/utils";
 import { ERoutes } from "@/app/shared/enums";
 import { createRoom } from "@/app/api/room/create/domain";
+import {
+  createProfile,
+  type TProfileCreateParams,
+} from "@/app/api/profile/create";
 
 export async function registerAction(prevState: any, formData: FormData) {
   const resolver = signupFormSchema.safeParse(
@@ -37,6 +41,9 @@ export async function registerAction(prevState: any, formData: FormData) {
     const mapperParams = mapRegisterToDto(formattedParams);
     const userResponse = await register(mapperParams);
     if (userResponse.success) {
+      const profileFormData = new FormData();
+      profileFormData.append("userId", userResponse.data.id);
+      await createProfile(profileFormData as unknown as TProfileCreateParams);
       const roomName = `${userResponse.data.firstName} ${userResponse.data.lastName}`;
       const roomDto = {
         id: userResponse.data.id,

@@ -1,11 +1,12 @@
 import { register } from "./domain";
-import { registerSchema, registerParamsSchema } from "./schemas";
-import { TRegister, TRegisterParams } from "./types";
+import { registerResponseSchema, registerParamsSchema } from "./schemas";
+import { TRegister, TRegisterParams, TRegisterResponse } from "./types";
 
 export {
   register,
   registerParamsSchema,
-  registerSchema,
+  registerResponseSchema,
   type TRegister,
+  type TRegisterResponse,
   type TRegisterParams,
 };
