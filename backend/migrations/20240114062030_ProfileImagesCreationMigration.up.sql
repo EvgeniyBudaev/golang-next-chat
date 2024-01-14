@@ -1,7 +1,7 @@
 CREATE TABLE profile_images (
-                                id bigserial NOT NULL PRIMARY KEY,
-                                profile_id bigint NOT NULL,
-                                uuid uuid NOT NULL UNIQUE,
+                                id BIGSERIAL NOT NULL PRIMARY KEY,
+                                profile_id BIGINT NOT NULL,
+                                uuid UUID NOT NULL UNIQUE,
                                 name VARCHAR NOT NULL,
                                 url VARCHAR NOT NULL,
                                 size INTEGER NOT NULL,

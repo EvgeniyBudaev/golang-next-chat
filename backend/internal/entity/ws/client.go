@@ -1,28 +1,30 @@
 package ws
 
 import (
-	"log"
-
+	"fmt"
 	"github.com/gofiber/contrib/websocket"
+	"log"
 )
 
 type Client struct {
-	ID       string `json:"id"`
-	RoomID   string `json:"roomId"`
+	ID       int64  `json:"id"`
+	RoomID   int64  `json:"roomId"`
+	UserID   string `json:"userId"`
 	Username string `json:"username"`
 	Conn     *websocket.Conn
 	Message  chan *Message
 }
 
 type ClientResponse struct {
-	ID       string `json:"id"`
+	ID       int64  `json:"id"`
 	Username string `json:"username"`
 }
 
 type Message struct {
+	ID       int64  `json:"id"`
+	RoomID   int64  `json:"roomId"`
+	ClientID int64  `json:"clientId"`
 	Content  string `json:"content"`
-	RoomID   string `json:"roomId"`
-	Username string `json:"username"`
 }
 
 func (c *Client) WriteMessage() {
@@ -30,6 +32,7 @@ func (c *Client) WriteMessage() {
 		c.Conn.Close()
 	}()
 	for {
+		fmt.Println("[WriteMessage c] ", c)
 		message, ok := <-c.Message
 		if !ok {
 			return
@@ -41,11 +44,12 @@ func (c *Client) WriteMessage() {
 
 func (c *Client) ReadMessage(h *Hub) {
 	defer func() {
-		h.Unregister <- c
+		//h.Unregister <- c
 		c.Conn.Close()
 	}()
 	for {
 		_, m, err := c.Conn.ReadMessage()
+		fmt.Println("[ReadMessage m] ", string(m))
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -53,9 +57,10 @@ func (c *Client) ReadMessage(h *Hub) {
 			break
 		}
 		msg := &Message{
-			Content:  string(m),
+			ID:       c.ID,
 			RoomID:   c.RoomID,
-			Username: c.Username,
+			ClientID: c.ID,
+			Content:  string(m),
 		}
 		h.Broadcast <- msg
 	}

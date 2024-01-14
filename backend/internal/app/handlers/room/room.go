@@ -23,13 +23,15 @@ func CreateRoomHandler(uc UseCaseRoom) fiber.Handler {
 		logger.Log.Info("POST /api/v1/room/create")
 		req := wsUseCase.CreateRoomRequest{}
 		if err := ctx.BodyParser(&req); err != nil {
-			logger.Log.Debug("error func CreateRoomHandler, method ctx.BodyParse by path handlers/room/room.go",
+			logger.Log.Debug("error func CreateRoomHandler,"+
+				" method ctx.BodyParse by path internal/handlers/room/room.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
 		response, err := uc.CreateRoom(ctx, req)
 		if err != nil {
-			logger.Log.Debug("error func CreateRoomHandler, method uc.CreateRoom by path handlers/room/room.go",
+			logger.Log.Debug("error func CreateRoomHandler,"+
+				" method uc.CreateRoom by path internal/handlers/room/room.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
@@ -43,7 +45,8 @@ func GetClientListHandler(uc UseCaseRoom) fiber.Handler {
 		response, err := uc.GetClientList(ctx)
 		if err != nil {
 			logger.Log.Debug(
-				"error func GetClientListHandler, method uc.GetClientList by path handlers/room/room.go",
+				"error func GetClientListHandler,"+
+					" method uc.GetClientList by path internal/handlers/room/room.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
@@ -56,7 +59,8 @@ func GetRoomListHandler(uc UseCaseRoom) fiber.Handler {
 		logger.Log.Info("GET /api/v1/room/list")
 		response, err := uc.GetRoomList(ctx)
 		if err != nil {
-			logger.Log.Debug("error func GetRoomListHandler, method uc.GetRoomList by path handlers/room/room.go",
+			logger.Log.Debug("error func GetRoomListHandler,"+
+				" method uc.GetRoomList by path internal/handlers/room/room.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}

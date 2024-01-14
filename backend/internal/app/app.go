@@ -21,12 +21,12 @@ func Start() error {
 	// Config
 	cfg, err := config.Load()
 	if err != nil {
-		logger.Log.Debug("error in method config.Load", zap.Error(err))
+		logger.Log.Debug("error func Start, method Load by path internal/app/app.go", zap.Error(err))
 		return err
 	}
 	// Logging
 	if err := logger.Initialize(cfg.LoggerLevel); err != nil {
-		logger.Log.Debug("error in method logger.Initialize", zap.Error(err))
+		logger.Log.Debug("error func Start, method Initialize by path internal/app/app.go", zap.Error(err))
 		return err
 	}
 	// Database
@@ -35,13 +35,13 @@ func Start() error {
 		cfg.DBSSlMode)
 	conn, err := sql.Open("postgres", databaseURL)
 	if err != nil {
-		logger.Log.Debug("error in method sql.Open", zap.Error(err))
+		logger.Log.Debug("error func Start, method Open by path internal/app/app.go", zap.Error(err))
 		return err
 	}
 	database := db.NewDatabase(conn)
 	err = conn.Ping()
 	if err != nil {
-		logger.Log.Debug("error in method conn.Ping", zap.Error(err))
+		logger.Log.Debug("error func Start, method Ping by path internal/app/app.go", zap.Error(err))
 		return err
 	}
 	// CORS
