@@ -2,8 +2,9 @@ package ws
 
 import (
 	"fmt"
-	"github.com/gofiber/contrib/websocket"
 	"log"
+
+	"github.com/gofiber/contrib/websocket"
 )
 
 type Client struct {
@@ -44,7 +45,7 @@ func (c *Client) WriteMessage() {
 
 func (c *Client) ReadMessage(h *Hub) {
 	defer func() {
-		//h.Unregister <- c
+		h.Unregister <- c
 		c.Conn.Close()
 	}()
 	for {

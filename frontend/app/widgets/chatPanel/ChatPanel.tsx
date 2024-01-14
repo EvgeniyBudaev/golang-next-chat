@@ -29,7 +29,7 @@ export const ChatPanel: FC = () => {
       return;
     }
 
-    conn.onmessage = (message) => {
+    conn.addEventListener("message", message => {
       console.log("ChatPanel conn.onmessage: ", message);
       const m: TMessage = JSON.parse(message.data);
       if (m.content == "A new user has joined the room") {
@@ -52,7 +52,7 @@ export const ChatPanel: FC = () => {
         ? (m.type = "self")
         : (m.type = "recv");
       setMessageList([...messageList, m]);
-    };
+    })
 
     conn.onclose = () => {};
     conn.onerror = () => {};

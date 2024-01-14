@@ -2,13 +2,14 @@ package room
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/db/room"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
-	"strconv"
 )
 
 type UseCaseRoom struct {
@@ -32,28 +33,33 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 		select {
 		case cl := <-uc.hub.Register:
 			fmt.Println("hub Register: ", cl)
-			//if _, ok := h.Rooms[cl.RoomID]; ok {
-			//	r := h.Rooms[cl.RoomID]
-			//
-			//	if _, ok := r.Clients[cl.ID]; !ok {
-			//		r.Clients[cl.ID] = cl
-			//	}
-			//}
+
+			uc.hub.Clients[cl.RoomID] = append(uc.hub.Clients[cl.RoomID], cl)
+
+			uc.hub.Broadcast <- &ws.Message{
+				RoomID:   cl.RoomID,
+				ClientID: 0,
+				Content:  "A new user has joined the room",
+			}
+
 		case cl := <-uc.hub.Unregister:
 			fmt.Println("hub Unregister: ", cl)
-			//if _, ok := h.Rooms[cl.RoomID]; ok {
-			//	if _, ok := h.Rooms[cl.RoomID].Clients[cl.ID]; ok {
-			//		if len(h.Rooms[cl.RoomID].Clients) != 0 {
-			//			h.Broadcast <- &Message{
-			//				RoomID:   cl.RoomID,
-			//				ClientID: cl.ID,
-			//				Content:  "user left the chat",
-			//			}
-			//		}
-			//		delete(h.Rooms[cl.RoomID].Clients, cl.ID)
-			//		close(cl.Message)
-			//	}
-			//}
+
+			if _, ok := uc.hub.Clients[cl.RoomID]; ok {
+				for i, c := range uc.hub.Clients[cl.RoomID] {
+					if c == cl {
+						uc.hub.Clients[cl.RoomID] = append(uc.hub.Clients[cl.RoomID][:i], uc.hub.Clients[cl.RoomID][i+1:]...)
+						break
+					}
+				}
+			}
+
+			uc.hub.Broadcast <- &ws.Message{
+				RoomID:   cl.RoomID,
+				ClientID: 0,
+				Content:  "user left the chat",
+			}
+
 		case m := <-uc.hub.Broadcast:
 			fmt.Println("hub Broadcast: ", m)
 			clientList, err := uc.db.SelectClientList()
@@ -69,12 +75,12 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 				}
 				fmt.Println("item: ", item)
 			}
-			//if _, ok := h.Rooms[m.RoomID]; ok {
-			//
-			//	for _, cl := range h.Rooms[m.RoomID].Clients {
-			//		cl.Message <- m
-			//	}
-			//}
+
+			if _, ok := uc.hub.Clients[m.RoomID]; ok {
+				for _, cl := range uc.hub.Clients[m.RoomID] {
+					cl.Message <- m
+				}
+			}
 		}
 	}
 }
@@ -158,21 +164,17 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 		Conn:     conn,
 		Message:  make(chan *ws.Message),
 	}
+
 	// Register a new client through the user channel
-	newClient, err := uc.db.AddClient(cl)
-	if err != nil {
-		logger.Log.Debug("error func JoinRoom, method AddClient by path internal/useCase/room/room.go",
-			zap.Error(err))
-	}
-	m := &ws.Message{
-		RoomID:   roomId,
-		ClientID: newClient.ID,
-		Content:  "A new user has joined the room",
-	}
-	//uc.hub.Register <- cl
-	// Broadcast that message
-	uc.hub.Broadcast <- m
+	// newClient, err := uc.db.AddClient(cl)
+	// if err != nil {
+	// 	logger.Log.Debug("error func JoinRoom, method AddClient by path internal/useCase/room/room.go",
+	// 		zap.Error(err))
+	// }
+
+	uc.hub.Register <- cl
 	go cl.WriteMessage()
 	cl.ReadMessage(uc.hub)
-	return newClient.Username
+
+	return ""
 }

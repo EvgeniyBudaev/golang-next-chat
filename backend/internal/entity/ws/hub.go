@@ -16,7 +16,7 @@ type QueryParamsJoinRoom struct {
 }
 
 type Hub struct {
-	Rooms      map[string]*Room
+	Clients    map[int64][]*Client
 	Register   chan *Client
 	Unregister chan *Client
 	Broadcast  chan *Message
@@ -24,7 +24,7 @@ type Hub struct {
 
 func NewHub() *Hub {
 	return &Hub{
-		Rooms:      make(map[string]*Room),
+		Clients:    make(map[int64][]*Client),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 		Broadcast:  make(chan *Message, 5),

@@ -9,6 +9,7 @@ import { EFormFields } from "@/app/features/room/roomJoinForm/enums";
 import { WEBSOCKET_URL } from "@/app/shared/constants";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { useSessionNext } from "@/app/shared/hooks";
+import { BufferedWebSocket } from "@/app/shared/utils/bufferedWebSocket";
 
 type TProps = {
   room: TRoomListItem;
@@ -27,7 +28,7 @@ export const RoomJoinForm: FC<TProps> = ({ room }) => {
   const { setConn } = useContext(WebsocketContext);
 
   const joinRoom = (roomId: string) => {
-    const ws = new WebSocket(
+    const ws = new BufferedWebSocket(
       `${WEBSOCKET_URL}/room/join/${roomId}?userId=${session?.user?.id}&username=${session?.user?.username}`,
     );
     if (ws.OPEN) {
