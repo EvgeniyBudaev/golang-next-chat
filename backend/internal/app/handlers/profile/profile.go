@@ -27,10 +27,26 @@ func (h *HandlerProfile) CreateProfileHandler() fiber.Handler {
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
-		response, err := h.uc.Create()
+		response, err := h.uc.CreateProfile(ctx, req)
 		if err != nil {
 			logger.Log.Debug(
-				"error func CreateProfileHandler, method uc.CreateRoom by path handlers/profile/profile.go",
+				"error func CreateProfileHandler, method uc.CreateRoom by path"+
+					" internal/handlers/profile/profile.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		return r.WrapCreated(ctx, response)
+	}
+}
+
+func (h *HandlerProfile) GetProfileByUUIDHandler() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		logger.Log.Info("GET /api/v1/profile/uuid/:uuid")
+		response, err := h.uc.GetProfileByUUID(ctx)
+		if err != nil {
+			logger.Log.Debug(
+				"error func GetProfileByUUIDHandler, method GetProfileByUUID by path"+
+					" internal/handlers/profile/profile.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
