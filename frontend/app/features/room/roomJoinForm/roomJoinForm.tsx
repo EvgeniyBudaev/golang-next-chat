@@ -28,7 +28,7 @@ export const RoomJoinForm: FC<TProps> = ({ room }) => {
 
   const joinRoom = (roomId: string) => {
     const ws = new WebSocket(
-      `${WEBSOCKET_URL}/ws/room/join/${roomId}?userId=${session?.user?.id}&username=${session?.user?.username}`,
+      `${WEBSOCKET_URL}/room/join/${roomId}?userId=${session?.user?.id}&username=${session?.user?.username}`,
     );
     if (ws.OPEN) {
       setConn(ws);

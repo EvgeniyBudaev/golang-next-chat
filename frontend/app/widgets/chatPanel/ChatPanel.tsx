@@ -11,12 +11,13 @@ import "./ChatPanel.scss";
 
 export const ChatPanel: FC = () => {
   const { data: session, status } = useSessionNext();
-  console.log("session: ", session);
+  console.log("ChatPanel session: ", session);
   const [messageList, setMessageList] = useState<TMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { conn } = useContext(WebsocketContext);
   const [users, setUsers] = useState<Array<{ username: string }>>([]);
-  console.log("messageList: ", messageList);
+  console.log("ChatPanel messageList: ", messageList);
+  console.log("ChatPanel conn: ", conn);
 
   useEffect(() => {
     // if (textarea.current) {
@@ -29,7 +30,7 @@ export const ChatPanel: FC = () => {
     }
 
     conn.onmessage = (message) => {
-      console.log("conn.onmessage: ", message);
+      console.log("ChatPanel conn.onmessage: ", message);
       const m: TMessage = JSON.parse(message.data);
       if (m.content == "A new user has joined the room") {
         setUsers([...users, { username: m.username }]);
@@ -42,8 +43,11 @@ export const ChatPanel: FC = () => {
         return;
       }
 
-      console.log("session?.user?.username: ", session?.user?.username);
-      console.log("m.username: ", m.username);
+      console.log(
+        "ChatPanel session?.user?.username: ",
+        session?.user?.username,
+      );
+      console.log("ChatPanel m.username: ", m.username);
       session?.user?.username === m.username
         ? (m.type = "self")
         : (m.type = "recv");
@@ -56,21 +60,16 @@ export const ChatPanel: FC = () => {
   }, [textareaRef, messageList, conn, users]);
 
   const sendMessage = () => {
-    console.log("sendMessage");
-    console.log("textareaRef", textareaRef.current?.value);
     if (!textareaRef.current?.value) return;
     if (conn === null) {
-      console.log("conn === null", conn);
       // router.push("/");
       return;
     }
 
     if ("value" in textareaRef.current) {
-      console.log("textareaRef_1", textareaRef.current.value);
       conn.send(textareaRef.current.value);
     }
     if ("value" in textareaRef.current) {
-      console.log("textareaRef_2", textareaRef.current.value);
       textareaRef.current.value = "";
     }
   };
