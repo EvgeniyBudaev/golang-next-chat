@@ -22,10 +22,10 @@ type ClientResponse struct {
 }
 
 type Message struct {
-	ID       int64  `json:"id"`
-	RoomID   int64  `json:"roomId"`
-	ClientID int64  `json:"clientId"`
-	Content  string `json:"content"`
+	ID      int64  `json:"id"`
+	RoomID  int64  `json:"roomId"`
+	UserID  string `json:"userId"`
+	Content string `json:"content"`
 }
 
 func (c *Client) WriteMessage() {
@@ -33,12 +33,11 @@ func (c *Client) WriteMessage() {
 		c.Conn.Close()
 	}()
 	for {
-		fmt.Println("[WriteMessage c] ", c)
 		message, ok := <-c.Message
+		fmt.Println("[WriteMessage message] ", message)
 		if !ok {
 			return
 		}
-
 		c.Conn.WriteJSON(message)
 	}
 }
@@ -58,10 +57,10 @@ func (c *Client) ReadMessage(h *Hub) {
 			break
 		}
 		msg := &Message{
-			ID:       c.ID,
-			RoomID:   c.RoomID,
-			ClientID: c.ID,
-			Content:  string(m),
+			ID:      c.ID,
+			RoomID:  c.RoomID,
+			UserID:  c.UserID,
+			Content: string(m),
 		}
 		h.Broadcast <- msg
 	}

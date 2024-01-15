@@ -33,18 +33,15 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 		select {
 		case cl := <-uc.hub.Register:
 			fmt.Println("hub Register: ", cl)
-
 			uc.hub.Clients[cl.RoomID] = append(uc.hub.Clients[cl.RoomID], cl)
-
 			uc.hub.Broadcast <- &ws.Message{
-				RoomID:   cl.RoomID,
-				ClientID: 0,
-				Content:  "A new user has joined the room",
+				RoomID:  cl.RoomID,
+				UserID:  cl.UserID,
+				Content: "A new user has joined the room",
 			}
 
 		case cl := <-uc.hub.Unregister:
 			fmt.Println("hub Unregister: ", cl)
-
 			if _, ok := uc.hub.Clients[cl.RoomID]; ok {
 				for i, c := range uc.hub.Clients[cl.RoomID] {
 					if c == cl {
@@ -53,29 +50,19 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 					}
 				}
 			}
-
 			uc.hub.Broadcast <- &ws.Message{
-				RoomID:   cl.RoomID,
-				ClientID: 0,
-				Content:  "user left the chat",
+				RoomID:  cl.RoomID,
+				UserID:  cl.UserID,
+				Content: "user left the chat",
 			}
 
 		case m := <-uc.hub.Broadcast:
 			fmt.Println("hub Broadcast: ", m)
-			clientList, err := uc.db.SelectClientList()
+			_, err := uc.db.AddMessage(m)
 			if err != nil {
-				logger.Log.Debug("error func Run, method SelectClientList by path internal/useCase/room/room.go",
+				logger.Log.Debug("error func Run, method AddMessage by path internal/useCase/room/room.go",
 					zap.Error(err))
 			}
-			for _, item := range clientList {
-				_, err := uc.db.AddMessage(m)
-				if err != nil {
-					logger.Log.Debug("error func Run, method SelectClientList by path internal/useCase/room/room.go",
-						zap.Error(err))
-				}
-				fmt.Println("item: ", item)
-			}
-
 			if _, ok := uc.hub.Clients[m.RoomID]; ok {
 				for _, cl := range uc.hub.Clients[m.RoomID] {
 					cl.Message <- m
@@ -120,7 +107,7 @@ func (uc *UseCaseRoom) GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomResponse, error) {
 	return response, nil
 }
 
-func (uc *UseCaseRoom) GetClientList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error) {
+func (uc *UseCaseRoom) GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error) {
 	roomIdStr := ctx.Params("roomId")
 	roomId, err := strconv.ParseInt(roomIdStr, 10, 64)
 	if err != nil {
@@ -129,7 +116,7 @@ func (uc *UseCaseRoom) GetClientList(ctx *fiber.Ctx) ([]*ws.ClientResponse, erro
 		return nil, err
 	}
 	fmt.Println("roomId: ", roomId)
-	clientList, err := uc.db.SelectClientList()
+	clientList, err := uc.db.SelectUserList()
 	if err != nil {
 		logger.Log.Debug("error func GetRoomList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -156,7 +143,6 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 	}
 	userId := conn.Query("userId")
 	username := conn.Query("username")
-
 	cl := &ws.Client{
 		RoomID:   roomId,
 		UserID:   userId,
@@ -164,17 +150,14 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 		Conn:     conn,
 		Message:  make(chan *ws.Message),
 	}
-
-	// Register a new client through the user channel
-	// newClient, err := uc.db.AddClient(cl)
-	// if err != nil {
-	// 	logger.Log.Debug("error func JoinRoom, method AddClient by path internal/useCase/room/room.go",
-	// 		zap.Error(err))
-	// }
-
+	newUser, err := uc.db.AddUser(cl)
+	fmt.Println(newUser)
+	if err != nil {
+		logger.Log.Debug("error func JoinRoom, method AddClient by path internal/useCase/room/room.go",
+			zap.Error(err))
+	}
 	uc.hub.Register <- cl
 	go cl.WriteMessage()
 	cl.ReadMessage(uc.hub)
-
 	return ""
 }

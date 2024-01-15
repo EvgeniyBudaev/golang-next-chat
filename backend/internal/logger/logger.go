@@ -9,7 +9,7 @@ func Initialize(level string) error {
 	if err != nil {
 		return err
 	}
-	cfg := zap.NewProductionConfig()
+	cfg := zap.NewDevelopmentConfig()
 	cfg.Level = lvl
 	zl, err := cfg.Build()
 	if err != nil {

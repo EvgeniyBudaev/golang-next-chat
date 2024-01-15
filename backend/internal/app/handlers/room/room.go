@@ -13,7 +13,7 @@ import (
 
 type UseCaseRoom interface {
 	CreateRoom(ctx *fiber.Ctx, r wsUseCase.CreateRoomRequest) (*ws.RoomResponse, error)
-	GetClientList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
+	GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 	GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomResponse, error)
 	JoinRoom(conn *websocket.Conn) string
 }
@@ -39,14 +39,14 @@ func CreateRoomHandler(uc UseCaseRoom) fiber.Handler {
 	}
 }
 
-func GetClientListHandler(uc UseCaseRoom) fiber.Handler {
+func GetUserListHandler(uc UseCaseRoom) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		logger.Log.Info("GET /api/v1/room/:roomId/client/list")
-		response, err := uc.GetClientList(ctx)
+		response, err := uc.GetUserList(ctx)
 		if err != nil {
 			logger.Log.Debug(
-				"error func GetClientListHandler,"+
-					" method uc.GetClientList by path internal/handlers/room/room.go",
+				"error func GetUserListHandler,"+
+					" method uc.GetUserList by path internal/handlers/room/room.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}

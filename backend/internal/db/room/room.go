@@ -15,8 +15,8 @@ import (
 type DBRoom interface {
 	Create(cf *fiber.Ctx, p *ws.Room) (*ws.Room, error)
 	SelectRoomList(cf *fiber.Ctx) ([]*ws.Room, error)
-	AddClient(c *ws.Client) (*ws.Client, error)
-	SelectClientList() ([]*ws.Client, error)
+	AddUser(c *ws.Client) (*ws.Client, error)
+	SelectUserList() ([]*ws.Client, error)
 	AddMessage(m *ws.Message) (*ws.Message, error)
 }
 
@@ -73,19 +73,19 @@ func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx) ([]*ws.Room, error) {
 	return list, nil
 }
 
-func (pg *PGRoomDB) AddClient(c *ws.Client) (*ws.Client, error) {
+func (pg *PGRoomDB) AddUser(c *ws.Client) (*ws.Client, error) {
 	//ctx := cf.Context()
 	ctx := context.Background()
 	tx, err := pg.db.BeginTx(ctx, nil)
 	if err != nil {
-		logger.Log.Debug("error func AddClient, method Begin by path internal/db/room/room.go", zap.Error(err))
+		logger.Log.Debug("error func AddUser, method Begin by path internal/db/room/room.go", zap.Error(err))
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO room_clients (room_id, user_id, username) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, c.RoomID, c.UserID, c.Username).Scan(&c.ID)
+	query := "INSERT INTO room_users (room_id, user_id) VALUES ($1, $2) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, c.RoomID, c.UserID).Scan(&c.ID)
 	if err != nil {
-		logger.Log.Debug("error func AddClient, method QueryRowContext by path internal/db/room/room.go",
+		logger.Log.Debug("error func AddUser, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
 		msg := errors.Wrap(err, "bad request")
 		err = errorEntity.NewCustomError(msg, http.StatusBadRequest)
@@ -95,13 +95,13 @@ func (pg *PGRoomDB) AddClient(c *ws.Client) (*ws.Client, error) {
 	return c, nil
 }
 
-func (pg *PGRoomDB) SelectClientList() ([]*ws.Client, error) {
+func (pg *PGRoomDB) SelectUserList() ([]*ws.Client, error) {
 	//ctx := cf.Context()
 	ctx := context.Background()
-	query := `SELECT id, room_id, user_id, username FROM room_clients`
+	query := `SELECT id, room_id, user_id FROM room_users`
 	rows, err := pg.db.QueryContext(ctx, query)
 	if err != nil {
-		logger.Log.Debug("error func SelectClientList, method QueryContext by path internal/db/room/room.go",
+		logger.Log.Debug("error func SelectUserList, method QueryContext by path internal/db/room/room.go",
 			zap.Error(err))
 		return nil, err
 	}
@@ -109,9 +109,9 @@ func (pg *PGRoomDB) SelectClientList() ([]*ws.Client, error) {
 	list := make([]*ws.Client, 0)
 	for rows.Next() {
 		data := ws.Client{}
-		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Username)
+		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID)
 		if err != nil {
-			logger.Log.Debug("error func SelectClientList, method Scan by path internal/db/room/room.go",
+			logger.Log.Debug("error func SelectUserList, method Scan by path internal/db/room/room.go",
 				zap.Error(err))
 			continue
 		}
@@ -129,8 +129,8 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO room_client_messages (room_id, client_id, content) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, m.RoomID, m.ClientID, m.Content).Scan(&m.ID)
+	query := "INSERT INTO room_messages (room_id, user_id, content) VALUES ($1, $2, $3) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, m.RoomID, m.UserID, m.Content).Scan(&m.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddMessage, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
