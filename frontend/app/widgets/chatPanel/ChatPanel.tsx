@@ -15,7 +15,7 @@ export const ChatPanel: FC = () => {
   const [messageList, setMessageList] = useState<TMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { conn } = useContext(WebsocketContext);
-  const [users, setUsers] = useState<Array<{ username: string }>>([]);
+  const [users, setUsers] = useState<Array<{ userId: string }>>([]);
   console.log("ChatPanel messageList: ", messageList);
   console.log("ChatPanel conn: ", conn);
 
@@ -29,30 +29,25 @@ export const ChatPanel: FC = () => {
       return;
     }
 
-    conn.addEventListener("message", message => {
+    conn.addEventListener("message", (message) => {
       console.log("ChatPanel conn.onmessage: ", message);
       const m: TMessage = JSON.parse(message.data);
       if (m.content == "A new user has joined the room") {
-        setUsers([...users, { username: m.username }]);
+        setUsers([...users, { userId: m.userId }]);
       }
 
       if (m.content == "user left the chat") {
-        const deleteUser = users.filter((user) => user.username != m.username);
+        const deleteUser = users.filter((user) => user.userId != m.userId);
         setUsers([...deleteUser]);
         setMessageList([...messageList, m]);
         return;
       }
 
-      console.log(
-        "ChatPanel session?.user?.username: ",
-        session?.user?.username,
-      );
-      console.log("ChatPanel m.username: ", m.username);
-      session?.user?.username === m.username
-        ? (m.type = "self")
-        : (m.type = "recv");
+      console.log("ChatPanel session?.user?.id: ", session?.user?.id);
+      console.log("ChatPanel m.userId: ", m.userId);
+      session?.user?.id === m.userId ? (m.type = "self") : (m.type = "recv");
       setMessageList([...messageList, m]);
-    })
+    });
 
     conn.onclose = () => {};
     conn.onerror = () => {};

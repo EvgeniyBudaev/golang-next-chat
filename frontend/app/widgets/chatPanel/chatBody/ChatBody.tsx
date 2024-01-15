@@ -10,12 +10,9 @@ type TProps = {
 export const ChatBody: FC<TProps> = ({ messageList }) => {
   return (
     <div className="ChatBody">
-      {messageList
-        // .slice(0)
-        // .reverse()
-        .map((message: TMessage, index: number) => (
-          <Message key={`${message.content}-${index}`} message={message} />
-        ))}
+      {messageList.map((message: TMessage, index: number) => (
+        <Message key={`${message.content}-${index}`} message={message} />
+      ))}
     </div>
   );
 };

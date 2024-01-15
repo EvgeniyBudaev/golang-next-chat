@@ -1,6 +1,7 @@
 export type TMessage = {
-  content: string;
-  username: string;
-  room_id: string;
+  id: number;
+  roomId: string;
+  userId: string;
   type: "recv" | "self";
+  content: string;
 };
