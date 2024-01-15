@@ -28,6 +28,10 @@ type CreateRoomRequest struct {
 	Name string `json:"name"`
 }
 
+type GetRoomMessagesRequest struct {
+	RoomID string `json:"roomId"`
+}
+
 func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 	for {
 		select {
@@ -131,6 +135,22 @@ func (uc *UseCaseRoom) GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 		response = append(response, roomResponse)
 	}
 	return response, nil
+}
+
+func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) ([]*ws.Message, error) {
+	roomId, err := strconv.ParseInt(r.RoomID, 10, 64)
+	if err != nil {
+		logger.Log.Debug("error func GetMessageList, method ParseInt roomIdStr by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	messageList, err := uc.db.SelectMessageList(ctx, roomId)
+	if err != nil {
+		logger.Log.Debug("error func GetMessageList, method SelectList by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	return messageList, nil
 }
 
 func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {

@@ -4,7 +4,7 @@ import (
 	r "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/response"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
-	wsUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/room"
+	roomUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/room"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -12,8 +12,9 @@ import (
 )
 
 type UseCaseRoom interface {
-	CreateRoom(ctx *fiber.Ctx, r wsUseCase.CreateRoomRequest) (*ws.RoomResponse, error)
+	CreateRoom(ctx *fiber.Ctx, r roomUseCase.CreateRoomRequest) (*ws.RoomResponse, error)
 	GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
+	GetMessageList(ctx *fiber.Ctx, r roomUseCase.GetRoomMessagesRequest) ([]*ws.Message, error)
 	GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomResponse, error)
 	JoinRoom(conn *websocket.Conn) string
 }
@@ -21,7 +22,7 @@ type UseCaseRoom interface {
 func CreateRoomHandler(uc UseCaseRoom) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		logger.Log.Info("POST /api/v1/room/create")
-		req := wsUseCase.CreateRoomRequest{}
+		req := roomUseCase.CreateRoomRequest{}
 		if err := ctx.BodyParser(&req); err != nil {
 			logger.Log.Debug("error func CreateRoomHandler,"+
 				" method ctx.BodyParse by path internal/handlers/room/room.go",
@@ -43,6 +44,30 @@ func GetUserListHandler(uc UseCaseRoom) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		logger.Log.Info("GET /api/v1/room/:roomId/client/list")
 		response, err := uc.GetUserList(ctx)
+		if err != nil {
+			logger.Log.Debug(
+				"error func GetUserListHandler,"+
+					" method uc.GetUserList by path internal/handlers/room/room.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		return r.WrapOk(ctx, response)
+	}
+}
+
+func GetMessageListHandler(uc UseCaseRoom) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		logger.Log.Info("GET /api/v1/room/message/list")
+		var request = roomUseCase.GetRoomMessagesRequest{}
+		err := ctx.BodyParser(&request)
+		if err != nil {
+			logger.Log.Debug(
+				"error func GetMessageListHandler,"+
+					" method BodyParser by path internal/handlers/room/room.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		response, err := uc.GetMessageList(ctx, request)
 		if err != nil {
 			logger.Log.Debug(
 				"error func GetUserListHandler,"+

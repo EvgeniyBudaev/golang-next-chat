@@ -55,6 +55,7 @@ func InitPublicRoutes(app *fiber.App, config *config.Config, db *db.Database) {
 	grp.Get("/room/join/:roomId", websocket.New(roomHandler.JoinRoomHandler(useCaseRoom)))
 	grp.Get("/room/list", roomHandler.GetRoomListHandler(useCaseRoom))
 	grp.Get("/room/:roomId/user/list", roomHandler.GetUserListHandler(useCaseRoom))
+	grp.Post("/room/message/list", roomHandler.GetMessageListHandler(useCaseRoom))
 	grp.Post("/profile/create", ph.CreateProfileHandler())
 	grp.Get("/profile/uuid/:uuid", ph.GetProfileByUUIDHandler())
 }

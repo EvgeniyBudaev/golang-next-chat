@@ -18,6 +18,7 @@ type DBRoom interface {
 	AddUser(c *ws.Client) (*ws.Client, error)
 	SelectUserList() ([]*ws.Client, error)
 	AddMessage(m *ws.Message) (*ws.Message, error)
+	SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Message, error)
 }
 
 type PGRoomDB struct {
@@ -140,4 +141,28 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 	}
 	tx.Commit()
 	return m, nil
+}
+
+func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Message, error) {
+	ctx := cf.Context()
+	query := `SELECT id, room_id, user_id, content FROM room_messages WHERE room_id = $1`
+	rows, err := pg.db.QueryContext(ctx, query, roomId)
+	if err != nil {
+		logger.Log.Debug("error func SelectMessageList, method QueryContext by path internal/db/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+	list := make([]*ws.Message, 0)
+	for rows.Next() {
+		data := ws.Message{}
+		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Content)
+		if err != nil {
+			logger.Log.Debug("error func SelectMessageList, method Scan by path internal/db/room/room.go",
+				zap.Error(err))
+			continue
+		}
+		list = append(list, &data)
+	}
+	return list, nil
 }
