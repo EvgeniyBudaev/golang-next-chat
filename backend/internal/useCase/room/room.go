@@ -153,7 +153,7 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 	newUser, err := uc.db.AddUser(cl)
 	fmt.Println(newUser)
 	if err != nil {
-		logger.Log.Debug("error func JoinRoom, method AddClient by path internal/useCase/room/room.go",
+		logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
 			zap.Error(err))
 	}
 	uc.hub.Register <- cl
