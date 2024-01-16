@@ -35,8 +35,9 @@ func (pg *PGProfileDB) Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profile
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO profiles (uuid, user_id, created_at, updated_at) VALUES ($1, $2, $3, $4) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, p.UUID, p.UserID, p.CreatedAt, p.UpdatedAt).Scan(&p.ID)
+	query := "INSERT INTO profiles (uuid, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted, is_enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, p.UUID, p.UserID, p.Username, p.Firstname, p.Lastname, p.Email, p.CreatedAt,
+		p.UpdatedAt, p.IsDeleted, p.IsEnabled).Scan(&p.ID)
 	if err != nil {
 		logger.Log.Debug("error func Create, method QueryRowContext by path internal/db/profile/profile.go",
 			zap.Error(err))
@@ -51,7 +52,8 @@ func (pg *PGProfileDB) Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profile
 
 func (pg *PGProfileDB) FindByUUID(ctx *fiber.Ctx, uuid uuid.UUID) (*profileEntity.Profile, error) {
 	p := profileEntity.Profile{}
-	query := `SELECT id, uuid, user_id, created_at, updated_at
+	query := `SELECT id, uuid, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted,
+       is_enabled
 			  FROM profiles
 			  WHERE uuid = $1`
 	row := pg.db.QueryRowContext(ctx.Context(), query, uuid)
@@ -61,7 +63,8 @@ func (pg *PGProfileDB) FindByUUID(ctx *fiber.Ctx, uuid uuid.UUID) (*profileEntit
 			zap.Error(err))
 		return nil, err
 	}
-	err := row.Scan(&p.ID, &p.UUID, &p.UserID, &p.CreatedAt, &p.UpdatedAt)
+	err := row.Scan(&p.ID, &p.UUID, &p.UserID, &p.Username, &p.Firstname, &p.Lastname, &p.Email, &p.CreatedAt,
+		&p.UpdatedAt, &p.IsDeleted, &p.IsEnabled)
 	if err != nil {
 		logger.Log.Debug("error func FindByUUID, method Scan by path internal/db/profile/profile.go",
 			zap.Error(err))

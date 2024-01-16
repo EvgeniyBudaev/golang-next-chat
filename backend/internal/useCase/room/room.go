@@ -2,7 +2,9 @@ package room
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"strconv"
+	"time"
 
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/db/room"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
@@ -39,9 +41,15 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 			fmt.Println("hub Register: ", cl)
 			uc.hub.Clients[cl.RoomID] = append(uc.hub.Clients[cl.RoomID], cl)
 			uc.hub.Broadcast <- &ws.Message{
-				RoomID:  cl.RoomID,
-				UserID:  cl.UserID,
-				Content: "A new user has joined the room",
+				UUID:      uuid.New(),
+				RoomID:    cl.RoomID,
+				UserID:    cl.UserID,
+				Type:      ws.SystemMessage,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+				IsDeleted: false,
+				IsEdited:  false,
+				Content:   cl.Username + " has joined the channel",
 			}
 
 		case cl := <-uc.hub.Unregister:
@@ -55,9 +63,15 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 				}
 			}
 			uc.hub.Broadcast <- &ws.Message{
-				RoomID:  cl.RoomID,
-				UserID:  cl.UserID,
-				Content: "user left the chat",
+				UUID:      uuid.New(),
+				RoomID:    cl.RoomID,
+				UserID:    cl.UserID,
+				Type:      ws.SystemMessage,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+				IsDeleted: false,
+				IsEdited:  false,
+				Content:   cl.Username + " left the channel",
 			}
 
 		case m := <-uc.hub.Broadcast:
@@ -137,7 +151,7 @@ func (uc *UseCaseRoom) GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 	return response, nil
 }
 
-func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) ([]*ws.Message, error) {
+func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) ([]*ws.ResponseMessage, error) {
 	roomId, err := strconv.ParseInt(r.RoomID, 10, 64)
 	if err != nil {
 		logger.Log.Debug("error func GetMessageList, method ParseInt roomIdStr by path internal/useCase/room/room.go",

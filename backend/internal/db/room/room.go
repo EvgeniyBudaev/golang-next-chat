@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	errorEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/error"
+	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +19,7 @@ type DBRoom interface {
 	AddUser(c *ws.Client) (*ws.Client, error)
 	SelectUserList() ([]*ws.Client, error)
 	AddMessage(m *ws.Message) (*ws.Message, error)
-	SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Message, error)
+	SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.ResponseMessage, error)
 }
 
 type PGRoomDB struct {
@@ -130,8 +131,10 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO room_messages (room_id, user_id, content) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, m.RoomID, m.UserID, m.Content).Scan(&m.ID)
+	query := "INSERT INTO room_messages (uuid, room_id, user_id, type, created_at, updated_at, is_deleted, is_edited," +
+		" content) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, m.UUID, m.RoomID, m.UserID, m.Type, m.CreatedAt, m.UpdatedAt, m.IsDeleted,
+		m.IsEdited, m.Content).Scan(&m.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddMessage, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -143,9 +146,15 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 	return m, nil
 }
 
-func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Message, error) {
+func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.ResponseMessage, error) {
 	ctx := cf.Context()
-	query := `SELECT id, room_id, user_id, content FROM room_messages WHERE room_id = $1`
+	query := "SELECT rm.uuid, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
+		"rm.is_edited, rm.content, " +
+		"p.uuid, p.first_name, p.last_name " +
+		"FROM room_messages rm " +
+		"JOIN profiles p ON rm.user_id = p.user_id " +
+		"WHERE rm.room_id = $1 " +
+		"ORDER BY rm.created_at ASC"
 	rows, err := pg.db.QueryContext(ctx, query, roomId)
 	if err != nil {
 		logger.Log.Debug("error func SelectMessageList, method QueryContext by path internal/db/room/room.go",
@@ -153,15 +162,19 @@ func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Messag
 		return nil, err
 	}
 	defer rows.Close()
-	list := make([]*ws.Message, 0)
+	list := make([]*ws.ResponseMessage, 0)
 	for rows.Next() {
-		data := ws.Message{}
-		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Content)
+		data := ws.ResponseMessage{}
+		profile := profileEntity.ResponseMessageByProfile{}
+		err := rows.Scan(&data.UUID, &data.RoomID, &data.UserID, &data.Type, &data.CreatedAt, &data.UpdatedAt,
+			&data.IsDeleted, &data.IsEdited, &data.Content,
+			&profile.UUID, &profile.Firstname, &profile.Lastname)
 		if err != nil {
 			logger.Log.Debug("error func SelectMessageList, method Scan by path internal/db/room/room.go",
 				zap.Error(err))
 			continue
 		}
+		data.Profile = &profile
 		list = append(list, &data)
 	}
 	return list, nil

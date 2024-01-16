@@ -23,7 +23,8 @@ func (h *HandlerProfile) CreateProfileHandler() fiber.Handler {
 		req := profileUseCase.CreateProfileRequest{}
 		if err := ctx.BodyParser(&req); err != nil {
 			logger.Log.Debug(
-				"error func CreateProfileHandler, method ctx.BodyParse by path handlers/profile/profile.go",
+				"error func CreateProfileHandler,"+
+					" method ctx.BodyParse by path internal/handlers/profile/profile.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
@@ -41,8 +42,16 @@ func (h *HandlerProfile) CreateProfileHandler() fiber.Handler {
 
 func (h *HandlerProfile) GetProfileByUUIDHandler() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		logger.Log.Info("GET /api/v1/profile/uuid/:uuid")
-		response, err := h.uc.GetProfileByUUID(ctx)
+		logger.Log.Info("GET /api/v1/profile/detail")
+		req := profileUseCase.GetProfileRequest{}
+		if err := ctx.BodyParser(&req); err != nil {
+			logger.Log.Debug(
+				"error func GetProfileByUUIDHandler,"+
+					" method ctx.BodyParse by path internal/handlers/profile/profile.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		response, err := h.uc.GetProfileByUUID(ctx, req)
 		if err != nil {
 			logger.Log.Debug(
 				"error func GetProfileByUUIDHandler, method GetProfileByUUID by path"+

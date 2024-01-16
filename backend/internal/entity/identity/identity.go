@@ -113,7 +113,6 @@ func (i *Identity) RetrospectToken(ctx context.Context, accessToken string) (*go
 }
 
 func (i *Identity) GetUserList(ctx context.Context, query user.QueryParamsUserList) ([]*gocloak.User, error) {
-	fmt.Println("[identity query] ", query.Search)
 	token, err := i.loginRestApiClient(ctx)
 	if err != nil {
 		return nil, err

@@ -1,8 +1,14 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
+	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"log"
+	"time"
 
 	"github.com/gofiber/contrib/websocket"
 )
@@ -21,11 +27,39 @@ type ClientResponse struct {
 	Username string `json:"username"`
 }
 
+type MessageType string
+
+const (
+	SystemMessage   MessageType = "sys"
+	ReceivedMessage MessageType = "recv"
+	SelfMessage     MessageType = "self"
+	NoneMessage     MessageType = "none"
+)
+
 type Message struct {
-	ID      int64  `json:"id"`
-	RoomID  int64  `json:"roomId"`
-	UserID  string `json:"userId"`
-	Content string `json:"content"`
+	ID        int64       `json:"id"`
+	UUID      uuid.UUID   `json:"uuid"`
+	RoomID    int64       `json:"roomId"`
+	UserID    string      `json:"userId"`
+	Type      MessageType `json:"type"`
+	CreatedAt time.Time   `json:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt"`
+	IsDeleted bool        `json:"isDeleted"`
+	IsEdited  bool        `json:"isEdited"`
+	Content   string      `json:"content"`
+}
+
+type ResponseMessage struct {
+	UUID      uuid.UUID                               `json:"uuid"`
+	RoomID    int64                                   `json:"roomId"`
+	UserID    string                                  `json:"userId"`
+	Type      MessageType                             `json:"type"`
+	CreatedAt time.Time                               `json:"createdAt"`
+	UpdatedAt time.Time                               `json:"updatedAt"`
+	IsDeleted bool                                    `json:"isDeleted"`
+	IsEdited  bool                                    `json:"isEdited"`
+	Profile   *profileEntity.ResponseMessageByProfile `json:"profile"`
+	Content   string                                  `json:"content"`
 }
 
 func (c *Client) WriteMessage() {
@@ -56,11 +90,24 @@ func (c *Client) ReadMessage(h *Hub) {
 			}
 			break
 		}
+		messageData := &Message{}
+		err = json.Unmarshal(m, &messageData)
+		if err != nil {
+			logger.Log.Debug("error func ReadMessage,"+
+				" method Unmarshal by path internal/entity/ws/client.go",
+				zap.Error(err))
+		}
 		msg := &Message{
-			ID:      c.ID,
-			RoomID:  c.RoomID,
-			UserID:  c.UserID,
-			Content: string(m),
+			ID:        c.ID,
+			UUID:      uuid.New(),
+			RoomID:    c.RoomID,
+			UserID:    c.UserID,
+			Type:      NoneMessage,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			IsDeleted: false,
+			IsEdited:  false,
+			Content:   messageData.Content,
 		}
 		h.Broadcast <- msg
 	}
