@@ -1,0 +1,13 @@
+.DateTime {
+  display: flex;
+  align-items: center;
+
+  &-Date {
+    white-space: nowrap;
+  }
+
+  &-Time {
+    white-space: nowrap;
+    margin-left: 4px;
+  }
+}

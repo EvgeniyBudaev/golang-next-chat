@@ -1,9 +1,14 @@
 import clsx from "clsx";
 import type { FC } from "react";
+import { SystemMessage } from "@/app/entities/message/systemMessage";
 import { type TMessage } from "@/app/shared/types/message";
 import { Avatar } from "@/app/uikit/components/avatar";
+import { DateTime } from "@/app/uikit/components/dateTime";
+import {
+  ETypographyVariant,
+  Typography,
+} from "@/app/uikit/components/typography";
 import "./Message.scss";
-import { SystemMessage } from "@/app/entities/message/systemMessage";
 
 type TProps = {
   message: TMessage;
@@ -31,11 +36,21 @@ export const Message: FC<TProps> = ({ message }) => {
             />
           )}
           <div className="Message-Content">
-            {isReceiver && (
-              <div className="Message-Username">{`${message.profile.firstName} ${message.profile?.lastName}`}</div>
-            )}
-            <div className="Message-Text">{message.content}</div>
-            {/*<div>{message.img && <img src={message.img} alt="" />}</div>*/}
+            <div className="Message-UserInfo">
+              {isReceiver && (
+                <div className="Message-Username">{`${message.profile.firstName} ${message.profile?.lastName}`}</div>
+              )}
+              <div className="Message-Text">
+                <Typography
+                  value={message.content}
+                  variant={ETypographyVariant.TextB3Regular}
+                />
+              </div>
+              {/*<div>{message.img && <img src={message.img} alt="" />}</div>*/}
+            </div>
+            <div className="Message-Footer">
+              <DateTime isTime={true} value={message.createdAt} />
+            </div>
           </div>
         </div>
       )}
