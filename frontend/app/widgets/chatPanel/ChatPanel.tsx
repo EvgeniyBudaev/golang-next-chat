@@ -76,7 +76,12 @@ export const ChatPanel: FC = () => {
       return;
     }
     if ("value" in textareaRef.current) {
-      conn.send(textareaRef.current.value);
+      const message = {
+        content: textareaRef.current.value,
+      };
+      const json = JSON.stringify(message);
+      console.log("session?.user?.id: ", session?.user?.id);
+      conn.send(json);
     }
     if ("value" in textareaRef.current) {
       textareaRef.current.value = "";
@@ -88,7 +93,12 @@ export const ChatPanel: FC = () => {
       return state?.data.map((message) => {
         return {
           ...message,
-          type: session?.user?.id === message.userId ? "self" : "recv",
+          type:
+            message.type === "sys"
+              ? "sys"
+              : session?.user?.id === message.userId
+                ? "self"
+                : "recv",
         };
       });
     }

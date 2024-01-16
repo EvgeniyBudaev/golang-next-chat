@@ -17,12 +17,21 @@ const profileImageListItemSchema = z.object({
 
 export const profileCreateParamsSchema = zfd.formData({
   userId: zfd.text(),
+  username: zfd.text(),
+  firstName: zfd.text(),
+  lastName: zfd.text(),
+  email: zfd.text(),
+  isEnabled: zfd.text(),
   // image: fileSchema.or(fileSchema.array()).nullish().optional(),
 });
 
 export const profileSchema = z.object({
   uuid: z.string(),
   userId: z.string(),
+  username: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
   images: profileImageListItemSchema.array().nullish(),

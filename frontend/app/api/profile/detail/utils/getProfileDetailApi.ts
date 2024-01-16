@@ -8,8 +8,9 @@ export const getProfileDetailApi: TApiFunction<
   TProfileResponse
 > = (params) => {
   const { uuid } = params;
-  const url = `/api/v1/profile/uuid/${uuid}`;
+  const url = "/api/v1/profile/detail";
   return fetchApi<TProfileResponse>(url, {
-    method: EFormMethods.Get,
+    method: EFormMethods.Post,
+    body: params,
   });
 };

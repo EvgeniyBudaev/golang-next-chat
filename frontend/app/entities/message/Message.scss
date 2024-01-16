@@ -14,6 +14,10 @@
     align-items: flex-end;
   }
 
+  &-Username {
+    color: $color-pink;
+  }
+
   &-Content {
     background-color: $color-pink;
     max-width: max-content;

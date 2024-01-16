@@ -1,9 +1,21 @@
 import { z } from "zod";
 
+const profileSchemaByMessageSchema = z.object({
+  uuid: z.string(),
+  firstName: z.string(),
+  lastName: z.string().nullish(),
+});
+
 export const messageListItemSchema = z.object({
-  id: z.number(),
+  uuid: z.string(),
   roomId: z.number(),
   userId: z.string(),
+  type: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  isDeleted: z.boolean(),
+  isEdited: z.boolean(),
+  profile: profileSchemaByMessageSchema,
   content: z.string(),
 });
 

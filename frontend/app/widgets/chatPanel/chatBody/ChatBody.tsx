@@ -8,6 +8,7 @@ type TProps = {
 };
 
 export const ChatBody: FC<TProps> = ({ messageList }) => {
+  console.log(messageList);
   return (
     <div className="ChatBody">
       {(messageList ?? []).map((message: TMessage, index: number) => (

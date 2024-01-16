@@ -43,6 +43,11 @@ export async function registerAction(prevState: any, formData: FormData) {
     if (userResponse.success) {
       const profileFormData = new FormData();
       profileFormData.append("userId", userResponse.data.id);
+      profileFormData.append("username", userResponse.data.username);
+      profileFormData.append("firstName", userResponse.data.firstName);
+      profileFormData.append("lastName", userResponse.data.lastName);
+      profileFormData.append("email", userResponse.data.email);
+      profileFormData.append("isEnabled", userResponse.data.enabled.toString());
       await createProfile(profileFormData as unknown as TProfileCreateParams);
       const roomName = `${userResponse.data.firstName} ${userResponse.data.lastName}`;
       const roomDto = {

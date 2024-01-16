@@ -1,0 +1,11 @@
+@import "@/app/styles";
+
+.SystemMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &-Text {
+    color: $color-primary;
+  }
+}
