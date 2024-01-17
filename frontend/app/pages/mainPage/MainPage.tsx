@@ -12,33 +12,6 @@ type TProps = {
 };
 
 export const MainPage: FC<TProps> = ({ roomList = [] }) => {
-  console.log("roomList: ", roomList);
-
-  // useEffect(() => {
-  //   if (conn === null) {
-  //     router.push("/");
-  //     return;
-  //   }
-  //
-  //   const roomId = conn.url.split("/")[5];
-  //
-  //   async function getUsers() {
-  //     try {
-  //       const res = await fetch(`${API_URL}/room/room/${roomId}/client/list`, {
-  //         method: "GET",
-  //         headers: {"Content-Type": "application/json"},
-  //       });
-  //       const data = await res.json();
-  //
-  //       setUsers(data);
-  //     } catch (e) {
-  //       console.error(e);
-  //     }
-  //   }
-  //
-  //   getUsers();
-  // }, []);
-
   return (
     <div className="MainPage">
       <div className="MainPage-Box">

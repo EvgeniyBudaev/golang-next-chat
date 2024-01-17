@@ -39,17 +39,19 @@ export const RoomPanel: FC<TProps> = ({ roomList }) => {
         <div>
           {/*<RoomCreateForm />*/}
           <div>
-            <div>Available Rooms:</div>
             <div>
-              {(roomList ?? []).map((room, index) => (
-                <div key={index}>
-                  <div>
-                    <div>Комната:</div>
-                    <div>{room.name}</div>
+              {(roomList ?? []).map((room, index) => {
+                const roomName = `${room.profile.firstName} ${room.profile?.lastName}`;
+                return (
+                  <div key={index}>
+                    <div>
+                      <div>Комната:</div>
+                      <div>{roomName}</div>
+                    </div>
+                    <RoomJoinForm room={room} />
                   </div>
-                  <RoomJoinForm room={room} />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

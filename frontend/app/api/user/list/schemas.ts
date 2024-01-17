@@ -13,7 +13,7 @@ const attributeItemSchema = z.object({
 });
 
 export const userListParamsSchema = z.object({
-  search: z.string().or(z.string().array()).optional(),
+  search: z.string().optional(),
 });
 
 export const userListItemSchema = z.object({

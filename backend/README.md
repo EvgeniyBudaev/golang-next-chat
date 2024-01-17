@@ -61,7 +61,7 @@ sudo rm migrate.list
 migrate create -ext sql -dir migrations ProfilesCreationMigration
 migrate create -ext sql -dir migrations ProfileImagesCreationMigration
 migrate create -ext sql -dir migrations RoomsCreationMigration
-migrate create -ext sql -dir migrations RoomUsersCreationMigration
+migrate create -ext sql -dir migrations RoomsProfilesCreationMigration
 migrate create -ext sql -dir migrations RoomMessagesCreationMigration
 ```
 

@@ -3,11 +3,11 @@
 .ChatBody {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   background-image: url("/assets/images/chat-bg.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   height: 100%;
   padding: 16px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
