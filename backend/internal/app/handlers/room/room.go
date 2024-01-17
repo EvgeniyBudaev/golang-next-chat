@@ -12,10 +12,10 @@ import (
 )
 
 type UseCaseRoom interface {
-	CreateRoom(ctx *fiber.Ctx, r roomUseCase.CreateRoomRequest) (*ws.RoomResponse, error)
+	CreateRoom(ctx *fiber.Ctx, r roomUseCase.CreateRoomRequest) (*ws.Room, error)
 	GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 	GetMessageList(ctx *fiber.Ctx, r roomUseCase.GetRoomMessagesRequest) ([]*ws.ResponseMessage, error)
-	GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomResponse, error)
+	GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error)
 	JoinRoom(conn *websocket.Conn) string
 }
 

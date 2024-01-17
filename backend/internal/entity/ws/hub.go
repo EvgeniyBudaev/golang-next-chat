@@ -1,13 +1,25 @@
 package ws
 
+import (
+	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
+	"github.com/google/uuid"
+)
+
 type Room struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID   int64     `json:"id"`
+	UUID uuid.UUID `json:"uuid"`
 }
 
-type RoomResponse struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+type RoomProfile struct {
+	ID        int64 `json:"id"`
+	RoomID    int64 `json:"roomId"`
+	ProfileID int64 `json:"profileId"`
+}
+
+type RoomWithProfileResponse struct {
+	ID      int64                                 `json:"id"`
+	UUID    uuid.UUID                             `json:"room"`
+	Profile *profileEntity.ResponseProfileForRoom `json:"profile"`
 }
 
 type QueryParamsJoinRoom struct {

@@ -27,7 +27,7 @@ func NewUseCaseRoom(h *ws.Hub, db *room.PGRoomDB) *UseCaseRoom {
 }
 
 type CreateRoomRequest struct {
-	Name string `json:"name"`
+	UserID string `json:"userId"`
 }
 
 type GetRoomMessagesRequest struct {
@@ -90,37 +90,37 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 	}
 }
 
-func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.RoomResponse, error) {
+func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.Room, error) {
 	roomRequest := &ws.Room{
-		Name: r.Name,
+		UUID: uuid.New(),
 	}
-	newRoom, err := uc.db.Create(ctx, roomRequest)
+	newRoom, err := uc.db.CreateRoom(ctx, roomRequest)
 	if err != nil {
 		logger.Log.Debug("error func CreateRoom, method Create by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return nil, err
 	}
-	response := ws.RoomResponse{
-		ID:   newRoom.ID,
-		Name: newRoom.Name,
+	profile, err := uc.db.FindProfile(r.UserID)
+	if err != nil {
+		logger.Log.Debug("error func CreateRoom, method FindProfile by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
 	}
-	return &response, nil
+	_, err = uc.db.AddRoomProfile(newRoom.ID, profile.ID)
+	if err != nil {
+		logger.Log.Debug("error func CreateRoom, method AddRoomProfile by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	return newRoom, nil
 }
 
-func (uc *UseCaseRoom) GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomResponse, error) {
-	roomList, err := uc.db.SelectRoomList(ctx)
+func (uc *UseCaseRoom) GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error) {
+	response, err := uc.db.SelectRoomList(ctx)
 	if err != nil {
 		logger.Log.Debug("error func GetRoomList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return nil, err
-	}
-	response := make([]*ws.RoomResponse, 0)
-	for _, item := range roomList {
-		roomResponse := &ws.RoomResponse{
-			ID:   item.ID,
-			Name: item.Name,
-		}
-		response = append(response, roomResponse)
 	}
 	return response, nil
 }
@@ -184,8 +184,8 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 		Conn:     conn,
 		Message:  make(chan *ws.Message),
 	}
-	newUser, err := uc.db.AddUser(cl)
-	fmt.Println(newUser)
+	profile, err := uc.db.FindProfile(userId)
+	_, err = uc.db.AddRoomProfile(roomId, profile.ID)
 	if err != nil {
 		logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
 			zap.Error(err))

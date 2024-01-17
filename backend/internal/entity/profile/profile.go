@@ -40,6 +40,12 @@ type ResponseMessageByProfile struct {
 	Lastname  string    `json:"lastName"`
 }
 
+type ResponseProfileForRoom struct {
+	UUID      uuid.UUID `json:"uuid"`
+	Firstname string    `json:"firstName"`
+	Lastname  string    `json:"lastName"`
+}
+
 type ImageProfile struct {
 	ID        int64     `json:"id"`
 	ProfileID int64     `json:"profileId"`
