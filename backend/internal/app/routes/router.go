@@ -57,7 +57,8 @@ func InitPublicRoutes(app *fiber.App, config *config.Config, db *db.Database) {
 	grp.Get("/room/:roomId/user/list", roomHandler.GetUserListHandler(useCaseRoom))
 	grp.Post("/room/message/list", roomHandler.GetMessageListHandler(useCaseRoom))
 	grp.Post("/profile/create", ph.CreateProfileHandler())
-	grp.Post("/profile/detail", ph.GetProfileByUUIDHandler())
+	grp.Post("/profile/detail", ph.GetProfileByUsernameHandler())
+	grp.Post("/profile/room/list", roomHandler.GetRoomListByProfileHandler(useCaseRoom))
 }
 
 func InitProtectedRoutes(app *fiber.App, config *config.Config, db *db.Database) {

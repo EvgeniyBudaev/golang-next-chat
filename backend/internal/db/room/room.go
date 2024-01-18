@@ -3,6 +3,7 @@ package room
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	errorEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/error"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
@@ -17,6 +18,7 @@ import (
 type DBRoom interface {
 	CreateRoom(cf *fiber.Ctx, p *ws.Room) (*ws.Room, error)
 	SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error)
+	SelectRoomListByProfile(cf *fiber.Ctx, profileId int64) ([]*ws.RoomWithProfileResponse, error)
 	AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfile, error)
 	FindProfile(userId string) (*profileEntity.Profile, error)
 	SelectUserList() ([]*ws.Client, error)
@@ -50,8 +52,8 @@ func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([
 	ctx := cf.Context()
 	query := "SELECT rooms.id, rooms.uuid, rooms.room_name, rooms.title, profiles.uuid, profiles.first_name, profiles.last_name " +
 		"FROM rooms " +
-		"JOIN rooms_profiles " +
-		"ON rooms.id = rooms_profiles.room_id JOIN profiles ON profiles.id = rooms_profiles.profile_id"
+		"JOIN rooms_profiles ON rooms.id = rooms_profiles.room_id " +
+		"JOIN profiles ON profiles.id = rooms_profiles.profile_id"
 	query = searching.ApplySearch(query, "room_name", qp.Search) // search
 	rows, err := pg.db.QueryContext(ctx, query)
 	if err != nil {
@@ -77,12 +79,45 @@ func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([
 	return list, nil
 }
 
-func (pg *PGRoomDB) AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfile, error) {
+func (pg *PGRoomDB) SelectRoomListByProfile(cf *fiber.Ctx, profileId int64) ([]*ws.RoomWithProfileResponse, error) {
+	ctx := cf.Context()
+	query := "SELECT rooms.id, rooms.uuid, rooms.room_name, rooms.title, profiles.uuid, profiles.first_name, profiles.last_name " +
+		"FROM rooms " +
+		"JOIN rooms_profiles ON rooms.id = rooms_profiles.room_id " +
+		"JOIN profiles ON profiles.id = rooms_profiles.profile_id " +
+		"WHERE profiles.id = $1"
+	rows, err := pg.db.QueryContext(ctx, query, profileId)
+	if err != nil {
+		logger.Log.Debug(
+			"error func SelectRoomListByProfile, method QueryContext by path internal/db/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+	list := make([]*ws.RoomWithProfileResponse, 0)
+	for rows.Next() {
+		data := ws.RoomWithProfileResponse{}
+		profile := profileEntity.ResponseProfileForRoom{}
+		err := rows.Scan(&data.ID, &data.UUID, &data.RoomName, &data.Title, &profile.UUID, &profile.Firstname,
+			&profile.Lastname)
+		if err != nil {
+			logger.Log.Debug("error func SelectRoomListByProfile, method Scan by path internal/db/room/room.go",
+				zap.Error(err))
+			continue
+		}
+		data.Profile = &profile
+		list = append(list, &data)
+	}
+	return list, nil
+}
+
+func (pg *PGRoomDB) AddRoomProfile(r *ws.RoomProfile) (*ws.RoomProfile, error) {
 	//ctx := cf.Context()
 	ctx := context.Background()
-	r := ws.RoomProfile{}
+	fmt.Println("room_id: ", r.RoomID)
+	fmt.Println("profile_id: ", r.ProfileID)
 	query := "INSERT INTO rooms_profiles (room_id, profile_id) VALUES ($1, $2) RETURNING id"
-	err := pg.db.QueryRowContext(ctx, query, roomID, profileID).Scan(&r.ID)
+	err := pg.db.QueryRowContext(ctx, query, r.RoomID, r.ProfileID).Scan(&r.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddRoomProfile, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -90,7 +125,7 @@ func (pg *PGRoomDB) AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfi
 		err = errorEntity.NewCustomError(msg, http.StatusBadRequest)
 		return nil, err
 	}
-	return &r, nil
+	return r, nil
 }
 
 func (pg *PGRoomDB) FindProfile(userId string) (*profileEntity.Profile, error) {

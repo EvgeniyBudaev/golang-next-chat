@@ -16,6 +16,7 @@ type UseCaseRoom interface {
 	GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 	GetMessageList(ctx *fiber.Ctx, r roomUseCase.GetRoomMessagesRequest) ([]*ws.ResponseMessage, error)
 	GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error)
+	GetRoomListByProfile(ctx *fiber.Ctx, r roomUseCase.GetRoomListByProfileRequest) ([]*ws.RoomWithProfileResponse, error)
 	JoinRoom(conn *websocket.Conn) string
 }
 
@@ -85,6 +86,27 @@ func GetRoomListHandler(uc UseCaseRoom) fiber.Handler {
 		response, err := uc.GetRoomList(ctx)
 		if err != nil {
 			logger.Log.Debug("error func GetRoomListHandler,"+
+				" method uc.GetRoomList by path internal/handlers/room/room.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		return r.WrapOk(ctx, response)
+	}
+}
+
+func GetRoomListByProfileHandler(uc UseCaseRoom) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		logger.Log.Info("GET /api/v1/profile/room/list")
+		req := roomUseCase.GetRoomListByProfileRequest{}
+		if err := ctx.BodyParser(&req); err != nil {
+			logger.Log.Debug("error func GetRoomListByProfileHandler,"+
+				" method ctx.BodyParse by path internal/handlers/room/room.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		response, err := uc.GetRoomListByProfile(ctx, req)
+		if err != nil {
+			logger.Log.Debug("error func GetRoomListByProfileHandler,"+
 				" method uc.GetRoomList by path internal/handlers/room/room.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)

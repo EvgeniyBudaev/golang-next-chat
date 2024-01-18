@@ -21,6 +21,7 @@ type Profile struct {
 }
 
 type ResponseProfile struct {
+	ID        int64           `json:"id"`
 	UUID      uuid.UUID       `json:"uuid"`
 	UserID    string          `json:"userId"`
 	Username  string          `json:"username"`

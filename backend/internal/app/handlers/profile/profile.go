@@ -40,21 +40,21 @@ func (h *HandlerProfile) CreateProfileHandler() fiber.Handler {
 	}
 }
 
-func (h *HandlerProfile) GetProfileByUUIDHandler() fiber.Handler {
+func (h *HandlerProfile) GetProfileByUsernameHandler() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		logger.Log.Info("GET /api/v1/profile/detail")
 		req := profileUseCase.GetProfileRequest{}
 		if err := ctx.BodyParser(&req); err != nil {
 			logger.Log.Debug(
-				"error func GetProfileByUUIDHandler,"+
+				"error func GetProfileByUsernameHandler,"+
 					" method ctx.BodyParse by path internal/handlers/profile/profile.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
-		response, err := h.uc.GetProfileByUUID(ctx, req)
+		response, err := h.uc.GetProfileByUsername(ctx, req)
 		if err != nil {
 			logger.Log.Debug(
-				"error func GetProfileByUUIDHandler, method GetProfileByUUID by path"+
+				"error func GetProfileByUsernameHandler, method GetProfileByUsername by path"+
 					" internal/handlers/profile/profile.go",
 				zap.Error(err))
 			return r.WrapError(ctx, err, http.StatusBadRequest)

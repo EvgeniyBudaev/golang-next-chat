@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"strconv"
 	"time"
 )
 
@@ -23,7 +22,7 @@ type CreateProfileRequest struct {
 }
 
 type GetProfileRequest struct {
-	UUID uuid.UUID `json:"uuid"`
+	Username string `json:"username"`
 }
 
 type UseCaseProfile struct {
@@ -68,13 +67,13 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 		imagesFilePath = append(imagesFilePath, filePath)
 		imagesCatalog = append(imagesCatalog, &image)
 	}
-	isEnabled, err := strconv.ParseBool(req.IsEnabled)
-	if err != nil {
-		logger.Log.Debug(
-			"error func CreateProfile, method ParseBool by path internal/useCase/profile/profile.go",
-			zap.Error(err))
-		return nil, err
-	}
+	//isEnabled, err := strconv.ParseBool(req.IsEnabled)
+	//if err != nil {
+	//	logger.Log.Debug(
+	//		"error func CreateProfile, method ParseBool by path internal/useCase/profile/profile.go",
+	//		zap.Error(err))
+	//	return nil, err
+	//}
 	profileRequest := &profileEntity.Profile{
 		UUID:      uuid.New(),
 		UserID:    req.UserID,
@@ -85,7 +84,7 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		IsDeleted: false,
-		IsEnabled: isEnabled,
+		IsEnabled: true,
 		Images:    imagesCatalog,
 	}
 	newProfile, err := uc.db.Create(ctx, profileRequest)
@@ -114,13 +113,15 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 			return nil, err
 		}
 	}
-	foundedProfile, err := uc.db.FindByUUID(ctx, newProfile.UUID)
+	foundedProfile, err := uc.db.FindByUsername(ctx, newProfile.Username)
 	if err != nil {
-		logger.Log.Debug("error func CreateProfile, method FindByUUID by path internal/useCase/profile/profile.go",
+		logger.Log.Debug(
+			"error func CreateProfile, method FindByUsername by path internal/useCase/profile/profile.go",
 			zap.Error(err))
 		return nil, err
 	}
 	responseProfile := profileEntity.ResponseProfile{
+		ID:        foundedProfile.ID,
 		UUID:      foundedProfile.UUID,
 		UserID:    foundedProfile.UserID,
 		Username:  foundedProfile.Username,
@@ -136,15 +137,16 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 	return &responseProfile, nil
 }
 
-func (uc *UseCaseProfile) GetProfileByUUID(ctx *fiber.Ctx, req GetProfileRequest) (*profileEntity.ResponseProfile, error) {
-	foundedProfile, err := uc.db.FindByUUID(ctx, req.UUID)
+func (uc *UseCaseProfile) GetProfileByUsername(ctx *fiber.Ctx, req GetProfileRequest) (*profileEntity.ResponseProfile, error) {
+	foundedProfile, err := uc.db.FindByUsername(ctx, req.Username)
 	if err != nil {
 		logger.Log.Debug(
-			"error func GetProfileByUUID, method FindByUUID by path internal/useCase/profile/profile.go",
+			"error func GetProfileByUsername, method FindByUUID by path internal/useCase/profile/profile.go",
 			zap.Error(err))
 		return nil, err
 	}
 	responseProfile := profileEntity.ResponseProfile{
+		ID:        foundedProfile.ID,
 		UUID:      foundedProfile.UUID,
 		UserID:    foundedProfile.UserID,
 		Username:  foundedProfile.Username,

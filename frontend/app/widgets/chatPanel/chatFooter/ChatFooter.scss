@@ -9,6 +9,11 @@
   height: 86px;
   width: 100%;
 
+  &-WriteFieldGroup {
+    position: relative;
+    width: 100%;
+  }
+
   &-WriteField {
     font-family: $base-font-family;
     font-size: $base-font-size;
@@ -40,5 +45,21 @@
   &-IconSend {
     cursor: pointer;
     margin-left: 16px;
+  }
+
+  &-Join {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    right: 50%;
+    width: max-content;
+    border: transparent;
+    background-color: transparent;
+    outline: transparent;
+    color: $color-primary;
+
+    &:hover {
+      color: $color-primary-hover;
+    }
   }
 }
