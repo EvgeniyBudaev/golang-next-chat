@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	errorEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/error"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/gofiber/fiber/v2"
@@ -39,8 +40,8 @@ func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO rooms (uuid) VALUES ($1) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, r.UUID).Scan(&r.ID)
+	query := "INSERT INTO rooms (uuid, room_name, title) VALUES ($1, $2, $3) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, r.UUID, r.RoomName, r.Title).Scan(&r.ID)
 	if err != nil {
 		logger.Log.Debug("error func Create, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -52,12 +53,13 @@ func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
 	return r, nil
 }
 
-func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error) {
+func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
 	ctx := cf.Context()
-	query := "SELECT rooms.id, rooms.uuid, profiles.uuid, profiles.first_name, profiles.last_name " +
+	query := "SELECT rooms.id, rooms.uuid, rooms.room_name, rooms.title, profiles.uuid, profiles.first_name, profiles.last_name " +
 		"FROM rooms " +
 		"JOIN rooms_profiles " +
 		"ON rooms.id = rooms_profiles.room_id JOIN profiles ON profiles.id = rooms_profiles.profile_id"
+	query = searching.ApplySearch(query, "room_name", qp.Search) // search
 	rows, err := pg.db.QueryContext(ctx, query)
 	if err != nil {
 		logger.Log.Debug("error func SelectRoomList, method QueryContext by path internal/db/room/room.go",
@@ -69,7 +71,7 @@ func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx) ([]*ws.RoomWithProfileResponse
 	for rows.Next() {
 		data := ws.RoomWithProfileResponse{}
 		profile := profileEntity.ResponseProfileForRoom{}
-		err := rows.Scan(&data.ID, &data.UUID, &profile.UUID, &profile.Firstname, &profile.Lastname)
+		err := rows.Scan(&data.ID, &data.UUID, &data.RoomName, &data.Title, &profile.UUID, &profile.Firstname, &profile.Lastname)
 		if err != nil {
 			logger.Log.Debug("error func SelectRoomList, method Scan by path internal/db/room/room.go",
 				zap.Error(err))

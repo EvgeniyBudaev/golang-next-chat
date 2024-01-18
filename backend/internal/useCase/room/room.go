@@ -27,7 +27,9 @@ func NewUseCaseRoom(h *ws.Hub, db *room.PGRoomDB) *UseCaseRoom {
 }
 
 type CreateRoomRequest struct {
-	UserID string `json:"userId"`
+	UserID   string `json:"userId"`
+	RoomName string `json:"roomName"`
+	Title    string `json:"title"`
 }
 
 type GetRoomMessagesRequest struct {
@@ -92,7 +94,9 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 
 func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.Room, error) {
 	roomRequest := &ws.Room{
-		UUID: uuid.New(),
+		UUID:     uuid.New(),
+		RoomName: r.RoomName,
+		Title:    r.Title,
 	}
 	newRoom, err := uc.db.CreateRoom(ctx, roomRequest)
 	if err != nil {
@@ -116,7 +120,13 @@ func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.Room
 }
 
 func (uc *UseCaseRoom) GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error) {
-	response, err := uc.db.SelectRoomList(ctx)
+	params := ws.QueryParamsRoomList{}
+	if err := ctx.QueryParser(&params); err != nil {
+		logger.Log.Debug("error func GetRoomList, method QueryParser by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	response, err := uc.db.SelectRoomList(ctx, &params)
 	if err != nil {
 		logger.Log.Debug("error func GetRoomList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
