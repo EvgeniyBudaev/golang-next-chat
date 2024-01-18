@@ -28,16 +28,15 @@ export const RoomJoinForm: FC<TProps> = ({ room }) => {
   const { setConn } = useContext(WebsocketContext);
 
   const joinRoom = (roomId: string) => {
-    const ws = new BufferedWebSocket(
-      `${WEBSOCKET_URL}/room/join/${roomId}?userId=${session?.user?.id}&username=${session?.user?.username}`,
-    );
+    const url = `${WEBSOCKET_URL}/room/join/${roomId}?userId=${session?.user?.id}&username=${session?.user?.username}`;
+    const ws = new BufferedWebSocket(url);
     if (ws.OPEN) {
       setConn(ws);
     }
   };
 
   const handleSubmit = (formData: FormData) => {
-    formAction(formData);
+    // formAction(formData);
     joinRoom(room.id);
   };
 

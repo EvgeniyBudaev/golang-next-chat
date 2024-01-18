@@ -9,14 +9,24 @@ import {
   Typography,
 } from "@/app/uikit/components/typography";
 import "./GlobalSearchResults.scss";
+import clsx from "clsx";
 
 type TProps = {
   list: TRoomListItem[];
+  onRoomChecked?: (room: TRoomListItem) => void;
+  roomChecked?: TRoomListItem;
 };
 
-export const GlobalSearchResults: FC<TProps> = ({ list }) => {
+export const GlobalSearchResults: FC<TProps> = ({
+  list,
+  onRoomChecked,
+  roomChecked,
+}) => {
   const { t } = useTranslation("index");
-  console.log("roomList: ", list);
+
+  const handleRoomChecked = (item: TRoomListItem) => {
+    onRoomChecked?.(item);
+  };
 
   return (
     <div className="GlobalSearchResults">
@@ -29,10 +39,17 @@ export const GlobalSearchResults: FC<TProps> = ({ list }) => {
       <div className="GlobalSearchResults-List">
         {(list ?? []).map((item) => {
           return (
-            <div className="GlobalSearchResults-ListItem" key={item.uuid}>
+            <div
+              className={clsx("GlobalSearchResults-ListItem", {
+                ["GlobalSearchResults-ListItem__isChecked"]:
+                  roomChecked?.uuid === item.uuid,
+              })}
+              key={item.uuid}
+              onClick={() => handleRoomChecked(item)}
+            >
               <Avatar
                 className="GlobalSearchResults-Avatar"
-                size={46}
+                size={40}
                 user={item.title}
               />
               <div>{item.title}</div>

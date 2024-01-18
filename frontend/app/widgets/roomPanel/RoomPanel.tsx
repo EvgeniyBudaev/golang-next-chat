@@ -8,12 +8,20 @@ import { Search } from "@/app/entities/search";
 import { RoomCreateForm } from "@/app/features/room/roomCreateForm";
 import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
 import "./RoomPanel.scss";
+import { Avatar } from "@/app/uikit/components/avatar";
+import clsx from "clsx";
 
 type TProps = {
+  onRoomChecked?: (room: TRoomListItem) => void;
+  roomChecked?: TRoomListItem;
   roomList: TRoomListItem[];
 };
 
-export const RoomPanel: FC<TProps> = ({ roomList }) => {
+export const RoomPanel: FC<TProps> = ({
+  onRoomChecked,
+  roomChecked,
+  roomList,
+}) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchListState, setSearchListState] = useState<TRoomListItem[]>([]);
 
@@ -33,20 +41,33 @@ export const RoomPanel: FC<TProps> = ({ roomList }) => {
         onChangeInputValue={handleChangeSearchInputValue}
         onChangeSearchState={handleChangeSearchState}
       />
-      {isSearchActive && <GlobalSearchResults list={searchListState} />}
+      {isSearchActive && (
+        <GlobalSearchResults
+          list={searchListState}
+          onRoomChecked={onRoomChecked}
+          roomChecked={roomChecked}
+        />
+      )}
       {!isSearchActive && (
         <div>
           {/*<RoomCreateForm />*/}
           <div>
-            <div>
-              {(roomList ?? []).map((room, index) => {
-                const roomName = `${room.profile.firstName} ${room.profile?.lastName}`;
+            <div className="RoomPanel-List">
+              {(roomList ?? []).map((room: TRoomListItem) => {
                 return (
-                  <div key={index}>
-                    <div>
-                      <div>Комната:</div>
-                      <div>{roomName}</div>
-                    </div>
+                  <div
+                    className={clsx("RoomPanel-ListItem", {
+                      ["RoomPanel-ListItem__isChecked"]:
+                        roomChecked?.uuid === room.uuid,
+                    })}
+                    key={room.uuid}
+                  >
+                    <Avatar
+                      className="GlobalSearchResults-Avatar"
+                      size={40}
+                      user={room.title}
+                    />
+                    <div>{room.title}</div>
                     <RoomJoinForm room={room} />
                   </div>
                 );

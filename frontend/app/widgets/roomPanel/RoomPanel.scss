@@ -4,4 +4,31 @@
   background-color: $color-dark;
   max-width: 300px;
   width: 100%;
+
+  &-List {
+  }
+
+  &-ListItem {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+
+    &:hover {
+      background-color: $color-gray;
+      cursor: pointer;
+    }
+
+    &__isChecked {
+      background-color: $color-primary;
+
+      &:hover {
+        background-color: $color-primary;
+        cursor: default;
+      }
+    }
+  }
+
+  &-Avatar {
+    margin-right: 16px;
+  }
 }

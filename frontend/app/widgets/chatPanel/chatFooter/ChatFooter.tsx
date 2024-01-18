@@ -5,9 +5,12 @@ import { type ForwardedRef, forwardRef, useState } from "react";
 import { Icon } from "@/app/uikit/components/icon";
 import { EFormFields } from "@/app/widgets/chatPanel/chatBody/enums";
 import "./ChatFooter.scss";
+import type { TRoomListItem } from "@/app/api/room/list/types";
+import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
 
 type TProps = {
   onSendMessage: () => void;
+  roomChecked?: TRoomListItem;
 };
 
 const Component = (props: TProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
@@ -34,6 +37,7 @@ const Component = (props: TProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
         placeholder={"Write a message"}
         style={{ resize: "none" }}
       />
+      {/*{props?.roomChecked && <RoomJoinForm room={props.roomChecked} />}*/}
       <Icon
         className="ChatFooter-IconSend"
         onClick={props.onSendMessage}
