@@ -194,12 +194,12 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 		Conn:     conn,
 		Message:  make(chan *ws.Message),
 	}
-	profile, err := uc.db.FindProfile(userId)
-	_, err = uc.db.AddRoomProfile(roomId, profile.ID)
-	if err != nil {
-		logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
-			zap.Error(err))
-	}
+	//profile, err := uc.db.FindProfile(userId)
+	//_, err = uc.db.AddRoomProfile(roomId, profile.ID)
+	//if err != nil {
+	//	logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
+	//		zap.Error(err))
+	//}
 	uc.hub.Register <- cl
 	go cl.WriteMessage()
 	cl.ReadMessage(uc.hub)

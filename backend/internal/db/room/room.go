@@ -16,7 +16,7 @@ import (
 
 type DBRoom interface {
 	CreateRoom(cf *fiber.Ctx, p *ws.Room) (*ws.Room, error)
-	SelectRoomList(cf *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error)
+	SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error)
 	AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfile, error)
 	FindProfile(userId string) (*profileEntity.Profile, error)
 	SelectUserList() ([]*ws.Client, error)
@@ -34,14 +34,8 @@ func NewPGRoomDB(db *sql.DB) *PGRoomDB {
 
 func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
 	ctx := cf.Context()
-	tx, err := pg.db.BeginTx(ctx, nil)
-	if err != nil {
-		logger.Log.Debug("error func Create, method Begin by path internal/db/room/room.go", zap.Error(err))
-		return nil, err
-	}
-	defer tx.Rollback()
 	query := "INSERT INTO rooms (uuid, room_name, title) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, r.UUID, r.RoomName, r.Title).Scan(&r.ID)
+	err := pg.db.QueryRowContext(ctx, query, r.UUID, r.RoomName, r.Title).Scan(&r.ID)
 	if err != nil {
 		logger.Log.Debug("error func Create, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -49,7 +43,6 @@ func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
 		err = errorEntity.NewCustomError(msg, http.StatusBadRequest)
 		return nil, err
 	}
-	tx.Commit()
 	return r, nil
 }
 
@@ -71,7 +64,8 @@ func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([
 	for rows.Next() {
 		data := ws.RoomWithProfileResponse{}
 		profile := profileEntity.ResponseProfileForRoom{}
-		err := rows.Scan(&data.ID, &data.UUID, &data.RoomName, &data.Title, &profile.UUID, &profile.Firstname, &profile.Lastname)
+		err := rows.Scan(&data.ID, &data.UUID, &data.RoomName, &data.Title, &profile.UUID, &profile.Firstname,
+			&profile.Lastname)
 		if err != nil {
 			logger.Log.Debug("error func SelectRoomList, method Scan by path internal/db/room/room.go",
 				zap.Error(err))
@@ -87,14 +81,8 @@ func (pg *PGRoomDB) AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfi
 	//ctx := cf.Context()
 	ctx := context.Background()
 	r := ws.RoomProfile{}
-	tx, err := pg.db.BeginTx(ctx, nil)
-	if err != nil {
-		logger.Log.Debug("error func AddRoomProfile, method Begin by path internal/db/room/room.go", zap.Error(err))
-		return nil, err
-	}
-	defer tx.Rollback()
 	query := "INSERT INTO rooms_profiles (room_id, profile_id) VALUES ($1, $2) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, roomID, profileID).Scan(&r.ID)
+	err := pg.db.QueryRowContext(ctx, query, roomID, profileID).Scan(&r.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddRoomProfile, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -102,7 +90,6 @@ func (pg *PGRoomDB) AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfi
 		err = errorEntity.NewCustomError(msg, http.StatusBadRequest)
 		return nil, err
 	}
-	tx.Commit()
 	return &r, nil
 }
 

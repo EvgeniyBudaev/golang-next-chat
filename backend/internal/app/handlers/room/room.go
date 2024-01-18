@@ -95,7 +95,7 @@ func GetRoomListHandler(uc UseCaseRoom) fiber.Handler {
 
 func JoinRoomHandler(uc UseCaseRoom) func(c *websocket.Conn) {
 	return func(conn *websocket.Conn) {
-		logger.Log.Info("GET /api/v1/room/join/:roomId?username=user")
+		logger.Log.Info("GET /api/v1/room/join/:roomId?userId=userId&username=username")
 		uc.JoinRoom(conn)
 	}
 }

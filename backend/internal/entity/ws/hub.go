@@ -21,7 +21,7 @@ type RoomProfile struct {
 
 type RoomWithProfileResponse struct {
 	ID       int64                                 `json:"id"`
-	UUID     uuid.UUID                             `json:"room"`
+	UUID     uuid.UUID                             `json:"uuid"`
 	RoomName string                                `json:"roomName"`
 	Title    string                                `json:"title"`
 	Profile  *profileEntity.ResponseProfileForRoom `json:"profile"`
