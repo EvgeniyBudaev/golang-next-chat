@@ -14,13 +14,13 @@ import clsx from "clsx";
 type TProps = {
   onRoomChecked?: (room: TRoomListItem) => void;
   roomChecked?: TRoomListItem;
-  roomList: TRoomListItem[];
+  roomListByProfile: TRoomListItem[];
 };
 
 export const RoomPanel: FC<TProps> = ({
   onRoomChecked,
   roomChecked,
-  roomList,
+  roomListByProfile,
 }) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchListState, setSearchListState] = useState<TRoomListItem[]>([]);
@@ -33,6 +33,10 @@ export const RoomPanel: FC<TProps> = ({
 
   const handleChangeSearchState = (list: TRoomListItem[]) => {
     setSearchListState(list);
+  };
+
+  const handleRoomChecked = (item: TRoomListItem) => {
+    onRoomChecked?.(item);
   };
 
   return (
@@ -53,7 +57,7 @@ export const RoomPanel: FC<TProps> = ({
           {/*<RoomCreateForm />*/}
           <div>
             <div className="RoomPanel-List">
-              {(roomList ?? []).map((room: TRoomListItem) => {
+              {(roomListByProfile ?? []).map((room: TRoomListItem) => {
                 return (
                   <div
                     className={clsx("RoomPanel-ListItem", {
@@ -61,6 +65,7 @@ export const RoomPanel: FC<TProps> = ({
                         roomChecked?.uuid === room.uuid,
                     })}
                     key={room.uuid}
+                    onClick={() => handleRoomChecked(room)}
                   >
                     <Avatar
                       className="GlobalSearchResults-Avatar"
@@ -68,7 +73,7 @@ export const RoomPanel: FC<TProps> = ({
                       user={room.title}
                     />
                     <div>{room.title}</div>
-                    <RoomJoinForm room={room} />
+                    {/*<RoomJoinForm room={room} />*/}
                   </div>
                 );
               })}

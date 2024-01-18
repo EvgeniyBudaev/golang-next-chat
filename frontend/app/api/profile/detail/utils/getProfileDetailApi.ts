@@ -7,7 +7,6 @@ export const getProfileDetailApi: TApiFunction<
   TProfileDetailParams,
   TProfileResponse
 > = (params) => {
-  const { uuid } = params;
   const url = "/api/v1/profile/detail";
   return fetchApi<TProfileResponse>(url, {
     method: EFormMethods.Post,

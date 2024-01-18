@@ -12,10 +12,11 @@ import { useSessionNext } from "@/app/shared/hooks";
 import { BufferedWebSocket } from "@/app/shared/utils/bufferedWebSocket";
 
 type TProps = {
+  button: JSX.Element;
   room: TRoomListItem;
 };
 
-export const RoomJoinForm: FC<TProps> = ({ room }) => {
+export const RoomJoinForm: FC<TProps> = ({ button, room }) => {
   const initialState = {
     data: undefined,
     error: undefined,
@@ -41,7 +42,7 @@ export const RoomJoinForm: FC<TProps> = ({ room }) => {
   };
 
   return (
-    <form action={handleSubmit} className="Form">
+    <form action={handleSubmit} className="RoomJoinForm">
       <input defaultValue={room.id} name={EFormFields.RoomId} type="hidden" />
       <input
         defaultValue={session?.user?.id}
@@ -53,7 +54,7 @@ export const RoomJoinForm: FC<TProps> = ({ room }) => {
         name={EFormFields.UserName}
         type="hidden"
       />
-      <button type="submit">join</button>
+      {button}
     </form>
   );
 };

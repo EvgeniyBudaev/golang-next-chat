@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { messageGetListFormSchema } from "@/app/actions/message/list/schemas";
+import { getMessageListFormSchema } from "@/app/actions/message/list/schemas";
 import { getMessageList } from "@/app/api/message/list/domain";
 import { ERoutes } from "@/app/shared/enums";
 import { TCommonResponseError } from "@/app/shared/types/error";
@@ -11,9 +11,9 @@ import {
   getResponseError,
 } from "@/app/shared/utils";
 
-export async function messageGetListAction(prevState: any, formData: FormData) {
+export async function getMessageListAction(prevState: any, formData: FormData) {
   console.log("resolver", Object.fromEntries(formData.entries()));
-  const resolver = messageGetListFormSchema.safeParse(
+  const resolver = getMessageListFormSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
 
@@ -31,7 +31,6 @@ export async function messageGetListAction(prevState: any, formData: FormData) {
     const formattedParams = {
       ...resolver.data,
     };
-    console.log("formattedParams", formattedParams);
     const response = await getMessageList(formattedParams);
     const path = createPath({
       route: ERoutes.Root,

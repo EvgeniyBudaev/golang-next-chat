@@ -42,9 +42,9 @@ export const GlobalSearchResults: FC<TProps> = ({
             <div
               className={clsx("GlobalSearchResults-ListItem", {
                 ["GlobalSearchResults-ListItem__isChecked"]:
-                  roomChecked?.uuid === item.uuid,
+                  roomChecked?.id === item.id,
               })}
-              key={item.uuid}
+              key={item.id}
               onClick={() => handleRoomChecked(item)}
             >
               <Avatar

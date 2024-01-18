@@ -4,5 +4,5 @@ import { fileSchema } from "@/app/api/upload";
 import { profileSchema } from "@/app/api/profile/create";
 
 export const profileDetailParamsSchema = z.object({
-  uuid: z.string(),
+  username: z.string(),
 });

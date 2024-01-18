@@ -1,3 +1,3 @@
-import { RoomCreateForm } from "./roomCreateForm";
+import { RoomCreateForm } from "./RoomCreateForm";
 
 export { RoomCreateForm };

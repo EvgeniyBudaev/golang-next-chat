@@ -26,6 +26,7 @@ export const profileCreateParamsSchema = zfd.formData({
 });
 
 export const profileSchema = z.object({
+  id: z.string(),
   uuid: z.string(),
   userId: z.string(),
   username: z.string(),

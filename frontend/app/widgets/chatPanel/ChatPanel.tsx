@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { useFormState } from "react-dom";
-import { messageGetListAction } from "@/app/actions/message/list/messageGetListAction";
+import { getMessageListAction } from "@/app/actions/message/list/getMessageListAction";
 import { type TMessage } from "@/app/shared/types/message";
 import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
@@ -21,10 +21,14 @@ import { EFormFields } from "@/app/widgets/chatPanel/enums";
 import type { TRoomListItem } from "@/app/api/room/list/types";
 
 type TProps = {
+  isCheckedRoomInProfile: boolean;
   roomChecked?: TRoomListItem;
 };
 
-export const ChatPanel: FC<TProps> = ({ roomChecked }) => {
+export const ChatPanel: FC<TProps> = ({
+  isCheckedRoomInProfile,
+  roomChecked,
+}) => {
   const { data: session, status } = useSessionNext();
   const [messageList, setMessageList] = useState<TMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -40,7 +44,7 @@ export const ChatPanel: FC<TProps> = ({ roomChecked }) => {
     errors: undefined,
     success: false,
   };
-  const [state, formAction] = useFormState(messageGetListAction, initialState);
+  const [state, formAction] = useFormState(getMessageListAction, initialState);
 
   useEffect(() => {
     roomId && buttonRef.current && buttonRef.current.click();
@@ -53,7 +57,6 @@ export const ChatPanel: FC<TProps> = ({ roomChecked }) => {
     }
     conn.addEventListener("message", (message) => {
       const m: TMessage = JSON.parse(message.data);
-      console.log("Chat panel m: ", m);
       if (m.content == "A new user has joined the room") {
         setUsers([...users, { userId: m.userId }]);
       }
@@ -84,7 +87,6 @@ export const ChatPanel: FC<TProps> = ({ roomChecked }) => {
         content: textareaRef.current.value,
       };
       const json = JSON.stringify(message);
-      console.log("session?.user?.id: ", session?.user?.id);
       conn.send(json);
     }
     if ("value" in textareaRef.current) {
@@ -114,6 +116,7 @@ export const ChatPanel: FC<TProps> = ({ roomChecked }) => {
       <ChatHeader />
       <ChatBody messageList={formattedMessages} />
       <ChatFooter
+        isCheckedRoomInProfile={isCheckedRoomInProfile}
         onSendMessage={sendMessage}
         ref={textareaRef}
         roomChecked={roomChecked}
