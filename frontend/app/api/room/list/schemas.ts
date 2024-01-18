@@ -9,6 +9,8 @@ const profileSchema = z.object({
 export const roomListItemSchema = z.object({
   id: z.string(),
   uuid: z.string(),
+  roomName: z.string(),
+  title: z.string(),
   profile: profileSchema,
 });
 

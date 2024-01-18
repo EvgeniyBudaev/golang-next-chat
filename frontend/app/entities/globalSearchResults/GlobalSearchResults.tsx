@@ -1,22 +1,22 @@
 "use client";
 
 import { type FC } from "react";
-import { TUser } from "@/app/api/user/list/types";
+import type { TRoomListItem } from "@/app/api/room/list/types";
 import { useTranslation } from "@/app/i18n/client";
 import { Avatar } from "@/app/uikit/components/avatar";
-import "./GlobalSearchResults.scss";
 import {
   ETypographyVariant,
   Typography,
 } from "@/app/uikit/components/typography";
+import "./GlobalSearchResults.scss";
 
 type TProps = {
-  userList: TUser[];
+  list: TRoomListItem[];
 };
 
-export const GlobalSearchResults: FC<TProps> = ({ userList }) => {
+export const GlobalSearchResults: FC<TProps> = ({ list }) => {
   const { t } = useTranslation("index");
-  console.log("userList: ", userList);
+  console.log("roomList: ", list);
 
   return (
     <div className="GlobalSearchResults">
@@ -27,16 +27,18 @@ export const GlobalSearchResults: FC<TProps> = ({ userList }) => {
         />
       </div>
       <div className="GlobalSearchResults-List">
-        {(userList ?? []).map((user) => (
-          <div className="GlobalSearchResults-ListItem" key={user.username}>
-            <Avatar
-              className="GlobalSearchResults-Avatar"
-              size={46}
-              user={user.username}
-            />
-            <div>{user.username}</div>
-          </div>
-        ))}
+        {(list ?? []).map((item) => {
+          return (
+            <div className="GlobalSearchResults-ListItem" key={item.uuid}>
+              <Avatar
+                className="GlobalSearchResults-Avatar"
+                size={46}
+                user={item.title}
+              />
+              <div>{item.title}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ export const getMessageListApi: TApiFunction<
   TMessageListParams,
   TMessageListResponse
 > = (params) => {
-  const url = "/api/v1/room/message/list";
+  const url = "/api/v1/room/message/detail";
   console.log("getMessageListApi url: ", url);
   return fetchApi<TMessageListResponse>(url, {
     method: EFormMethods.Post,

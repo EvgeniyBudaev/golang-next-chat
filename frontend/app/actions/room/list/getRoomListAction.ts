@@ -1,6 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getRoomListFormSchema } from "@/app/actions/room/list/schemas";
+import { mapParamsToDto } from "@/app/api/common";
+import { getRoomList } from "@/app/api/room/list/domain";
 import { ERoutes } from "@/app/shared/enums";
 import { TCommonResponseError } from "@/app/shared/types/error";
 import {
@@ -8,13 +11,9 @@ import {
   getErrorsResolver,
   getResponseError,
 } from "@/app/shared/utils";
-import { userGetListFormSchema } from "@/app/actions/user/list/schemas";
-import { getUserList } from "@/app/api/user/list/domain";
-import { mapParamsToDto } from "@/app/api/user/list/utils";
 
-export async function userGetListAction(prevState: any, formData: FormData) {
-  console.log("[userGetListAction] ", userGetListAction);
-  const resolver = userGetListFormSchema.safeParse(
+export async function getRoomListAction(prevState: any, formData: FormData) {
+  const resolver = getRoomListFormSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
 
@@ -33,7 +32,7 @@ export async function userGetListAction(prevState: any, formData: FormData) {
       ...resolver.data,
     };
     const paramsToDto = mapParamsToDto(formattedParams);
-    const response = await getUserList(paramsToDto);
+    const response = await getRoomList(paramsToDto);
     const path = createPath({
       route: ERoutes.Root,
     });

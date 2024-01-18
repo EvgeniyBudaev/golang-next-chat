@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { userListItemSchema } from "@/app/api/user/list/schemas";
+import { userDetailSchema } from "@/app/api/user/detail";
 
 export const registerParamsSchema = z.object({
   email: z.string(),
@@ -11,7 +11,7 @@ export const registerParamsSchema = z.object({
 });
 
 export const registerResponseSchema = z.object({
-  data: userListItemSchema,
+  data: userDetailSchema,
   message: z.string().optional(),
   statusCode: z.number(),
   success: z.boolean(),

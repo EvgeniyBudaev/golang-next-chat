@@ -3,7 +3,6 @@
 import isEmpty from "lodash/isEmpty";
 import { type ChangeEvent, type FC, useState } from "react";
 import { type TRoomListItem } from "@/app/api/room/list/types";
-import { TUser } from "@/app/api/user/list/types";
 import { GlobalSearchResults } from "@/app/entities/globalSearchResults";
 import { Search } from "@/app/entities/search";
 import { RoomCreateForm } from "@/app/features/room/roomCreateForm";
@@ -16,7 +15,7 @@ type TProps = {
 
 export const RoomPanel: FC<TProps> = ({ roomList }) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [userListState, setUserListState] = useState<TUser[]>([]);
+  const [searchListState, setSearchListState] = useState<TRoomListItem[]>([]);
 
   const handleChangeSearchInputValue = (
     event: ChangeEvent<HTMLInputElement>,
@@ -24,8 +23,8 @@ export const RoomPanel: FC<TProps> = ({ roomList }) => {
     setIsSearchActive(!isEmpty(event.target.value));
   };
 
-  const handleChangeSearchState = (userList: TUser[]) => {
-    setUserListState(userList);
+  const handleChangeSearchState = (list: TRoomListItem[]) => {
+    setSearchListState(list);
   };
 
   return (
@@ -34,7 +33,7 @@ export const RoomPanel: FC<TProps> = ({ roomList }) => {
         onChangeInputValue={handleChangeSearchInputValue}
         onChangeSearchState={handleChangeSearchState}
       />
-      {isSearchActive && <GlobalSearchResults userList={userListState} />}
+      {isSearchActive && <GlobalSearchResults list={searchListState} />}
       {!isSearchActive && (
         <div>
           {/*<RoomCreateForm />*/}

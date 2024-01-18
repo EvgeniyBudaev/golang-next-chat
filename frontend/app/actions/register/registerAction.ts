@@ -52,6 +52,8 @@ export async function registerAction(prevState: any, formData: FormData) {
       const roomDto = {
         id: userResponse.data.id,
         userId: userResponse.data.id,
+        roomName: userResponse.data.username,
+        title: `${userResponse.data.firstName} ${userResponse.data.lastName}`,
       };
       await createRoom(roomDto);
     }

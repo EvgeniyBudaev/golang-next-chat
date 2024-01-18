@@ -12,17 +12,16 @@ import {
   useEffect,
 } from "react";
 import { useFormState } from "react-dom";
-import { userGetListAction } from "@/app/actions/user/list/userGetListAction";
-import { TUser } from "@/app/api/user/list/types";
+import { getRoomListAction } from "@/app/actions/room/list/getRoomListAction";
+import { TRoomListItem } from "@/app/api/room/list/types";
 import { EFormFields } from "@/app/entities/search/enums";
-import { EFormMethods } from "@/app/shared/enums";
 import { Icon } from "@/app/uikit/components/icon";
 import "./Search.scss";
 
 type TProps = {
   className?: string;
   onChangeInputValue?: (event: ChangeEvent<HTMLInputElement>) => void;
-  onChangeSearchState?: (userList: TUser[]) => void;
+  onChangeSearchState?: (list: TRoomListItem[]) => void;
 };
 
 export const Search: FC<TProps> = ({
@@ -30,7 +29,7 @@ export const Search: FC<TProps> = ({
   onChangeInputValue,
   onChangeSearchState,
 }) => {
-  const DEBOUNCE_TIMEOUT = 2000;
+  const DEBOUNCE_TIMEOUT = 100;
   const initialState = {
     data: undefined,
     error: undefined,
@@ -40,11 +39,11 @@ export const Search: FC<TProps> = ({
 
   const buttonRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(false);
-  const [state, formAction] = useFormState(userGetListAction, initialState);
+  const [state, formAction] = useFormState(getRoomListAction, initialState);
 
   useEffect(() => {
     if (!state) return;
-    onChangeSearchState?.(state?.data as TUser[]);
+    onChangeSearchState?.(state?.data as TRoomListItem[]);
   }, [onChangeSearchState, state]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

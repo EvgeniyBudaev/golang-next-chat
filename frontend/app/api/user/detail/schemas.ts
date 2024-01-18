@@ -12,11 +12,7 @@ const attributeItemSchema = z.object({
   mobileNumber: z.string(),
 });
 
-export const userListParamsSchema = z.object({
-  search: z.string().optional(),
-});
-
-export const userListItemSchema = z.object({
+export const userDetailSchema = z.object({
   attributes: attributeItemSchema.array(),
   createdTimestamp: z.number(),
   disableableCredentialTypes: z.string().array(),
@@ -31,8 +27,8 @@ export const userListItemSchema = z.object({
   username: z.string(),
 });
 
-export const userListResponseSchema = z.object({
-  data: userListItemSchema.array().optional(),
+export const userDetailResponseSchema = z.object({
+  data: userDetailSchema.optional(),
   message: z.string().optional(),
   statusCode: z.number(),
   success: z.boolean(),
