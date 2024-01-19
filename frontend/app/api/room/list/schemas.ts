@@ -1,17 +1,9 @@
 import { z } from "zod";
 
-const profileSchema = z.object({
-  uuid: z.string(),
-  firstName: z.string(),
-  lastName: z.string().nullish(),
-});
-
 export const roomListItemSchema = z.object({
-  id: z.string(),
-  uuid: z.string(),
+  id: z.number(),
   roomName: z.string(),
   title: z.string(),
-  profile: profileSchema,
 });
 
 export const roomListParamsSchema = z.any();

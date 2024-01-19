@@ -1,23 +1,30 @@
 "use client";
 
+import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 import { type ChangeEvent, type FC, useState } from "react";
 import { type TRoomListItem } from "@/app/api/room/list/types";
 import { GlobalSearchResults } from "@/app/entities/globalSearchResults";
 import { Search } from "@/app/entities/search";
-import { RoomCreateForm } from "@/app/features/room/roomCreateForm";
 import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
-import "./RoomPanel.scss";
 import { Avatar } from "@/app/uikit/components/avatar";
-import clsx from "clsx";
+import {
+  ETypographyVariant,
+  Typography,
+} from "@/app/uikit/components/typography";
+import "./RoomPanel.scss";
 
 type TProps = {
+  isCheckedRoomInProfile: boolean;
+  isConnection: boolean;
   onRoomChecked?: (room: TRoomListItem) => void;
   roomChecked?: TRoomListItem;
   roomListByProfile: TRoomListItem[];
 };
 
 export const RoomPanel: FC<TProps> = ({
+  isCheckedRoomInProfile,
+  isConnection,
   onRoomChecked,
   roomChecked,
   roomListByProfile,
@@ -47,6 +54,8 @@ export const RoomPanel: FC<TProps> = ({
       />
       {isSearchActive && (
         <GlobalSearchResults
+          isCheckedRoomInProfile={isCheckedRoomInProfile}
+          isConnection={isConnection}
           list={searchListState}
           onRoomChecked={onRoomChecked}
           roomChecked={roomChecked}
@@ -62,9 +71,9 @@ export const RoomPanel: FC<TProps> = ({
                   <div
                     className={clsx("RoomPanel-ListItem", {
                       ["RoomPanel-ListItem__isChecked"]:
-                        roomChecked?.uuid === room.uuid,
+                        roomChecked?.id === room.id,
                     })}
-                    key={room.uuid}
+                    key={room.id}
                     onClick={() => handleRoomChecked(room)}
                   >
                     <Avatar
@@ -73,7 +82,19 @@ export const RoomPanel: FC<TProps> = ({
                       user={room.title}
                     />
                     <div>{room.title}</div>
-                    {/*<RoomJoinForm room={room} />*/}
+                    {roomChecked && (
+                      <RoomJoinForm
+                        button={
+                          <button className="RoomPanel-Join" type="submit">
+                            <Typography
+                              value={"join to channel"}
+                              variant={ETypographyVariant.TextB2Bold}
+                            />
+                          </button>
+                        }
+                        room={roomChecked}
+                      />
+                    )}
                   </div>
                 );
               })}

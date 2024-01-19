@@ -10,23 +10,27 @@ import {
 } from "react";
 import { useFormState } from "react-dom";
 import { getMessageListAction } from "@/app/actions/message/list/getMessageListAction";
+import type { TRoomListItem } from "@/app/api/room/list/types";
+import { WebsocketContext } from "@/app/shared/context/webSocketContext";
+import { useSessionNext } from "@/app/shared/hooks";
 import { type TMessage } from "@/app/shared/types/message";
 import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
 import { ChatHeader } from "@/app/widgets/chatPanel/chatHeader";
-import { WebsocketContext } from "@/app/shared/context/webSocketContext";
-import { useSessionNext } from "@/app/shared/hooks";
-import "./ChatPanel.scss";
 import { EFormFields } from "@/app/widgets/chatPanel/enums";
-import type { TRoomListItem } from "@/app/api/room/list/types";
+import "./ChatPanel.scss";
 
 type TProps = {
   isCheckedRoomInProfile: boolean;
+  isConnection: boolean;
+  onToggleConnection?: (isConnection: boolean) => void;
   roomChecked?: TRoomListItem;
 };
 
 export const ChatPanel: FC<TProps> = ({
   isCheckedRoomInProfile,
+  isConnection,
+  onToggleConnection,
   roomChecked,
 }) => {
   const { data: session, status } = useSessionNext();
@@ -35,7 +39,6 @@ export const ChatPanel: FC<TProps> = ({
   const { conn } = useContext(WebsocketContext);
   const [users, setUsers] = useState<Array<{ userId: string }>>([]);
   const [roomId, setRoomId] = useState<number | undefined>(undefined);
-  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   const buttonRef = useRef<HTMLInputElement>(null);
   const initialState = {
@@ -47,7 +50,15 @@ export const ChatPanel: FC<TProps> = ({
   const [state, formAction] = useFormState(getMessageListAction, initialState);
 
   useEffect(() => {
+    setRoomId(roomChecked?.id);
     roomId && buttonRef.current && buttonRef.current.click();
+  }, [roomId, roomChecked]);
+
+  useEffect(() => {
+    console.log("conn: ", conn);
+  }, [conn]);
+
+  useEffect(() => {
     // if (textarea.current) {
     //   autosize(textarea.current)
     // }
@@ -69,12 +80,26 @@ export const ChatPanel: FC<TProps> = ({
       session?.user?.id === m.userId ? (m.type = "self") : (m.type = "recv");
       setMessageList([...messageList, m]);
       setRoomId(Number(m.roomId));
-      setUserId(m.userId);
     });
-    conn.onclose = () => {};
-    conn.onerror = () => {};
-    conn.onopen = () => {};
-  }, [textareaRef, messageList, conn, users]);
+    conn.onclose = () => {
+      console.log("conn.onclose");
+      onToggleConnection?.(false);
+    };
+    conn.onerror = () => {
+      onToggleConnection?.(false);
+    };
+    conn.onopen = () => {
+      console.log("conn.onopen");
+      onToggleConnection?.(true);
+    };
+  }, [
+    textareaRef,
+    messageList,
+    conn,
+    users,
+    session?.user?.id,
+    onToggleConnection,
+  ]);
 
   const sendMessage = () => {
     if (!textareaRef.current?.value) return;
@@ -111,23 +136,31 @@ export const ChatPanel: FC<TProps> = ({
     return undefined;
   }, [session?.user?.id, state?.data]);
 
+  const handleSubmit = (formData: FormData) => {
+    const formattedFormData = new FormData();
+    roomId && formattedFormData.append(EFormFields.RoomId, roomId.toString());
+    console.log("roomId: ", roomId);
+    formAction(formattedFormData);
+  };
+
   return (
     <div className="ChatPanel">
       <ChatHeader />
       <ChatBody messageList={formattedMessages} />
       <ChatFooter
         isCheckedRoomInProfile={isCheckedRoomInProfile}
+        isConnection={isConnection}
         onSendMessage={sendMessage}
         ref={textareaRef}
         roomChecked={roomChecked}
       />
-      <form action={formAction}>
-        <input
-          defaultValue={roomId}
-          hidden={true}
-          name={EFormFields.RoomId}
-          type="text"
-        />
+      <form action={handleSubmit}>
+        {/*<input*/}
+        {/*  value={roomId}*/}
+        {/*  hidden={true}*/}
+        {/*  name={EFormFields.RoomId}*/}
+        {/*  type="text"*/}
+        {/*/>*/}
         <input hidden={true} ref={buttonRef} type="submit" />
       </form>
     </div>

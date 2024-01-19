@@ -5,7 +5,6 @@ import { fileSchema } from "@/app/api/upload";
 const profileImageListItemSchema = z.object({
   id: z.number(),
   profileId: z.number(),
-  uuid: z.string(),
   name: z.string(),
   url: z.string(),
   size: z.number(),
@@ -27,7 +26,6 @@ export const profileCreateParamsSchema = zfd.formData({
 
 export const profileSchema = z.object({
   id: z.string(),
-  uuid: z.string(),
   userId: z.string(),
   username: z.string(),
   firstName: z.string(),

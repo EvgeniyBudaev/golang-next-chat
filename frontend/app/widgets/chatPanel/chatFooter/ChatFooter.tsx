@@ -2,18 +2,19 @@
 
 import clsx from "clsx";
 import { type ForwardedRef, forwardRef, useState } from "react";
-import { Icon } from "@/app/uikit/components/icon";
-import { EFormFields } from "@/app/widgets/chatPanel/chatBody/enums";
-import "./ChatFooter.scss";
 import type { TRoomListItem } from "@/app/api/room/list/types";
 import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
+import { Icon } from "@/app/uikit/components/icon";
 import {
   ETypographyVariant,
   Typography,
 } from "@/app/uikit/components/typography";
+import { EFormFields } from "@/app/widgets/chatPanel/chatBody/enums";
+import "./ChatFooter.scss";
 
 type TProps = {
   isCheckedRoomInProfile: boolean;
+  isConnection: boolean;
   onSendMessage: () => void;
   roomChecked?: TRoomListItem;
 };
@@ -43,19 +44,21 @@ const Component = (props: TProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
           placeholder={"Write a message"}
           style={{ resize: "none" }}
         />
-        {props?.roomChecked && !props.isCheckedRoomInProfile && (
-          <RoomJoinForm
-            button={
-              <button className="ChatFooter-Join" type="submit">
-                <Typography
-                  value={"join to channel"}
-                  variant={ETypographyVariant.TextB2Bold}
-                />
-              </button>
-            }
-            room={props?.roomChecked}
-          />
-        )}
+        {props?.roomChecked &&
+          !props.isCheckedRoomInProfile &&
+          !props.isConnection && (
+            <RoomJoinForm
+              button={
+                <button className="ChatFooter-Join" type="submit">
+                  <Typography
+                    value={"join to channel"}
+                    variant={ETypographyVariant.TextB2Bold}
+                  />
+                </button>
+              }
+              room={props?.roomChecked}
+            />
+          )}
       </div>
       <Icon
         className="ChatFooter-IconSend"

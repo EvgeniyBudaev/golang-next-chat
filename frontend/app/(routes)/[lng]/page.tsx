@@ -1,16 +1,17 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getProfileDetail } from "@/app/api/profile/detail";
 import type { TRoomListItem } from "@/app/api/room/list/types";
+import { getRoomListByProfile } from "@/app/api/room/listByProfile";
 import { useTranslation } from "@/app/i18n";
 import { MainPage } from "@/app/pages/mainPage";
 import { ERoutes } from "@/app/shared/enums";
+import { TSession } from "@/app/shared/types/session";
 import { createPath } from "@/app/shared/utils";
-import { getRoomListByProfile } from "@/app/api/room/listByProfile";
-import { getProfileDetail } from "@/app/api/profile/detail";
 
 async function loader() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as TSession;
   if (!session) {
     return redirect(
       createPath({
@@ -25,7 +26,10 @@ async function loader() {
     const roomListResponse = await getRoomListByProfile({
       profileId: profileResponse.data.id.toString(),
     });
-    const roomListByProfile = roomListResponse.data as TRoomListItem[];
+    const roomListAllByProfile = roomListResponse.data as TRoomListItem[];
+    const roomListByProfile = roomListAllByProfile.filter(
+      (room) => room.roomName !== session?.user?.username,
+    );
     return { isSession: true, roomListByProfile };
   } catch (error) {
     throw new Error("errorBoundary.common.unexpectedError");

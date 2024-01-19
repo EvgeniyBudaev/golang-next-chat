@@ -18,10 +18,15 @@ export const MainPage: FC<TProps> = ({ roomListByProfile = [] }) => {
       (room) => room.id === roomChecked?.id,
     );
   }, [roomChecked, roomListByProfile]);
-  console.log("isCheckedRoomInProfile: ", isCheckedRoomInProfile);
+  const [isConnection, setIsConnection] = useState(false);
+  console.log("isConnection: ", isConnection);
 
   const handleRoomChecked = (item: TRoomListItem) => {
     setRoomChecked(item);
+  };
+
+  const handleToggleConnection = (isConnection: boolean) => {
+    setIsConnection(isConnection);
   };
 
   return (
@@ -29,12 +34,16 @@ export const MainPage: FC<TProps> = ({ roomListByProfile = [] }) => {
       <div className="MainPage-Box">
         <UserPanel />
         <RoomPanel
+          isCheckedRoomInProfile={isCheckedRoomInProfile}
+          isConnection={isConnection}
           roomChecked={roomChecked}
           roomListByProfile={roomListByProfile}
           onRoomChecked={handleRoomChecked}
         />
         <ChatPanel
           isCheckedRoomInProfile={isCheckedRoomInProfile}
+          isConnection={isConnection}
+          onToggleConnection={handleToggleConnection}
           roomChecked={roomChecked}
         />
       </div>

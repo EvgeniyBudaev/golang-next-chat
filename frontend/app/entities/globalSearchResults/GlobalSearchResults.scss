@@ -32,4 +32,11 @@
   &-Avatar {
     margin-right: 16px;
   }
+
+  &-Join {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+  }
 }

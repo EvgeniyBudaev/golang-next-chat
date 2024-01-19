@@ -1,5 +1,5 @@
 export type TMessage = {
-  uuid: string;
+  id: string;
   roomId: number;
   userId: string;
   type: "recv" | "self" | "sys";
@@ -8,7 +8,7 @@ export type TMessage = {
   isDeleted: boolean;
   isEdited: boolean;
   profile: {
-    uuid: string;
+    id: string;
     firstName: string;
     lastName?: string | null;
   };

@@ -12,7 +12,10 @@ import {
 } from "@/app/shared/utils";
 
 export async function getMessageListAction(prevState: any, formData: FormData) {
-  console.log("resolver", Object.fromEntries(formData.entries()));
+  console.log(
+    "getMessageListAction resolver",
+    Object.fromEntries(formData.entries()),
+  );
   const resolver = getMessageListFormSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
