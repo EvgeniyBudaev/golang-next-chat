@@ -5,7 +5,6 @@ import (
 	"fmt"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"log"
 	"time"
@@ -38,7 +37,6 @@ const (
 
 type Message struct {
 	ID        int64       `json:"id"`
-	UUID      uuid.UUID   `json:"uuid"`
 	RoomID    int64       `json:"roomId"`
 	UserID    string      `json:"userId"`
 	Type      MessageType `json:"type"`
@@ -50,7 +48,7 @@ type Message struct {
 }
 
 type ResponseMessage struct {
-	UUID      uuid.UUID                               `json:"uuid"`
+	ID        int64                                   `json:"id"`
 	RoomID    int64                                   `json:"roomId"`
 	UserID    string                                  `json:"userId"`
 	Type      MessageType                             `json:"type"`
@@ -99,7 +97,6 @@ func (c *Client) ReadMessage(h *Hub) {
 		}
 		msg := &Message{
 			ID:        c.ID,
-			UUID:      uuid.New(),
 			RoomID:    c.RoomID,
 			UserID:    c.UserID,
 			Type:      NoneMessage,

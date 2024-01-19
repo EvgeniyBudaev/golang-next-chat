@@ -6,7 +6,6 @@ import (
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"time"
 )
@@ -55,7 +54,6 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 			return nil, err
 		}
 		image := profileEntity.ImageProfile{
-			UUID:      uuid.New(),
 			Name:      file.Filename,
 			Url:       filePath,
 			Size:      file.Size,
@@ -75,7 +73,6 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 	//	return nil, err
 	//}
 	profileRequest := &profileEntity.Profile{
-		UUID:      uuid.New(),
 		UserID:    req.UserID,
 		Username:  req.Username,
 		Firstname: req.Firstname,
@@ -96,7 +93,6 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 	for _, i := range profileRequest.Images {
 		image := &profileEntity.ImageProfile{
 			ProfileID: profileRequest.ID,
-			UUID:      i.UUID,
 			Name:      i.Name,
 			Url:       i.Url,
 			Size:      i.Size,
@@ -122,7 +118,6 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 	}
 	responseProfile := profileEntity.ResponseProfile{
 		ID:        foundedProfile.ID,
-		UUID:      foundedProfile.UUID,
 		UserID:    foundedProfile.UserID,
 		Username:  foundedProfile.Username,
 		Firstname: foundedProfile.Firstname,
@@ -147,7 +142,6 @@ func (uc *UseCaseProfile) GetProfileByUsername(ctx *fiber.Ctx, req GetProfileReq
 	}
 	responseProfile := profileEntity.ResponseProfile{
 		ID:        foundedProfile.ID,
-		UUID:      foundedProfile.UUID,
 		UserID:    foundedProfile.UserID,
 		Username:  foundedProfile.Username,
 		Firstname: foundedProfile.Firstname,

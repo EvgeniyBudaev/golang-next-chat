@@ -1,16 +1,13 @@
 package ws
 
 import (
-	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
-	"github.com/google/uuid"
 )
 
 type Room struct {
-	ID       int64     `json:"id"`
-	UUID     uuid.UUID `json:"uuid"`
-	RoomName string    `json:"roomName"`
-	Title    string    `json:"title"`
+	ID       int64  `json:"id"`
+	RoomName string `json:"roomName"`
+	Title    string `json:"title"`
 }
 
 type RoomProfile struct {
@@ -20,11 +17,9 @@ type RoomProfile struct {
 }
 
 type RoomWithProfileResponse struct {
-	ID       int64                                 `json:"id"`
-	UUID     uuid.UUID                             `json:"uuid"`
-	RoomName string                                `json:"roomName"`
-	Title    string                                `json:"title"`
-	Profile  *profileEntity.ResponseProfileForRoom `json:"profile"`
+	ID       int64  `json:"id"`
+	RoomName string `json:"roomName"`
+	Title    string `json:"title"`
 }
 
 type QueryParamsRoomList struct {

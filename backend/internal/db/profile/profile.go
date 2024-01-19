@@ -34,9 +34,9 @@ func (pg *PGProfileDB) Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profile
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO profiles (uuid, user_id, username, first_name, last_name, email, created_at, updated_at," +
-		" is_deleted, is_enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, p.UUID, p.UserID, p.Username, p.Firstname, p.Lastname, p.Email,
+	query := "INSERT INTO profiles (user_id, username, first_name, last_name, email, created_at, updated_at," +
+		" is_deleted, is_enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, p.UserID, p.Username, p.Firstname, p.Lastname, p.Email,
 		p.CreatedAt, p.UpdatedAt, p.IsDeleted, p.IsEnabled).Scan(&p.ID)
 	if err != nil {
 		logger.Log.Debug("error func Create, method QueryRowContext by path internal/db/profile/profile.go",
@@ -52,7 +52,7 @@ func (pg *PGProfileDB) Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profile
 
 func (pg *PGProfileDB) FindByUsername(ctx *fiber.Ctx, username string) (*profileEntity.Profile, error) {
 	p := profileEntity.Profile{}
-	query := `SELECT id, uuid, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted,
+	query := `SELECT id, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted,
        is_enabled
 			  FROM profiles
 			  WHERE username = $1`
@@ -64,7 +64,7 @@ func (pg *PGProfileDB) FindByUsername(ctx *fiber.Ctx, username string) (*profile
 			zap.Error(err))
 		return nil, err
 	}
-	err := row.Scan(&p.ID, &p.UUID, &p.UserID, &p.Username, &p.Firstname, &p.Lastname, &p.Email, &p.CreatedAt,
+	err := row.Scan(&p.ID, &p.UserID, &p.Username, &p.Firstname, &p.Lastname, &p.Email, &p.CreatedAt,
 		&p.UpdatedAt, &p.IsDeleted, &p.IsEnabled)
 	if err != nil {
 		logger.Log.Debug("error func FindByUsername, method Scan by path internal/db/profile/profile.go",
@@ -82,9 +82,9 @@ func (pg *PGProfileDB) AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*
 		return nil, err
 	}
 	defer tx.Rollback()
-	query := "INSERT INTO profile_images (profile_id, uuid, name, url, size, created_at, updated_at, is_deleted," +
-		" is_enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, p.ProfileID, p.UUID, p.Name, p.Url, p.Size, p.CreatedAt, p.UpdatedAt,
+	query := "INSERT INTO profile_images (profile_id, name, url, size, created_at, updated_at, is_deleted," +
+		" is_enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id"
+	err = tx.QueryRowContext(ctx, query, p.ProfileID, p.Name, p.Url, p.Size, p.CreatedAt, p.UpdatedAt,
 		p.IsDeleted, p.IsEnabled).Scan(&p.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddImage, method QueryRowContext by path internal/db/profile/profile.go",
@@ -99,7 +99,7 @@ func (pg *PGProfileDB) AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*
 
 func (pg *PGProfileDB) SelectListImage(cf *fiber.Ctx, profileID int) ([]*profileEntity.ImageProfile, error) {
 	ctx := cf.Context()
-	query := `SELECT id, profile_id, uuid, name, url, size, created_at, updated_at, is_deleted, is_enabled
+	query := `SELECT id, profile_id, name, url, size, created_at, updated_at, is_deleted, is_enabled
 	FROM profile_images
 	WHERE profile_id = $1`
 	rows, err := pg.db.QueryContext(ctx, query, profileID)
@@ -112,7 +112,7 @@ func (pg *PGProfileDB) SelectListImage(cf *fiber.Ctx, profileID int) ([]*profile
 	list := make([]*profileEntity.ImageProfile, 0)
 	for rows.Next() {
 		data := profileEntity.ImageProfile{}
-		err := rows.Scan(&data.ID, &data.ProfileID, &data.UUID, &data.Name, &data.Url, &data.Size,
+		err := rows.Scan(&data.ID, &data.ProfileID, &data.Name, &data.Url, &data.Size,
 			&data.CreatedAt, &data.UpdatedAt, &data.IsDeleted, &data.IsEnabled)
 		if err != nil {
 			logger.Log.Debug("error func SelectListImage, method Scan by path internal/db/profile/profile.go",

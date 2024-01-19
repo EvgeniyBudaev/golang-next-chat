@@ -1,6 +1,5 @@
 CREATE TABLE room_messages (
                                       id BIGSERIAL NOT NULL PRIMARY KEY,
-                                      uuid UUID NOT NULL UNIQUE,
                                       room_id BIGINT NOT NULL,
                                       user_id VARCHAR NOT NULL,
                                       type VARCHAR NOT NULL,

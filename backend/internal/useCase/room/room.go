@@ -2,7 +2,6 @@ package room
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"strconv"
 	"time"
 
@@ -47,7 +46,6 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 			fmt.Println("hub Register: ", cl)
 			uc.hub.Clients[cl.RoomID] = append(uc.hub.Clients[cl.RoomID], cl)
 			uc.hub.Broadcast <- &ws.Message{
-				UUID:      uuid.New(),
 				RoomID:    cl.RoomID,
 				UserID:    cl.UserID,
 				Type:      ws.SystemMessage,
@@ -69,7 +67,6 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 				}
 			}
 			uc.hub.Broadcast <- &ws.Message{
-				UUID:      uuid.New(),
 				RoomID:    cl.RoomID,
 				UserID:    cl.UserID,
 				Type:      ws.SystemMessage,
@@ -82,7 +79,10 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 
 		case m := <-uc.hub.Broadcast:
 			fmt.Println("hub Broadcast: ", m)
+			start := time.Now()
 			_, err := uc.db.AddMessage(m)
+			elapsed := time.Since(start)
+			fmt.Printf("Функция выполнена за %s\n", elapsed)
 			if err != nil {
 				logger.Log.Debug("error func Run, method AddMessage by path internal/useCase/room/room.go",
 					zap.Error(err))
@@ -98,7 +98,6 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 
 func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.Room, error) {
 	roomRequest := &ws.Room{
-		UUID:     uuid.New(),
 		RoomName: r.RoomName,
 		Title:    r.Title,
 	}

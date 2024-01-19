@@ -1,6 +1,5 @@
 CREATE TABLE profiles (
                           id BIGSERIAL NOT NULL PRIMARY KEY,
-                          uuid UUID NOT NULL UNIQUE,
                           user_id VARCHAR NOT NULL UNIQUE,
                           username VARCHAR NOT NULL UNIQUE,
                           first_name VARCHAR NOT NULL,
