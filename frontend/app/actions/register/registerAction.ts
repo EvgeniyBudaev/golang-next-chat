@@ -2,8 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { signupFormSchema } from "@/app/actions/register/schemas";
+import {
+  createProfile,
+  type TProfileCreateParams,
+} from "@/app/api/profile/create";
 import { register } from "@/app/api/register/domain";
 import { mapRegisterToDto } from "@/app/api/register/utils";
+import { createRoom } from "@/app/api/room/create/domain";
+import { ERoutes } from "@/app/shared/enums";
 import { TCommonResponseError } from "@/app/shared/types/error";
 import {
   getResponseError,
@@ -11,12 +17,6 @@ import {
   normalizePhoneNumber,
   createPath,
 } from "@/app/shared/utils";
-import { ERoutes } from "@/app/shared/enums";
-import { createRoom } from "@/app/api/room/create/domain";
-import {
-  createProfile,
-  type TProfileCreateParams,
-} from "@/app/api/profile/create";
 
 export async function registerAction(prevState: any, formData: FormData) {
   const resolver = signupFormSchema.safeParse(
@@ -49,13 +49,13 @@ export async function registerAction(prevState: any, formData: FormData) {
       profileFormData.append("email", userResponse.data.email);
       profileFormData.append("isEnabled", userResponse.data.enabled.toString());
       await createProfile(profileFormData as unknown as TProfileCreateParams);
-      const roomDto = {
-        id: userResponse.data.id,
-        userId: userResponse.data.id,
-        roomName: userResponse.data.username,
-        title: `${userResponse.data.firstName} ${userResponse.data.lastName}`,
-      };
-      await createRoom(roomDto);
+      // const roomDto = {
+      //   id: userResponse.data.id,
+      //   userId: userResponse.data.id,
+      //   roomName: userResponse.data.username,
+      //   title: `${userResponse.data.firstName} ${userResponse.data.lastName}`,
+      // };
+      // await createRoom(roomDto);
     }
     const path = createPath({
       route: ERoutes.Register,

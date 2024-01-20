@@ -1,45 +1,60 @@
 "use client";
 
-import { type FC, useEffect, useRef } from "react";
-import type { TRoomListItem } from "@/app/api/room/list/types";
+import clsx from "clsx";
+import { type FC, useContext, useEffect, useRef } from "react";
+import { type TProfileListItem } from "@/app/api/profile/list/types";
 import { useTranslation } from "@/app/i18n/client";
+import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
 import { Avatar } from "@/app/uikit/components/avatar";
 import {
   ETypographyVariant,
   Typography,
 } from "@/app/uikit/components/typography";
 import "./GlobalSearchResults.scss";
-import clsx from "clsx";
-import { RoomJoinForm } from "@/app/features/room/roomJoinForm";
+import { WebsocketContext } from "@/app/shared/context/webSocketContext";
+import { WEBSOCKET_URL } from "@/app/shared/constants";
+import { BufferedWebSocket } from "@/app/shared/utils/bufferedWebSocket";
+import { useSessionNext } from "@/app/shared/hooks";
 
 type TProps = {
   isCheckedRoomInProfile: boolean;
   isConnection: boolean;
-  list: TRoomListItem[];
-  onRoomChecked?: (room: TRoomListItem) => void;
-  roomChecked?: TRoomListItem;
+  list: TProfileListItem[];
+  onItemChecked?: (room: TProfileListItem) => void;
+  itemChecked?: TProfileListItem;
 };
 
 export const GlobalSearchResults: FC<TProps> = ({
   isCheckedRoomInProfile,
   isConnection,
   list,
-  onRoomChecked,
-  roomChecked,
+  onItemChecked,
+  itemChecked,
 }) => {
   const { t } = useTranslation("index");
   const buttonRefs = useRef<any>([]);
+  const { setConn } = useContext(WebsocketContext);
+  const { data: session, status } = useSessionNext();
 
   useEffect(() => {
-    if (isCheckedRoomInProfile && roomChecked) {
-      if (buttonRefs.current && buttonRefs.current[roomChecked.id]) {
-        buttonRefs.current[roomChecked.id].click();
+    if (isCheckedRoomInProfile && itemChecked) {
+      if (buttonRefs.current && buttonRefs.current[itemChecked.id]) {
+        buttonRefs.current[itemChecked.id].click();
       }
     }
-  }, [roomChecked]);
+  }, [itemChecked]);
 
-  const handleRoomChecked = (item: TRoomListItem) => {
-    onRoomChecked?.(item);
+  const joinRoom = (item: TProfileListItem) => {
+    const url = `${WEBSOCKET_URL}/room/join/1?userId=${session?.user.id}&username=${session?.user.username}&receiverId=${item.id}`;
+    const ws = new BufferedWebSocket(url);
+    if (ws.OPEN) {
+      setConn(ws);
+    }
+  };
+
+  const handleRoomChecked = (item: TProfileListItem) => {
+    onItemChecked?.(item);
+    joinRoom(item);
   };
 
   return (
@@ -56,7 +71,7 @@ export const GlobalSearchResults: FC<TProps> = ({
             <div
               className={clsx("GlobalSearchResults-ListItem", {
                 ["GlobalSearchResults-ListItem__isChecked"]:
-                  roomChecked?.id === item.id,
+                  itemChecked?.id === item.id,
               })}
               key={item.id}
               onClick={() => handleRoomChecked(item)}
@@ -64,26 +79,28 @@ export const GlobalSearchResults: FC<TProps> = ({
               <Avatar
                 className="GlobalSearchResults-Avatar"
                 size={40}
-                user={item.title}
+                user={item.firstName}
               />
-              <div>{item.title}</div>
-              {roomChecked && isCheckedRoomInProfile && !isConnection && (
-                <RoomJoinForm
-                  button={
-                    <button
-                      className="GlobalSearchResults-Join"
-                      ref={(ref) => (buttonRefs.current[item.id] = ref)}
-                      type="submit"
-                    >
-                      <Typography
-                        value={"join to channel"}
-                        variant={ETypographyVariant.TextB2Bold}
-                      />
-                    </button>
-                  }
-                  room={item}
-                />
-              )}
+              <div>
+                {item.firstName}&nbsp;{item.lastName}
+              </div>
+              {/*{itemChecked && isCheckedRoomInProfile && !isConnection && (*/}
+              {/*  <RoomJoinForm*/}
+              {/*    button={*/}
+              {/*      <button*/}
+              {/*        className="GlobalSearchResults-Join"*/}
+              {/*        ref={(ref) => (buttonRefs.current[item.id] = ref)}*/}
+              {/*        type="submit"*/}
+              {/*      >*/}
+              {/*        <Typography*/}
+              {/*          value={"join to channel"}*/}
+              {/*          variant={ETypographyVariant.TextB2Bold}*/}
+              {/*        />*/}
+              {/*      </button>*/}
+              {/*    }*/}
+              {/*    room={item}*/}
+              {/*  />*/}
+              {/*)}*/}
             </div>
           );
         })}

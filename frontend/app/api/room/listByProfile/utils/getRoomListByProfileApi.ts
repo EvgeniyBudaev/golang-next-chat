@@ -8,7 +8,6 @@ export const getRoomListByProfileApi: TApiFunction<
   TRoomListResponse
 > = (params) => {
   const url = "/api/v1/profile/room/list";
-  console.log("getRoomListByProfileApi url: ", url);
   return fetchApi<TRoomListResponse>(url, {
     method: EFormMethods.Post,
     body: params,

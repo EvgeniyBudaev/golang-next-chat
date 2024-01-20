@@ -33,6 +33,8 @@ export const profileSchema = z.object({
   email: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  isDeleted: z.boolean(),
+  isEnabled: z.boolean(),
   images: profileImageListItemSchema.array().nullish(),
 });
 

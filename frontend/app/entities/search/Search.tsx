@@ -13,8 +13,8 @@ import {
   useMemo,
 } from "react";
 import { useFormState } from "react-dom";
-import { getRoomListAction } from "@/app/actions/room/list/getRoomListAction";
-import { TRoomListItem } from "@/app/api/room/list/types";
+import { getProfileListAction } from "@/app/actions/profile/list/getProfileListAction";
+import { type TProfileListItem } from "@/app/api/profile/list";
 import { EFormFields } from "@/app/entities/search/enums";
 import { useSessionNext } from "@/app/shared/hooks";
 import { Icon } from "@/app/uikit/components/icon";
@@ -23,7 +23,7 @@ import "./Search.scss";
 type TProps = {
   className?: string;
   onChangeInputValue?: (event: ChangeEvent<HTMLInputElement>) => void;
-  onChangeSearchState?: (list: TRoomListItem[]) => void;
+  onChangeSearchState?: (list: TProfileListItem[]) => void;
 };
 
 export const Search: FC<TProps> = ({
@@ -41,19 +41,19 @@ export const Search: FC<TProps> = ({
   const { data: session, status } = useSessionNext();
   const buttonRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(false);
-  const [state, formAction] = useFormState(getRoomListAction, initialState);
+  const [state, formAction] = useFormState(getProfileListAction, initialState);
 
-  const roomListWithoutSessionUser = useMemo(() => {
-    const list = state?.data as TRoomListItem[];
-    return (list ?? []).filter((room) => {
-      return room.roomName !== session?.user?.username;
+  const listWithoutSessionUser = useMemo(() => {
+    const list = state?.data as TProfileListItem[];
+    return (list ?? []).filter((item) => {
+      return item.username !== session?.user?.username;
     });
   }, [state?.data, session?.user?.username]);
 
   useEffect(() => {
     if (!state) return;
-    onChangeSearchState?.(roomListWithoutSessionUser);
-  }, [roomListWithoutSessionUser]);
+    onChangeSearchState?.(listWithoutSessionUser);
+  }, [listWithoutSessionUser, state]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetcher = useCallback(
