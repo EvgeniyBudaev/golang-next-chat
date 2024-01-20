@@ -34,7 +34,6 @@ export const ChatPanel: FC<TProps> = ({
   const [messageList, setMessageList] = useState<TMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { conn } = useContext(WebsocketContext);
-  const [users, setUsers] = useState<Array<{ userId: string }>>([]);
   const [roomId, setRoomId] = useState<number | undefined>(undefined);
   const buttonRef = useRef<HTMLInputElement>(null);
 
@@ -58,18 +57,18 @@ export const ChatPanel: FC<TProps> = ({
     conn.addEventListener("message", (message) => {
       const m: WSContent = JSON.parse(message.data);
       console.log("addEventListener m: ", m);
-      // if (m.content == "A new user has joined the room") {
-      //   setUsers([...users, { userId: m.userId }]);
-      // }
-      // if (m.content == "user left the chat") {
-      //   const deleteUser = users.filter((user) => user.userId != m.userId);
-      //   setUsers([...deleteUser]);
-      //   // setMessageList([...messageList, m]);
-      //   return;
-      // }
-      // session?.user?.id === m.userId ? (m.type = "self") : (m.type = "recv");
-      setMessageList(m.messageListByRoom);
-      // setRoomId(Number(m.roomId));
+      if (m.message.content === "A new user has joined the room") {
+        setMessageList(m.messageListByRoom);
+      }
+      if (m.message.content === "user left the chat") {
+        setMessageList([...messageList, m.message]);
+        return;
+      }
+      session?.user?.id === m.message.userId
+        ? (m.message.type = "self")
+        : (m.message.type = "recv");
+      setMessageList([...messageList, m.message]);
+      setRoomId(Number(m.message.roomId));
     });
     conn.onclose = () => {
       console.log("conn.onclose");
@@ -82,14 +81,7 @@ export const ChatPanel: FC<TProps> = ({
       console.log("conn.onopen");
       onToggleConnection?.(true);
     };
-  }, [
-    textareaRef,
-    // messageList,
-    conn,
-    // users,
-    session?.user?.id,
-    onToggleConnection,
-  ]);
+  }, [textareaRef, conn, session?.user?.id, onToggleConnection, messageList]);
 
   const sendMessage = () => {
     if (!textareaRef.current?.value) return;
