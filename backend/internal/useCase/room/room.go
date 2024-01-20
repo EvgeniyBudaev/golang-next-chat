@@ -55,8 +55,15 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 				IsEdited:  false,
 				Content:   cl.Username + " has joined the channel",
 			}
+			messageListByRoom, err := uc.db.SelectMessageListWithoutCtx(cl.RoomID)
+			if err != nil {
+				logger.Log.Debug(
+					"error func Run, method SelectMessageListWithoutCtx by path internal/useCase/room/room.go",
+					zap.Error(err))
+			}
 			uc.hub.Broadcast <- &ws.Content{
-				Message: message,
+				Message:           message,
+				MessageListByRoom: messageListByRoom,
 			}
 
 		case cl := <-uc.hub.Unregister:
@@ -85,26 +92,17 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 
 		case c := <-uc.hub.Broadcast:
 			fmt.Println("hub Broadcast: ", c)
-			start := time.Now()
+			//start := time.Now()
 			_, err := uc.db.AddMessage(c.Message)
-			elapsed := time.Since(start)
-			fmt.Printf("Функция выполнена за %s\n", elapsed)
+			//elapsed := time.Since(start)
+			//fmt.Printf("Функция выполнена за %s\n", elapsed)
 			if err != nil {
 				logger.Log.Debug("error func Run, method AddMessage by path internal/useCase/room/room.go",
 					zap.Error(err))
 			}
-			messageListByRoom, err := uc.db.SelectMessageListWithoutCtx(c.Message.RoomID)
-			if err != nil {
-				logger.Log.Debug(
-					"error func Run, method SelectMessageListWithoutCtx by path internal/useCase/room/room.go",
-					zap.Error(err))
-			}
 			if _, ok := uc.hub.Clients[c.Message.RoomID]; ok {
 				for _, cl := range uc.hub.Clients[c.Message.RoomID] {
-					cl.Content <- &ws.Content{
-						Message:           c.Message,
-						MessageListByRoom: messageListByRoom,
-					}
+					cl.Content <- c
 				}
 			}
 		}
