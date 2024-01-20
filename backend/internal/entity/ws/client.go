@@ -49,6 +49,8 @@ type Message struct {
 	UpdatedAt time.Time   `json:"updatedAt"`
 	IsDeleted bool        `json:"isDeleted"`
 	IsEdited  bool        `json:"isEdited"`
+	IsJoined  bool        `json:"isJoined"`
+	IsLeft    bool        `json:"isLeft"`
 	Content   string      `json:"content"`
 }
 
@@ -61,6 +63,8 @@ type ResponseMessage struct {
 	UpdatedAt time.Time                               `json:"updatedAt"`
 	IsDeleted bool                                    `json:"isDeleted"`
 	IsEdited  bool                                    `json:"isEdited"`
+	IsJoined  bool                                    `json:"isJoined"`
+	IsLeft    bool                                    `json:"isLeft"`
 	Profile   *profileEntity.ResponseMessageByProfile `json:"profile"`
 	Content   string                                  `json:"content"`
 }

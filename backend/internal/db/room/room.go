@@ -182,9 +182,9 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 	//ctx := cf.Context()
 	ctx := context.Background()
 	query := "INSERT INTO room_messages (room_id, user_id, type, created_at, updated_at, is_deleted, is_edited," +
-		" content) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id"
+		" is_joined, is_left, content) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id"
 	err := pg.db.QueryRowContext(ctx, query, m.RoomID, m.UserID, m.Type, m.CreatedAt, m.UpdatedAt, m.IsDeleted,
-		m.IsEdited, m.Content).Scan(&m.ID)
+		m.IsEdited, m.IsJoined, m.IsLeft, m.Content).Scan(&m.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddMessage, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -198,7 +198,7 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.ResponseMessage, error) {
 	ctx := cf.Context()
 	query := "SELECT rm.id, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
-		"rm.is_edited, rm.content, " +
+		"rm.is_edited, rm.is_joined, rm.is_left, rm.content, " +
 		"p.id, p.first_name, p.last_name " +
 		"FROM room_messages rm " +
 		"JOIN profiles p ON rm.user_id = p.user_id " +
@@ -216,7 +216,7 @@ func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Respon
 		data := ws.ResponseMessage{}
 		profile := profileEntity.ResponseMessageByProfile{}
 		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Type, &data.CreatedAt, &data.UpdatedAt,
-			&data.IsDeleted, &data.IsEdited, &data.Content,
+			&data.IsDeleted, &data.IsEdited, &data.IsJoined, &data.IsLeft, &data.Content,
 			&profile.ID, &profile.Firstname, &profile.Lastname)
 		if err != nil {
 			logger.Log.Debug("error func SelectMessageList, method Scan by path internal/db/room/room.go",
@@ -232,7 +232,7 @@ func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Respon
 func (pg *PGRoomDB) SelectMessageListWithoutCtx(roomId int64) ([]*ws.ResponseMessage, error) {
 	ctx := context.Background()
 	query := "SELECT rm.id, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
-		"rm.is_edited, rm.content, " +
+		"rm.is_edited, rm.is_joined, rm.is_left, rm.content, " +
 		"p.id, p.first_name, p.last_name " +
 		"FROM room_messages rm " +
 		"JOIN profiles p ON rm.user_id = p.user_id " +
@@ -250,7 +250,7 @@ func (pg *PGRoomDB) SelectMessageListWithoutCtx(roomId int64) ([]*ws.ResponseMes
 		data := ws.ResponseMessage{}
 		profile := profileEntity.ResponseMessageByProfile{}
 		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Type, &data.CreatedAt, &data.UpdatedAt,
-			&data.IsDeleted, &data.IsEdited, &data.Content,
+			&data.IsDeleted, &data.IsEdited, &data.IsJoined, &data.IsLeft, &data.Content,
 			&profile.ID, &profile.Firstname, &profile.Lastname)
 		if err != nil {
 			logger.Log.Debug("error func SelectMessageList, method Scan by path internal/db/room/room.go",
