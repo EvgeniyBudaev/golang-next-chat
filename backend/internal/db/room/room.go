@@ -228,3 +228,37 @@ func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.Respon
 	}
 	return list, nil
 }
+
+func (pg *PGRoomDB) SelectMessageListWithoutCtx(roomId int64) ([]*ws.ResponseMessage, error) {
+	ctx := context.Background()
+	query := "SELECT rm.id, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
+		"rm.is_edited, rm.content, " +
+		"p.id, p.first_name, p.last_name " +
+		"FROM room_messages rm " +
+		"JOIN profiles p ON rm.user_id = p.user_id " +
+		"WHERE rm.room_id = $1 " +
+		"ORDER BY rm.created_at ASC"
+	rows, err := pg.db.QueryContext(ctx, query, roomId)
+	if err != nil {
+		logger.Log.Debug("error func SelectMessageList, method QueryContext by path internal/db/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+	list := make([]*ws.ResponseMessage, 0)
+	for rows.Next() {
+		data := ws.ResponseMessage{}
+		profile := profileEntity.ResponseMessageByProfile{}
+		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Type, &data.CreatedAt, &data.UpdatedAt,
+			&data.IsDeleted, &data.IsEdited, &data.Content,
+			&profile.ID, &profile.Firstname, &profile.Lastname)
+		if err != nil {
+			logger.Log.Debug("error func SelectMessageList, method Scan by path internal/db/room/room.go",
+				zap.Error(err))
+			continue
+		}
+		data.Profile = &profile
+		list = append(list, &data)
+	}
+	return list, nil
+}

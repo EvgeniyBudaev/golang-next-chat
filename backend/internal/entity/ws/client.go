@@ -18,12 +18,17 @@ type Client struct {
 	UserID   string `json:"userId"`
 	Username string `json:"username"`
 	Conn     *websocket.Conn
-	Message  chan *Message
+	Content  chan *Content
 }
 
 type ClientResponse struct {
 	ID       int64  `json:"id"`
 	Username string `json:"username"`
+}
+
+type Content struct {
+	Message           *Message           `json:"message"`
+	MessageListByRoom []*ResponseMessage `json:"messageListByRoom"`
 }
 
 type MessageType string
@@ -65,12 +70,12 @@ func (c *Client) WriteMessage() {
 		c.Conn.Close()
 	}()
 	for {
-		message, ok := <-c.Message
-		fmt.Println("[WriteMessage message] ", message)
+		content, ok := <-c.Content
+		fmt.Println("[WriteMessage content] ", content)
 		if !ok {
 			return
 		}
-		c.Conn.WriteJSON(message)
+		c.Conn.WriteJSON(content)
 	}
 }
 
@@ -106,6 +111,8 @@ func (c *Client) ReadMessage(h *Hub) {
 			IsEdited:  false,
 			Content:   messageData.Content,
 		}
-		h.Broadcast <- msg
+		h.Broadcast <- &Content{
+			Message: msg,
+		}
 	}
 }

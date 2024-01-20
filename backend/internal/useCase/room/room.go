@@ -45,7 +45,7 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 		case cl := <-uc.hub.Register:
 			fmt.Println("hub Register: ", cl)
 			uc.hub.Clients[cl.RoomID] = append(uc.hub.Clients[cl.RoomID], cl)
-			uc.hub.Broadcast <- &ws.Message{
+			message := &ws.Message{
 				RoomID:    cl.RoomID,
 				UserID:    cl.UserID,
 				Type:      ws.SystemMessage,
@@ -54,6 +54,9 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 				IsDeleted: false,
 				IsEdited:  false,
 				Content:   cl.Username + " has joined the channel",
+			}
+			uc.hub.Broadcast <- &ws.Content{
+				Message: message,
 			}
 
 		case cl := <-uc.hub.Unregister:
@@ -66,7 +69,7 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 					}
 				}
 			}
-			uc.hub.Broadcast <- &ws.Message{
+			message := &ws.Message{
 				RoomID:    cl.RoomID,
 				UserID:    cl.UserID,
 				Type:      ws.SystemMessage,
@@ -76,20 +79,32 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 				IsEdited:  false,
 				Content:   cl.Username + " left the channel",
 			}
+			uc.hub.Broadcast <- &ws.Content{
+				Message: message,
+			}
 
-		case m := <-uc.hub.Broadcast:
-			fmt.Println("hub Broadcast: ", m)
+		case c := <-uc.hub.Broadcast:
+			fmt.Println("hub Broadcast: ", c)
 			start := time.Now()
-			_, err := uc.db.AddMessage(m)
+			_, err := uc.db.AddMessage(c.Message)
 			elapsed := time.Since(start)
 			fmt.Printf("Функция выполнена за %s\n", elapsed)
 			if err != nil {
 				logger.Log.Debug("error func Run, method AddMessage by path internal/useCase/room/room.go",
 					zap.Error(err))
 			}
-			if _, ok := uc.hub.Clients[m.RoomID]; ok {
-				for _, cl := range uc.hub.Clients[m.RoomID] {
-					cl.Message <- m
+			messageListByRoom, err := uc.db.SelectMessageListWithoutCtx(c.Message.RoomID)
+			if err != nil {
+				logger.Log.Debug(
+					"error func Run, method SelectMessageListWithoutCtx by path internal/useCase/room/room.go",
+					zap.Error(err))
+			}
+			if _, ok := uc.hub.Clients[c.Message.RoomID]; ok {
+				for _, cl := range uc.hub.Clients[c.Message.RoomID] {
+					cl.Content <- &ws.Content{
+						Message:           c.Message,
+						MessageListByRoom: messageListByRoom,
+					}
 				}
 			}
 		}
@@ -215,7 +230,7 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 		UserID:   userId,
 		Username: username,
 		Conn:     conn,
-		Message:  make(chan *ws.Message),
+		Content:  make(chan *ws.Content),
 	}
 	profile, err := uc.db.FindProfile(userId)
 	rp := ws.RoomProfile{
