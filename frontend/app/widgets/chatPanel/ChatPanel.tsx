@@ -8,16 +8,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { useFormState } from "react-dom";
-import { getMessageListAction } from "@/app/actions/message/list/getMessageListAction";
 import type { TRoomListItem } from "@/app/api/room/list/types";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { useSessionNext } from "@/app/shared/hooks";
-import { type TMessage } from "@/app/shared/types/message";
+import { type TMessage, WSContent } from "@/app/shared/types/message";
 import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
 import { ChatHeader } from "@/app/widgets/chatPanel/chatHeader";
-import { EFormFields } from "@/app/widgets/chatPanel/enums";
 import "./ChatPanel.scss";
 
 type TProps = {
@@ -39,15 +36,7 @@ export const ChatPanel: FC<TProps> = ({
   const { conn } = useContext(WebsocketContext);
   const [users, setUsers] = useState<Array<{ userId: string }>>([]);
   const [roomId, setRoomId] = useState<number | undefined>(undefined);
-
   const buttonRef = useRef<HTMLInputElement>(null);
-  const initialState = {
-    data: undefined,
-    error: undefined,
-    errors: undefined,
-    success: false,
-  };
-  const [state, formAction] = useFormState(getMessageListAction, initialState);
 
   useEffect(() => {
     setRoomId(roomChecked?.id);
@@ -67,19 +56,20 @@ export const ChatPanel: FC<TProps> = ({
       return;
     }
     conn.addEventListener("message", (message) => {
-      const m: TMessage = JSON.parse(message.data);
-      if (m.content == "A new user has joined the room") {
-        setUsers([...users, { userId: m.userId }]);
-      }
-      if (m.content == "user left the chat") {
-        const deleteUser = users.filter((user) => user.userId != m.userId);
-        setUsers([...deleteUser]);
-        setMessageList([...messageList, m]);
-        return;
-      }
-      session?.user?.id === m.userId ? (m.type = "self") : (m.type = "recv");
-      setMessageList([...messageList, m]);
-      setRoomId(Number(m.roomId));
+      const m: WSContent = JSON.parse(message.data);
+      console.log("addEventListener m: ", m);
+      // if (m.content == "A new user has joined the room") {
+      //   setUsers([...users, { userId: m.userId }]);
+      // }
+      // if (m.content == "user left the chat") {
+      //   const deleteUser = users.filter((user) => user.userId != m.userId);
+      //   setUsers([...deleteUser]);
+      //   // setMessageList([...messageList, m]);
+      //   return;
+      // }
+      // session?.user?.id === m.userId ? (m.type = "self") : (m.type = "recv");
+      setMessageList(m.messageListByRoom);
+      // setRoomId(Number(m.roomId));
     });
     conn.onclose = () => {
       console.log("conn.onclose");
@@ -94,9 +84,9 @@ export const ChatPanel: FC<TProps> = ({
     };
   }, [
     textareaRef,
-    messageList,
+    // messageList,
     conn,
-    users,
+    // users,
     session?.user?.id,
     onToggleConnection,
   ]);
@@ -120,8 +110,8 @@ export const ChatPanel: FC<TProps> = ({
   };
 
   const formattedMessages: TMessage[] | undefined = useMemo(() => {
-    if (state?.data) {
-      return state?.data.map((message) => {
+    if (messageList) {
+      return messageList.map((message) => {
         return {
           ...message,
           type:
@@ -134,14 +124,7 @@ export const ChatPanel: FC<TProps> = ({
       });
     }
     return undefined;
-  }, [session?.user?.id, state?.data]);
-
-  const handleSubmit = (formData: FormData) => {
-    const formattedFormData = new FormData();
-    roomId && formattedFormData.append(EFormFields.RoomId, roomId.toString());
-    console.log("roomId: ", roomId);
-    formAction(formattedFormData);
-  };
+  }, [session?.user?.id, messageList]);
 
   return (
     <div className="ChatPanel">
@@ -154,15 +137,6 @@ export const ChatPanel: FC<TProps> = ({
         ref={textareaRef}
         roomChecked={roomChecked}
       />
-      <form action={handleSubmit}>
-        {/*<input*/}
-        {/*  value={roomId}*/}
-        {/*  hidden={true}*/}
-        {/*  name={EFormFields.RoomId}*/}
-        {/*  type="text"*/}
-        {/*/>*/}
-        <input hidden={true} ref={buttonRef} type="submit" />
-      </form>
     </div>
   );
 };

@@ -1,3 +1,8 @@
+export type WSContent = {
+  message: TMessage;
+  messageListByRoom: TMessage[];
+};
+
 export type TMessage = {
   id: string;
   roomId: number;
