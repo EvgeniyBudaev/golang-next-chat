@@ -12,6 +12,8 @@ export type TMessage = {
   updatedAt: string;
   isDeleted: boolean;
   isEdited: boolean;
+  isJoined: boolean;
+  isLeft: boolean;
   profile: {
     id: string;
     firstName: string;

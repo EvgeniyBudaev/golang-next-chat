@@ -57,18 +57,18 @@ export const ChatPanel: FC<TProps> = ({
     conn.addEventListener("message", (message) => {
       const m: WSContent = JSON.parse(message.data);
       console.log("addEventListener m: ", m);
-      if (m.message.content === "A new user has joined the room") {
-        setMessageList(m.messageListByRoom);
-      }
-      if (m.message.content === "user left the chat") {
-        setMessageList([...messageList, m.message]);
-        return;
-      }
+      // if (m.message.isJoined) {
+      //   setMessageList(m.messageListByRoom);
+      // }
+      // if (m.message.isLeft) {
+      //   setMessageList(m.messageListByRoom);
+      //   return;
+      // }
       session?.user?.id === m.message.userId
         ? (m.message.type = "self")
         : (m.message.type = "recv");
-      setMessageList([...messageList, m.message]);
       setRoomId(Number(m.message.roomId));
+      setMessageList(m.messageListByRoom);
     });
     conn.onclose = () => {
       console.log("conn.onclose");
@@ -81,7 +81,14 @@ export const ChatPanel: FC<TProps> = ({
       console.log("conn.onopen");
       onToggleConnection?.(true);
     };
-  }, [textareaRef, conn, session?.user?.id, onToggleConnection, messageList]);
+  }, [
+    textareaRef,
+    conn,
+    session?.user?.id,
+    onToggleConnection,
+    messageList,
+    roomId,
+  ]);
 
   const sendMessage = () => {
     if (!textareaRef.current?.value) return;
@@ -100,6 +107,7 @@ export const ChatPanel: FC<TProps> = ({
       textareaRef.current.value = "";
     }
   };
+  console.log("messageList: ", messageList);
 
   const formattedMessages: TMessage[] | undefined = useMemo(() => {
     if (messageList) {
