@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if err := app.Start(); err != nil {
-		logger.Log.Debug("error in method app.Start", zap.Error(err))
+		logger.Log.Debug("error func main, method Start by path cmd/main.go", zap.Error(err))
 		log.Fatal(err)
 	}
 }

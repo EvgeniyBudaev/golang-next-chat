@@ -219,33 +219,83 @@ func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) 
 	return messageList, nil
 }
 
+// checkAndAddCommonRoom - основная функция проверки и добавления записей
+func (uc *UseCaseRoom) checkAndAddCommonRoom(senderId int64, receiverId int64) (*int64, error) {
+	exists, roomID, err := uc.db.CheckIfCommonRoomExists(senderId, receiverId)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("checkAndAddCommonRoom exists: ", exists)
+	fmt.Println("checkAndAddCommonRoom roomID: ", roomID)
+	if !exists {
+		r := ws.Room{
+			RoomName: "тест2",
+			Title:    "тест2",
+		}
+		roomCreated, err := uc.db.CreateRoomWithoutContext(&r)
+		if err != nil {
+			return nil, err
+		}
+		roomID = roomCreated.ID
+		err = uc.db.InsertRoomProfiles(roomID, senderId, receiverId)
+		if err != nil {
+			logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
+				zap.Error(err))
+		}
+	}
+	return &roomID, nil
+}
+
 func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
-	roomIdStr := conn.Params("roomId")
-	roomId, err := strconv.ParseInt(roomIdStr, 10, 64)
+	//roomIdStr := conn.Params("roomId")
+	//roomId, err := strconv.ParseInt(roomIdStr, 10, 64)
+	//if err != nil {
+	//	logger.Log.Debug("error func JoinRoom, method ParseInt roomIdStr by path internal/useCase/room/room.go",
+	//		zap.Error(err))
+	//	return ""
+	//}
+	receiverIdStr := conn.Query("receiverId")
+	receiverId, err := strconv.ParseInt(receiverIdStr, 10, 64)
 	if err != nil {
 		logger.Log.Debug("error func JoinRoom, method ParseInt roomIdStr by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return ""
 	}
 	userId := conn.Query("userId")
+
 	username := conn.Query("username")
+	fmt.Println("userId: ", userId)
+	fmt.Println("receiverId: ", receiverId)
+	fmt.Println("username: ", username)
+	profile, err := uc.db.FindProfile(userId)
+	if err != nil {
+		logger.Log.Debug("error func JoinRoom, method FindProfile by path internal/useCase/room/room.go",
+			zap.Error(err))
+	}
+	//checkAndAddCommonRoom - проверка и добавление записи
+	roomID, err := uc.checkAndAddCommonRoom(profile.ID, receiverId)
+	if err != nil {
+		logger.Log.Debug("error func JoinRoom, method checkAndAddCommonRoom by path internal/useCase/room/room.go",
+			zap.Error(err))
+	}
+
 	cl := &ws.Client{
-		RoomID:   roomId,
+		RoomID:   *roomID,
 		UserID:   userId,
 		Username: username,
 		Conn:     conn,
 		Content:  make(chan *ws.Content),
 	}
-	profile, err := uc.db.FindProfile(userId)
-	rp := ws.RoomProfile{
-		RoomID:    roomId,
-		ProfileID: profile.ID,
-	}
-	_, err = uc.db.AddRoomProfile(&rp)
-	if err != nil {
-		logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
-			zap.Error(err))
-	}
+	//profile, err := uc.db.FindProfile(userId)
+	//rp := ws.RoomProfile{
+	//	RoomID:    roomId,
+	//	ProfileID: profile.ID,
+	//}
+	//_, err = uc.db.AddRoomProfile(&rp)
+	//if err != nil {
+	//	logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
+	//		zap.Error(err))
+	//}
 	uc.hub.Register <- cl
 	go cl.WriteMessage()
 	cl.ReadMessage(uc.hub)

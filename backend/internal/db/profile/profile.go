@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	errorEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/error"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/pkg/errors"
@@ -14,6 +15,7 @@ import (
 type DBProfile interface {
 	Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profileEntity.Profile, error)
 	FindByUsername(ctx *fiber.Ctx, username string) (*profileEntity.Profile, error)
+	SelectProfileList(ctx *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error)
 	AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*profileEntity.ImageProfile, error)
 	SelectListImage(cf *fiber.Ctx, profileID int) ([]*profileEntity.ImageProfile, error)
 }
@@ -72,6 +74,33 @@ func (pg *PGProfileDB) FindByUsername(ctx *fiber.Ctx, username string) (*profile
 		return nil, err
 	}
 	return &p, nil
+}
+
+func (pg *PGProfileDB) SelectProfileList(ctx *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error) {
+	query := "SELECT id, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted," +
+		" is_enabled FROM profiles"
+	query = searching.ApplySearch(query, "username", qp.Search) // search
+	rows, err := pg.db.QueryContext(ctx.Context(), query)
+	if err != nil {
+		logger.Log.Debug(
+			"error func SelectProfileList, method QueryContext by path internal/db/profile/profile.go",
+			zap.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+	list := make([]*profileEntity.Profile, 0)
+	for rows.Next() {
+		data := profileEntity.Profile{}
+		err := rows.Scan(&data.ID, &data.UserID, &data.Username, &data.Firstname, &data.Lastname, &data.Email,
+			&data.CreatedAt, &data.UpdatedAt, &data.IsDeleted, &data.IsEnabled)
+		if err != nil {
+			logger.Log.Debug("error func SelectProfileList, method Scan by path internal/db/profile/profile.go",
+				zap.Error(err))
+			continue
+		}
+		list = append(list, &data)
+	}
+	return list, nil
 }
 
 func (pg *PGProfileDB) AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*profileEntity.ImageProfile, error) {

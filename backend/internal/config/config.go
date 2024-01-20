@@ -31,12 +31,12 @@ type Config struct {
 func Load() (*Config, error) {
 	var cfg Config
 	if err := godotenv.Load(); err != nil {
-		logger.Log.Debug("error in method godotenv.Load", zap.Error(err))
+		logger.Log.Debug("error func Load, method Load by path internal/config/config.go", zap.Error(err))
 		return nil, err
 	}
 	err := envconfig.Process("GNCHAT", &cfg)
 	if err != nil {
-		logger.Log.Debug("error in method envconfig.Process", zap.Error(err))
+		logger.Log.Debug("error func Load, method Process by path internal/config/config.go", zap.Error(err))
 		return nil, err
 	}
 	return &cfg, nil

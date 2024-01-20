@@ -47,11 +47,30 @@ func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
 	return r, nil
 }
 
-func (pg *PGRoomDB) SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
-	ctx := cf.Context()
+func (pg *PGRoomDB) CreateRoomWithoutContext(r *ws.Room) (*ws.Room, error) {
+	ctx := context.Background()
+	query := "INSERT INTO rooms (room_name, title) VALUES ($1, $2) RETURNING id"
+	err := pg.db.QueryRowContext(ctx, query, r.RoomName, r.Title).Scan(&r.ID)
+	if err != nil {
+		logger.Log.Debug("error func CreateRoom, method QueryRowContext by path internal/db/room/room.go",
+			zap.Error(err))
+		msg := errors.Wrap(err, "bad request")
+		err = errorEntity.NewCustomError(msg, http.StatusBadRequest)
+		return nil, err
+	}
+	return r, nil
+}
+
+func (pg *PGRoomDB) InsertRoomProfiles(roomID int64, senderId int64, receiverId int64) error {
+	query := "INSERT INTO rooms_profiles (room_id, profile_id) VALUES ($1, $2), ($1, $3)"
+	_, err := pg.db.Exec(query, roomID, senderId, receiverId)
+	return err
+}
+
+func (pg *PGRoomDB) SelectRoomList(ctx *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
 	query := "SELECT id, room_name, title FROM rooms"
 	query = searching.ApplySearch(query, "room_name", qp.Search) // search
-	rows, err := pg.db.QueryContext(ctx, query)
+	rows, err := pg.db.QueryContext(ctx.Context(), query)
 	if err != nil {
 		logger.Log.Debug("error func SelectRoomList, method QueryContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -261,4 +280,19 @@ func (pg *PGRoomDB) SelectMessageListWithoutCtx(roomId int64) ([]*ws.ResponseMes
 		list = append(list, &data)
 	}
 	return list, nil
+}
+
+// CheckIfCommonRoomExists - проверка на наличие общей комнаты
+func (pg *PGRoomDB) CheckIfCommonRoomExists(senderId int64, receiverId int64) (bool, int64, error) {
+	var roomID int64
+	query := "SELECT room_id " +
+		"FROM rooms_profiles WHERE profile_id = $1 INTERSECT SELECT room_id FROM rooms_profiles WHERE profile_id = $2"
+	err := pg.db.QueryRow(query, senderId, receiverId).Scan(&roomID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, 0, nil
+		}
+		return false, 0, err
+	}
+	return true, roomID, nil
 }

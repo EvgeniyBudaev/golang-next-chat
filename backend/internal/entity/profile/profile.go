@@ -1,24 +1,11 @@
 package profile
 
 import (
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
 	"time"
 )
 
 type Profile struct {
-	ID        int64           `json:"id"`
-	UserID    string          `json:"userId"`
-	Username  string          `json:"username"`
-	Firstname string          `json:"firstName"`
-	Lastname  string          `json:"lastName"`
-	Email     string          `json:"email"`
-	CreatedAt time.Time       `json:"createdAt"`
-	UpdatedAt time.Time       `json:"updatedAt"`
-	IsDeleted bool            `json:"isDeleted"`
-	IsEnabled bool            `json:"isEnabled"`
-	Images    []*ImageProfile `json:"images"`
-}
-
-type ResponseProfile struct {
 	ID        int64           `json:"id"`
 	UserID    string          `json:"userId"`
 	Username  string          `json:"username"`
@@ -48,4 +35,8 @@ type ImageProfile struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	IsDeleted bool      `json:"isDeleted"`
 	IsEnabled bool      `json:"isEnabled"`
+}
+
+type QueryParamsProfileList struct {
+	searching.Searching
 }

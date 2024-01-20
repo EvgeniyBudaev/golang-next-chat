@@ -1,6 +1,7 @@
 package profile
 
 import (
+	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	r "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/response"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	profileUseCase "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/useCase/profile"
@@ -60,5 +61,28 @@ func (h *HandlerProfile) GetProfileByUsernameHandler() fiber.Handler {
 			return r.WrapError(ctx, err, http.StatusBadRequest)
 		}
 		return r.WrapCreated(ctx, response)
+	}
+}
+
+func (h *HandlerProfile) GetProfileListHandler() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		logger.Log.Info("GET /api/v1/profile/list")
+		req := profileEntity.QueryParamsProfileList{}
+		if err := ctx.BodyParser(&req); err != nil {
+			logger.Log.Debug(
+				"error func GetProfileListHandler,"+
+					" method ctx.BodyParse by path internal/handlers/profile/profile.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		response, err := h.uc.GetProfileList(ctx, &req)
+		if err != nil {
+			logger.Log.Debug(
+				"error func GetProfileListHandler, method GetProfileList by path"+
+					" internal/handlers/profile/profile.go",
+				zap.Error(err))
+			return r.WrapError(ctx, err, http.StatusBadRequest)
+		}
+		return r.WrapOk(ctx, response)
 	}
 }

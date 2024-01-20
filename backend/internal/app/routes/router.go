@@ -58,6 +58,7 @@ func InitPublicRoutes(app *fiber.App, config *config.Config, db *db.Database) {
 	grp.Post("/room/message/list", roomHandler.GetMessageListHandler(useCaseRoom))
 	grp.Post("/profile/create", ph.CreateProfileHandler())
 	grp.Post("/profile/detail", ph.GetProfileByUsernameHandler())
+	grp.Post("/profile/list", ph.GetProfileListHandler())
 	grp.Post("/profile/room/list", roomHandler.GetRoomListByProfileHandler(useCaseRoom))
 }
 
