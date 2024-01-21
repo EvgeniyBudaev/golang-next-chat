@@ -45,7 +45,11 @@ export const GlobalSearchResults: FC<TProps> = ({
   }, [itemChecked]);
 
   const joinRoom = (item: TProfileListItem) => {
-    const url = `${WEBSOCKET_URL}/room/join/1?userId=${session?.user.id}&username=${session?.user.username}&receiverId=${item.id}`;
+    const url =
+      `${WEBSOCKET_URL}/room/join?userId=${session?.user.id}` +
+      `&username=${session?.user.username}` +
+      `&roomTitle=${session?.user.name}` +
+      `&receiverId=${item.id}`;
     const ws = new BufferedWebSocket(url);
     if (ws.OPEN) {
       setConn(ws);

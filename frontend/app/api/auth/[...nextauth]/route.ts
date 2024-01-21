@@ -74,6 +74,9 @@ export const authOptions: any = {
       if (token.decoded) {
         session.user.id = token.decoded.sub;
         session.user.username = token.decoded.preferred_username;
+        session.user.name = token.decoded.name;
+        session.user.firstName = token.decoded.given_name;
+        session.user.lastName = token.decoded.family_name;
       }
       return session;
     },
