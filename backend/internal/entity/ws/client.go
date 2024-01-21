@@ -2,7 +2,6 @@ package ws
 
 import (
 	"encoding/json"
-	"fmt"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"go.uber.org/zap"
@@ -75,7 +74,7 @@ func (c *Client) WriteMessage() {
 	}()
 	for {
 		content, ok := <-c.Content
-		fmt.Println("[WriteMessage content] ", content)
+		//fmt.Println("[WriteMessage content] ", content)
 		if !ok {
 			return
 		}
@@ -90,7 +89,7 @@ func (c *Client) ReadMessage(h *Hub) {
 	}()
 	for {
 		_, m, err := c.Conn.ReadMessage()
-		fmt.Println("[ReadMessage m] ", string(m))
+		//fmt.Println("[ReadMessage m] ", string(m))
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)

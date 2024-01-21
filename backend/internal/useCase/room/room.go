@@ -1,6 +1,7 @@
 package room
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -39,7 +40,7 @@ type GetRoomMessagesRequest struct {
 	RoomID string `json:"roomId"`
 }
 
-func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
+func (uc *UseCaseRoom) Run(ctx context.Context) {
 	for {
 		select {
 		case cl := <-uc.hub.Register:
@@ -90,14 +91,14 @@ func (uc *UseCaseRoom) Run(ctx *fiber.Ctx) {
 		case c := <-uc.hub.Broadcast:
 			fmt.Println("hub Broadcast: ", c)
 			//start := time.Now()
-			_, err := uc.db.AddMessage(c.Message)
+			_, err := uc.db.AddMessage(ctx, c.Message)
 			//elapsed := time.Since(start)
 			//fmt.Printf("Функция выполнена за %s\n", elapsed)
 			if err != nil {
 				logger.Log.Debug("error func Run, method AddMessage by path internal/useCase/room/room.go",
 					zap.Error(err))
 			}
-			messageListByRoom, err := uc.db.SelectMessageListWithoutCtx(c.Message.RoomID)
+			messageListByRoom, err := uc.db.SelectMessageList(ctx, c.Message.RoomID)
 			if err != nil {
 				logger.Log.Debug(
 					"error func Run, method SelectMessageListWithoutCtx by path internal/useCase/room/room.go",
@@ -120,13 +121,13 @@ func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.Room
 		RoomName: r.RoomName,
 		Title:    r.Title,
 	}
-	newRoom, err := uc.db.CreateRoom(ctx, roomRequest)
+	newRoom, err := uc.db.CreateRoom(ctx.Context(), roomRequest)
 	if err != nil {
 		logger.Log.Debug("error func CreateRoom, method Create by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return nil, err
 	}
-	profile, err := uc.db.FindProfile(r.UserID)
+	profile, err := uc.db.FindProfile(ctx.Context(), r.UserID)
 	if err != nil {
 		logger.Log.Debug("error func CreateRoom, method FindProfile by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -136,7 +137,7 @@ func (uc *UseCaseRoom) CreateRoom(ctx *fiber.Ctx, r CreateRoomRequest) (*ws.Room
 		RoomID:    newRoom.ID,
 		ProfileID: profile.ID,
 	}
-	_, err = uc.db.AddRoomProfile(&rp)
+	_, err = uc.db.AddRoomProfile(ctx.Context(), &rp)
 	if err != nil {
 		logger.Log.Debug("error func CreateRoom, method AddRoomProfile by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -152,7 +153,7 @@ func (uc *UseCaseRoom) GetRoomList(ctx *fiber.Ctx) ([]*ws.RoomWithProfileRespons
 			zap.Error(err))
 		return nil, err
 	}
-	response, err := uc.db.SelectRoomList(ctx, &params)
+	response, err := uc.db.SelectRoomList(ctx.Context(), &params)
 	if err != nil {
 		logger.Log.Debug("error func GetRoomList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -168,7 +169,7 @@ func (uc *UseCaseRoom) GetRoomListByProfile(ctx *fiber.Ctx, r GetRoomListByProfi
 			zap.Error(err))
 		return nil, err
 	}
-	response, err := uc.db.SelectRoomListByProfile(ctx, profileId)
+	response, err := uc.db.SelectRoomListByProfile(ctx.Context(), profileId)
 	if err != nil {
 		logger.Log.Debug("error func GetRoomListByProfile, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -181,14 +182,14 @@ func (uc *UseCaseRoom) GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 	roomIdStr := ctx.Params("roomId")
 	roomId, err := strconv.ParseInt(roomIdStr, 10, 64)
 	if err != nil {
-		logger.Log.Debug("error func GetRoomList, method ParseInt by path internal/useCase/room/room.go",
+		logger.Log.Debug("error func GetUserList, method ParseInt by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return nil, err
 	}
 	fmt.Println("roomId: ", roomId)
-	clientList, err := uc.db.SelectUserList()
+	clientList, err := uc.db.SelectUserList(ctx.Context())
 	if err != nil {
-		logger.Log.Debug("error func GetRoomList, method SelectList by path internal/useCase/room/room.go",
+		logger.Log.Debug("error func GetUserList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return nil, err
 	}
@@ -210,7 +211,7 @@ func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) 
 			zap.Error(err))
 		return nil, err
 	}
-	messageList, err := uc.db.SelectMessageList(ctx, roomId)
+	messageList, err := uc.db.SelectMessageList(ctx.Context(), roomId)
 	if err != nil {
 		logger.Log.Debug("error func GetMessageList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -220,40 +221,34 @@ func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) 
 }
 
 // checkAndAddCommonRoom - основная функция проверки и добавления записей
-func (uc *UseCaseRoom) checkAndAddCommonRoom(senderId int64, receiverId int64) (*int64, error) {
-	exists, roomID, err := uc.db.CheckIfCommonRoomExists(senderId, receiverId)
+func (uc *UseCaseRoom) checkAndAddCommonRoom(
+	ctx context.Context, r *ws.Room, senderId int64, receiverId int64) (*int64, error) {
+	exists, roomID, err := uc.db.CheckIfCommonRoomExists(ctx, senderId, receiverId)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("checkAndAddCommonRoom exists: ", exists)
 	fmt.Println("checkAndAddCommonRoom roomID: ", roomID)
 	if !exists {
-		r := ws.Room{
-			RoomName: "тест2",
-			Title:    "тест2",
-		}
-		roomCreated, err := uc.db.CreateRoomWithoutContext(&r)
+		roomCreated, err := uc.db.CreateRoom(ctx, r)
 		if err != nil {
 			return nil, err
 		}
 		roomID = roomCreated.ID
-		err = uc.db.InsertRoomProfiles(roomID, senderId, receiverId)
+		err = uc.db.InsertRoomProfiles(ctx, roomID, senderId, receiverId)
 		if err != nil {
-			logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
+			logger.Log.Debug(
+				"error func checkAndAddCommonRoom, method AddUser by path internal/useCase/room/room.go",
 				zap.Error(err))
 		}
 	}
 	return &roomID, nil
 }
 
-func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
-	//roomIdStr := conn.Params("roomId")
-	//roomId, err := strconv.ParseInt(roomIdStr, 10, 64)
-	//if err != nil {
-	//	logger.Log.Debug("error func JoinRoom, method ParseInt roomIdStr by path internal/useCase/room/room.go",
-	//		zap.Error(err))
-	//	return ""
-	//}
+func (uc *UseCaseRoom) JoinRoom(ctx context.Context, conn *websocket.Conn) string {
+	userId := conn.Query("userId")
+	username := conn.Query("username")
+	roomTitle := conn.Query("roomTitle")
 	receiverIdStr := conn.Query("receiverId")
 	receiverId, err := strconv.ParseInt(receiverIdStr, 10, 64)
 	if err != nil {
@@ -261,24 +256,21 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 			zap.Error(err))
 		return ""
 	}
-	userId := conn.Query("userId")
-
-	username := conn.Query("username")
-	fmt.Println("userId: ", userId)
-	fmt.Println("receiverId: ", receiverId)
-	fmt.Println("username: ", username)
-	profile, err := uc.db.FindProfile(userId)
+	profile, err := uc.db.FindProfile(ctx, userId)
 	if err != nil {
 		logger.Log.Debug("error func JoinRoom, method FindProfile by path internal/useCase/room/room.go",
 			zap.Error(err))
 	}
+	r := ws.Room{
+		RoomName: username,
+		Title:    roomTitle,
+	}
 	//checkAndAddCommonRoom - проверка и добавление записи
-	roomID, err := uc.checkAndAddCommonRoom(profile.ID, receiverId)
+	roomID, err := uc.checkAndAddCommonRoom(ctx, &r, profile.ID, receiverId)
 	if err != nil {
 		logger.Log.Debug("error func JoinRoom, method checkAndAddCommonRoom by path internal/useCase/room/room.go",
 			zap.Error(err))
 	}
-
 	cl := &ws.Client{
 		RoomID:   *roomID,
 		UserID:   userId,
@@ -286,16 +278,6 @@ func (uc *UseCaseRoom) JoinRoom(conn *websocket.Conn) string {
 		Conn:     conn,
 		Content:  make(chan *ws.Content),
 	}
-	//profile, err := uc.db.FindProfile(userId)
-	//rp := ws.RoomProfile{
-	//	RoomID:    roomId,
-	//	ProfileID: profile.ID,
-	//}
-	//_, err = uc.db.AddRoomProfile(&rp)
-	//if err != nil {
-	//	logger.Log.Debug("error func JoinRoom, method AddUser by path internal/useCase/room/room.go",
-	//		zap.Error(err))
-	//}
 	uc.hub.Register <- cl
 	go cl.WriteMessage()
 	cl.ReadMessage(uc.hub)

@@ -32,10 +32,10 @@ func NewUseCaseProfile(db *profile.PGProfileDB) *UseCaseProfile {
 	return &UseCaseProfile{db: db}
 }
 
-func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest) (*profileEntity.Profile, error) {
+func (uc *UseCaseProfile) CreateProfile(ctf *fiber.Ctx, req CreateProfileRequest) (*profileEntity.Profile, error) {
 	filePath := "./static/uploads/profile/images/defaultImage.jpg"
 	directoryPath := fmt.Sprintf("./static/uploads/profile/images")
-	form, err := ctx.MultipartForm()
+	form, err := ctf.MultipartForm()
 	if err != nil {
 		logger.Log.Debug(
 			"error func CreateProfile, method MultipartForm by path internal/useCase/profile/profile.go",
@@ -47,7 +47,7 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 	imagesCatalog := make([]*profileEntity.ImageProfile, 0, len(imagesFilePath))
 	for _, file := range imageFiles {
 		filePath = fmt.Sprintf("%s/%s", directoryPath, file.Filename)
-		if err := ctx.SaveFile(file, filePath); err != nil {
+		if err := ctf.SaveFile(file, filePath); err != nil {
 			logger.Log.Debug(
 				"error func CreateProfile, method SaveFile by path internal/useCase/profile/profile.go",
 				zap.Error(err))
@@ -84,7 +84,7 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 		IsEnabled: true,
 		Images:    imagesCatalog,
 	}
-	newProfile, err := uc.db.Create(ctx, profileRequest)
+	newProfile, err := uc.db.Create(ctf, profileRequest)
 	if err != nil {
 		logger.Log.Debug("error func CreateProfile, method Create by path internal/useCase/profile/profile.go",
 			zap.Error(err))
@@ -101,7 +101,7 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 			IsDeleted: i.IsDeleted,
 			IsEnabled: i.IsEnabled,
 		}
-		_, err := uc.db.AddImage(ctx, image)
+		_, err := uc.db.AddImage(ctf, image)
 		if err != nil {
 			logger.Log.Debug(
 				"error func CreateProfile, method AddImage by path internal/useCase/profile/profile.go",
@@ -109,7 +109,7 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 			return nil, err
 		}
 	}
-	foundedProfile, err := uc.db.FindByUsername(ctx, newProfile.Username)
+	foundedProfile, err := uc.db.FindByUsername(ctf, newProfile.Username)
 	if err != nil {
 		logger.Log.Debug(
 			"error func CreateProfile, method FindByUsername by path internal/useCase/profile/profile.go",
@@ -132,8 +132,8 @@ func (uc *UseCaseProfile) CreateProfile(ctx *fiber.Ctx, req CreateProfileRequest
 	return &responseProfile, nil
 }
 
-func (uc *UseCaseProfile) GetProfileByUsername(ctx *fiber.Ctx, req GetProfileRequest) (*profileEntity.Profile, error) {
-	response, err := uc.db.FindByUsername(ctx, req.Username)
+func (uc *UseCaseProfile) GetProfileByUsername(ctf *fiber.Ctx, req GetProfileRequest) (*profileEntity.Profile, error) {
+	response, err := uc.db.FindByUsername(ctf, req.Username)
 	if err != nil {
 		logger.Log.Debug(
 			"error func GetProfileByUsername, method FindByUUID by path internal/useCase/profile/profile.go",
@@ -143,8 +143,8 @@ func (uc *UseCaseProfile) GetProfileByUsername(ctx *fiber.Ctx, req GetProfileReq
 	return response, nil
 }
 
-func (uc *UseCaseProfile) GetProfileList(ctx *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error) {
-	response, err := uc.db.SelectProfileList(ctx, qp)
+func (uc *UseCaseProfile) GetProfileList(ctf *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error) {
+	response, err := uc.db.SelectProfileList(ctf, qp)
 	if err != nil {
 		logger.Log.Debug(
 			"error func GetProfileList, method SelectProfileList by path internal/useCase/profile/profile.go",

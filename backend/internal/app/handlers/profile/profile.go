@@ -65,24 +65,24 @@ func (h *HandlerProfile) GetProfileByUsernameHandler() fiber.Handler {
 }
 
 func (h *HandlerProfile) GetProfileListHandler() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
+	return func(ctf *fiber.Ctx) error {
 		logger.Log.Info("GET /api/v1/profile/list")
 		req := profileEntity.QueryParamsProfileList{}
-		if err := ctx.BodyParser(&req); err != nil {
+		if err := ctf.BodyParser(&req); err != nil {
 			logger.Log.Debug(
 				"error func GetProfileListHandler,"+
 					" method ctx.BodyParse by path internal/handlers/profile/profile.go",
 				zap.Error(err))
-			return r.WrapError(ctx, err, http.StatusBadRequest)
+			return r.WrapError(ctf, err, http.StatusBadRequest)
 		}
-		response, err := h.uc.GetProfileList(ctx, &req)
+		response, err := h.uc.GetProfileList(ctf, &req)
 		if err != nil {
 			logger.Log.Debug(
 				"error func GetProfileListHandler, method GetProfileList by path"+
 					" internal/handlers/profile/profile.go",
 				zap.Error(err))
-			return r.WrapError(ctx, err, http.StatusBadRequest)
+			return r.WrapError(ctf, err, http.StatusBadRequest)
 		}
-		return r.WrapOk(ctx, response)
+		return r.WrapOk(ctf, response)
 	}
 }

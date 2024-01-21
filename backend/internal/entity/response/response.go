@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func WrapError(ctx *fiber.Ctx, err error, httpStatusCode int) error {
+func WrapError(ctf *fiber.Ctx, err error, httpStatusCode int) error {
 	var customError *errorDomain.CustomError
 	if errors.As(err, &customError) {
 		msg := errorDomain.ResponseError{
@@ -16,14 +16,14 @@ func WrapError(ctx *fiber.Ctx, err error, httpStatusCode int) error {
 			Success:    false,
 			Message:    customError.Err.Error(),
 		}
-		return ctx.Status(customError.StatusCode).JSON(msg)
+		return ctf.Status(customError.StatusCode).JSON(msg)
 	}
 	msg := errorDomain.ResponseError{
 		StatusCode: httpStatusCode,
 		Success:    false,
 		Message:    err.Error(),
 	}
-	return ctx.Status(httpStatusCode).JSON(msg)
+	return ctf.Status(httpStatusCode).JSON(msg)
 }
 
 func WrapOk(ctx *fiber.Ctx, data interface{}) error {
@@ -35,11 +35,11 @@ func WrapOk(ctx *fiber.Ctx, data interface{}) error {
 	return ctx.Status(fiber.StatusOK).JSON(msg)
 }
 
-func WrapCreated(ctx *fiber.Ctx, data interface{}) error {
+func WrapCreated(ctf *fiber.Ctx, data interface{}) error {
 	msg := success.Success{
 		Data:       data,
 		StatusCode: http.StatusCreated,
 		Success:    true,
 	}
-	return ctx.Status(fiber.StatusCreated).JSON(msg)
+	return ctf.Status(fiber.StatusCreated).JSON(msg)
 }

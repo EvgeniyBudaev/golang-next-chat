@@ -33,26 +33,27 @@ func InitPublicRoutes(app *fiber.App, config *config.Config, db *db.Database) {
 	// useCase
 	useCaseUser := userUseCase.NewUserUseCase(identityManager)
 	useCaseRoom := wsUseCase.NewUseCaseRoom(hub, dbRoom)
-	app.Use(func(ctx *fiber.Ctx) error {
+	app.Use(func(ctf *fiber.Ctx) error {
+		ctx := ctf.Context()
 		go useCaseRoom.Run(ctx)
-		return ctx.Next()
+		return ctf.Next()
 	})
 	useCaseProfile := profileUseCase.NewUseCaseProfile(dbProfile)
 	// handlers
 	grp := app.Group(prefix)
 	ph := profileHandler.NewHandlerProfile(useCaseProfile)
 
-	app.Use("/room/join/:roomId", func(ctx *fiber.Ctx) error {
-		if !websocket.IsWebSocketUpgrade(ctx) {
+	app.Use("/room/join", func(ctf *fiber.Ctx) error {
+		if !websocket.IsWebSocketUpgrade(ctf) {
 			return fiber.ErrUpgradeRequired
 		}
-		return ctx.Next()
+		return ctf.Next()
 	})
+	grp.Get("/room/join", roomHandler.JoinRoomHandler(useCaseRoom))
 
 	grp.Post("/user/register", userHandler.PostRegisterHandler(useCaseUser))
 	grp.Get("/user/list", userHandler.GetUserListHandler(useCaseUser))
 	grp.Post("/room/create", roomHandler.CreateRoomHandler(useCaseRoom))
-	grp.Get("/room/join/:roomId", websocket.New(roomHandler.JoinRoomHandler(useCaseRoom)))
 	grp.Get("/room/list", roomHandler.GetRoomListHandler(useCaseRoom))
 	grp.Get("/room/:roomId/user/list", roomHandler.GetUserListHandler(useCaseRoom))
 	grp.Post("/room/message/list", roomHandler.GetMessageListHandler(useCaseRoom))

@@ -13,11 +13,11 @@ import (
 )
 
 type DBProfile interface {
-	Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profileEntity.Profile, error)
-	FindByUsername(ctx *fiber.Ctx, username string) (*profileEntity.Profile, error)
-	SelectProfileList(ctx *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error)
-	AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*profileEntity.ImageProfile, error)
-	SelectListImage(cf *fiber.Ctx, profileID int) ([]*profileEntity.ImageProfile, error)
+	Create(ctf *fiber.Ctx, p *profileEntity.Profile) (*profileEntity.Profile, error)
+	FindByUsername(ctf *fiber.Ctx, username string) (*profileEntity.Profile, error)
+	SelectProfileList(ctf *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error)
+	AddImage(ctf *fiber.Ctx, p *profileEntity.ImageProfile) (*profileEntity.ImageProfile, error)
+	SelectListImage(ctf *fiber.Ctx, profileID int) ([]*profileEntity.ImageProfile, error)
 }
 
 type PGProfileDB struct {
@@ -28,8 +28,8 @@ func NewPGProfileDB(db *sql.DB) *PGProfileDB {
 	return &PGProfileDB{db: db}
 }
 
-func (pg *PGProfileDB) Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profileEntity.Profile, error) {
-	ctx := cf.Context()
+func (pg *PGProfileDB) Create(ctf *fiber.Ctx, p *profileEntity.Profile) (*profileEntity.Profile, error) {
+	ctx := ctf.Context()
 	tx, err := pg.db.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Log.Debug("error func Create, method Begin by path internal/db/profile/profile.go", zap.Error(err))
@@ -52,13 +52,13 @@ func (pg *PGProfileDB) Create(cf *fiber.Ctx, p *profileEntity.Profile) (*profile
 	return p, nil
 }
 
-func (pg *PGProfileDB) FindByUsername(ctx *fiber.Ctx, username string) (*profileEntity.Profile, error) {
+func (pg *PGProfileDB) FindByUsername(ctf *fiber.Ctx, username string) (*profileEntity.Profile, error) {
 	p := profileEntity.Profile{}
 	query := `SELECT id, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted,
        is_enabled
 			  FROM profiles
 			  WHERE username = $1`
-	row := pg.db.QueryRowContext(ctx.Context(), query, username)
+	row := pg.db.QueryRowContext(ctf.Context(), query, username)
 	if row == nil {
 		err := errors.New("no rows found")
 		logger.Log.Debug(
@@ -76,11 +76,11 @@ func (pg *PGProfileDB) FindByUsername(ctx *fiber.Ctx, username string) (*profile
 	return &p, nil
 }
 
-func (pg *PGProfileDB) SelectProfileList(ctx *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error) {
+func (pg *PGProfileDB) SelectProfileList(ctf *fiber.Ctx, qp *profileEntity.QueryParamsProfileList) ([]*profileEntity.Profile, error) {
 	query := "SELECT id, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted," +
 		" is_enabled FROM profiles"
 	query = searching.ApplySearch(query, "username", qp.Search) // search
-	rows, err := pg.db.QueryContext(ctx.Context(), query)
+	rows, err := pg.db.QueryContext(ctf.Context(), query)
 	if err != nil {
 		logger.Log.Debug(
 			"error func SelectProfileList, method QueryContext by path internal/db/profile/profile.go",
@@ -103,8 +103,8 @@ func (pg *PGProfileDB) SelectProfileList(ctx *fiber.Ctx, qp *profileEntity.Query
 	return list, nil
 }
 
-func (pg *PGProfileDB) AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*profileEntity.ImageProfile, error) {
-	ctx := cf.Context()
+func (pg *PGProfileDB) AddImage(ctf *fiber.Ctx, p *profileEntity.ImageProfile) (*profileEntity.ImageProfile, error) {
+	ctx := ctf.Context()
 	tx, err := pg.db.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Log.Debug("error func AddImage, method Begin by path internal/db/profile/profile.go", zap.Error(err))
@@ -126,8 +126,8 @@ func (pg *PGProfileDB) AddImage(cf *fiber.Ctx, p *profileEntity.ImageProfile) (*
 	return p, nil
 }
 
-func (pg *PGProfileDB) SelectListImage(cf *fiber.Ctx, profileID int) ([]*profileEntity.ImageProfile, error) {
-	ctx := cf.Context()
+func (pg *PGProfileDB) SelectListImage(ctf *fiber.Ctx, profileID int) ([]*profileEntity.ImageProfile, error) {
+	ctx := ctf.Context()
 	query := `SELECT id, profile_id, name, url, size, created_at, updated_at, is_deleted, is_enabled
 	FROM profile_images
 	WHERE profile_id = $1`

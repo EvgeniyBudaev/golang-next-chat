@@ -3,26 +3,28 @@ package room
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	errorEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/error"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
-	"github.com/gofiber/fiber/v2"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 type DBRoom interface {
-	CreateRoom(cf *fiber.Ctx, p *ws.Room) (*ws.Room, error)
-	SelectRoomList(cf *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error)
-	SelectRoomListByProfile(cf *fiber.Ctx, profileId int64) ([]*ws.RoomWithProfileResponse, error)
-	AddRoomProfile(roomID int64, profileID int64) (*ws.RoomProfile, error)
-	FindProfile(userId string) (*profileEntity.Profile, error)
-	SelectUserList() ([]*ws.Client, error)
-	AddMessage(m *ws.Message) (*ws.Message, error)
-	SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.ResponseMessage, error)
+	CreateRoom(ctx context.Context, r *ws.Room) (*ws.Room, error)
+	InsertRoomProfiles(ctx context.Context, roomID int64, senderId int64, receiverId int64) error
+	SelectRoomList(ctx context.Context, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error)
+	SelectRoomListByProfile(ctx context.Context, profileId int64) ([]*ws.RoomWithProfileResponse, error)
+	AddRoomProfile(ctx context.Context, r *ws.RoomProfile) (*ws.RoomProfile, error)
+	FindProfile(ctx context.Context, userId string) (*profileEntity.Profile, error)
+	SelectUserList(ctx context.Context) ([]*ws.Client, error)
+	AddMessage(ctx context.Context, m *ws.Message) (*ws.Message, error)
+	SelectMessageList(ctx context.Context, roomId int64) ([]*ws.ResponseMessage, error)
+	CheckIfCommonRoomExists(ctx context.Context, senderId int64, receiverId int64) (bool, int64, error)
 }
 
 type PGRoomDB struct {
@@ -33,8 +35,7 @@ func NewPGRoomDB(db *sql.DB) *PGRoomDB {
 	return &PGRoomDB{db: db}
 }
 
-func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
-	ctx := cf.Context()
+func (pg *PGRoomDB) CreateRoom(ctx context.Context, r *ws.Room) (*ws.Room, error) {
 	query := "INSERT INTO rooms (room_name, title) VALUES ($1, $2) RETURNING id"
 	err := pg.db.QueryRowContext(ctx, query, r.RoomName, r.Title).Scan(&r.ID)
 	if err != nil {
@@ -47,30 +48,16 @@ func (pg *PGRoomDB) CreateRoom(cf *fiber.Ctx, r *ws.Room) (*ws.Room, error) {
 	return r, nil
 }
 
-func (pg *PGRoomDB) CreateRoomWithoutContext(r *ws.Room) (*ws.Room, error) {
-	ctx := context.Background()
-	query := "INSERT INTO rooms (room_name, title) VALUES ($1, $2) RETURNING id"
-	err := pg.db.QueryRowContext(ctx, query, r.RoomName, r.Title).Scan(&r.ID)
-	if err != nil {
-		logger.Log.Debug("error func CreateRoom, method QueryRowContext by path internal/db/room/room.go",
-			zap.Error(err))
-		msg := errors.Wrap(err, "bad request")
-		err = errorEntity.NewCustomError(msg, http.StatusBadRequest)
-		return nil, err
-	}
-	return r, nil
-}
-
-func (pg *PGRoomDB) InsertRoomProfiles(roomID int64, senderId int64, receiverId int64) error {
+func (pg *PGRoomDB) InsertRoomProfiles(ctx context.Context, roomID int64, senderId int64, receiverId int64) error {
 	query := "INSERT INTO rooms_profiles (room_id, profile_id) VALUES ($1, $2), ($1, $3)"
-	_, err := pg.db.Exec(query, roomID, senderId, receiverId)
+	_, err := pg.db.ExecContext(ctx, query, roomID, senderId, receiverId)
 	return err
 }
 
-func (pg *PGRoomDB) SelectRoomList(ctx *fiber.Ctx, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
+func (pg *PGRoomDB) SelectRoomList(ctx context.Context, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
 	query := "SELECT id, room_name, title FROM rooms"
 	query = searching.ApplySearch(query, "room_name", qp.Search) // search
-	rows, err := pg.db.QueryContext(ctx.Context(), query)
+	rows, err := pg.db.QueryContext(ctx, query)
 	if err != nil {
 		logger.Log.Debug("error func SelectRoomList, method QueryContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -91,8 +78,8 @@ func (pg *PGRoomDB) SelectRoomList(ctx *fiber.Ctx, qp *ws.QueryParamsRoomList) (
 	return list, nil
 }
 
-func (pg *PGRoomDB) SelectRoomListByProfile(cf *fiber.Ctx, profileId int64) ([]*ws.RoomWithProfileResponse, error) {
-	ctx := cf.Context()
+func (pg *PGRoomDB) SelectRoomListByProfile(
+	ctx context.Context, profileId int64) ([]*ws.RoomWithProfileResponse, error) {
 	query := "SELECT rooms.id, rooms.room_name, rooms.title " +
 		"FROM rooms " +
 		"JOIN rooms_profiles ON rooms.id = rooms_profiles.room_id " +
@@ -120,8 +107,7 @@ func (pg *PGRoomDB) SelectRoomListByProfile(cf *fiber.Ctx, profileId int64) ([]*
 	return list, nil
 }
 
-func (pg *PGRoomDB) AddRoomProfile(r *ws.RoomProfile) (*ws.RoomProfile, error) {
-	ctx := context.Background()
+func (pg *PGRoomDB) AddRoomProfile(ctx context.Context, r *ws.RoomProfile) (*ws.RoomProfile, error) {
 	// Проверяем, существует ли запись
 	checkQuery := "SELECT id FROM rooms_profiles WHERE room_id = $1 AND profile_id = $2"
 	var existingID int
@@ -147,9 +133,8 @@ func (pg *PGRoomDB) AddRoomProfile(r *ws.RoomProfile) (*ws.RoomProfile, error) {
 	return r, nil
 }
 
-func (pg *PGRoomDB) FindProfile(userId string) (*profileEntity.Profile, error) {
-	//ctx := cf.Context()
-	ctx := context.Background()
+func (pg *PGRoomDB) FindProfile(ctx context.Context, userId string) (*profileEntity.Profile, error) {
+	fmt.Println("FindProfile userId: ", userId)
 	p := profileEntity.Profile{}
 	query := `SELECT id, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted,
        is_enabled
@@ -172,9 +157,7 @@ func (pg *PGRoomDB) FindProfile(userId string) (*profileEntity.Profile, error) {
 	return &p, nil
 }
 
-func (pg *PGRoomDB) SelectUserList() ([]*ws.Client, error) {
-	//ctx := cf.Context()
-	ctx := context.Background()
+func (pg *PGRoomDB) SelectUserList(ctx context.Context) ([]*ws.Client, error) {
 	query := `SELECT id, room_id, user_id FROM room_users`
 	rows, err := pg.db.QueryContext(ctx, query)
 	if err != nil {
@@ -197,13 +180,11 @@ func (pg *PGRoomDB) SelectUserList() ([]*ws.Client, error) {
 	return list, nil
 }
 
-func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
-	//ctx := cf.Context()
-	ctx := context.Background()
+func (pg *PGRoomDB) AddMessage(ctx context.Context, m *ws.Message) (*ws.Message, error) {
 	query := "INSERT INTO room_messages (room_id, user_id, type, created_at, updated_at, is_deleted, is_edited," +
 		" is_joined, is_left, content) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id"
-	err := pg.db.QueryRowContext(ctx, query, m.RoomID, m.UserID, m.Type, m.CreatedAt, m.UpdatedAt, m.IsDeleted,
-		m.IsEdited, m.IsJoined, m.IsLeft, m.Content).Scan(&m.ID)
+	err := pg.db.QueryRowContext(ctx, query, m.RoomID, m.UserID, m.Type, m.CreatedAt, m.UpdatedAt,
+		m.IsDeleted, m.IsEdited, m.IsJoined, m.IsLeft, m.Content).Scan(&m.ID)
 	if err != nil {
 		logger.Log.Debug("error func AddMessage, method QueryRowContext by path internal/db/room/room.go",
 			zap.Error(err))
@@ -214,42 +195,7 @@ func (pg *PGRoomDB) AddMessage(m *ws.Message) (*ws.Message, error) {
 	return m, nil
 }
 
-func (pg *PGRoomDB) SelectMessageList(cf *fiber.Ctx, roomId int64) ([]*ws.ResponseMessage, error) {
-	ctx := cf.Context()
-	query := "SELECT rm.id, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
-		"rm.is_edited, rm.is_joined, rm.is_left, rm.content, " +
-		"p.id, p.first_name, p.last_name " +
-		"FROM room_messages rm " +
-		"JOIN profiles p ON rm.user_id = p.user_id " +
-		"WHERE rm.room_id = $1 " +
-		"ORDER BY rm.created_at ASC"
-	rows, err := pg.db.QueryContext(ctx, query, roomId)
-	if err != nil {
-		logger.Log.Debug("error func SelectMessageList, method QueryContext by path internal/db/room/room.go",
-			zap.Error(err))
-		return nil, err
-	}
-	defer rows.Close()
-	list := make([]*ws.ResponseMessage, 0)
-	for rows.Next() {
-		data := ws.ResponseMessage{}
-		profile := profileEntity.ResponseMessageByProfile{}
-		err := rows.Scan(&data.ID, &data.RoomID, &data.UserID, &data.Type, &data.CreatedAt, &data.UpdatedAt,
-			&data.IsDeleted, &data.IsEdited, &data.IsJoined, &data.IsLeft, &data.Content,
-			&profile.ID, &profile.Firstname, &profile.Lastname)
-		if err != nil {
-			logger.Log.Debug("error func SelectMessageList, method Scan by path internal/db/room/room.go",
-				zap.Error(err))
-			continue
-		}
-		data.Profile = &profile
-		list = append(list, &data)
-	}
-	return list, nil
-}
-
-func (pg *PGRoomDB) SelectMessageListWithoutCtx(roomId int64) ([]*ws.ResponseMessage, error) {
-	ctx := context.Background()
+func (pg *PGRoomDB) SelectMessageList(ctx context.Context, roomId int64) ([]*ws.ResponseMessage, error) {
 	query := "SELECT rm.id, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
 		"rm.is_edited, rm.is_joined, rm.is_left, rm.content, " +
 		"p.id, p.first_name, p.last_name " +
@@ -283,11 +229,12 @@ func (pg *PGRoomDB) SelectMessageListWithoutCtx(roomId int64) ([]*ws.ResponseMes
 }
 
 // CheckIfCommonRoomExists - проверка на наличие общей комнаты
-func (pg *PGRoomDB) CheckIfCommonRoomExists(senderId int64, receiverId int64) (bool, int64, error) {
+func (pg *PGRoomDB) CheckIfCommonRoomExists(
+	ctx context.Context, senderId int64, receiverId int64) (bool, int64, error) {
 	var roomID int64
 	query := "SELECT room_id " +
 		"FROM rooms_profiles WHERE profile_id = $1 INTERSECT SELECT room_id FROM rooms_profiles WHERE profile_id = $2"
-	err := pg.db.QueryRow(query, senderId, receiverId).Scan(&roomID)
+	err := pg.db.QueryRowContext(ctx, query, senderId, receiverId).Scan(&roomID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, 0, nil
