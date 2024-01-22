@@ -15,6 +15,10 @@ import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { WEBSOCKET_URL } from "@/app/shared/constants";
 import { BufferedWebSocket } from "@/app/shared/utils/bufferedWebSocket";
 import { useSessionNext } from "@/app/shared/hooks";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_LIMIT,
+} from "@/app/shared/constants/pagination";
 
 type TProps = {
   isCheckedRoomInProfile: boolean;
@@ -49,7 +53,9 @@ export const GlobalSearchResults: FC<TProps> = ({
       `${WEBSOCKET_URL}/room/join?userId=${session?.user.id}` +
       `&username=${session?.user.username}` +
       `&roomTitle=${session?.user.name}` +
-      `&receiverId=${item.id}`;
+      `&receiverId=${item.id}` +
+      `&page=${DEFAULT_PAGE}` +
+      `&limit=${DEFAULT_PAGE_LIMIT}`;
     const ws = new BufferedWebSocket(url);
     if (ws.OPEN) {
       setConn(ws);

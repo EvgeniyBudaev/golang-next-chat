@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { type TPagination } from "@/app/api/pagination";
 import type { TRoomListItem } from "@/app/api/room/list/types";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { useSessionNext } from "@/app/shared/hooks";
@@ -16,6 +17,10 @@ import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
 import { ChatHeader } from "@/app/widgets/chatPanel/chatHeader";
 import "./ChatPanel.scss";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_LIMIT,
+} from "@/app/shared/constants/pagination";
 
 type TProps = {
   isCheckedRoomInProfile: boolean;
@@ -34,6 +39,7 @@ export const ChatPanel: FC<TProps> = ({
   const [messageList, setMessageList] = useState<TMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { conn } = useContext(WebsocketContext);
+  const [pagination, setPagination] = useState<TPagination>();
   const [roomId, setRoomId] = useState<number | undefined>(undefined);
   const buttonRef = useRef<HTMLInputElement>(null);
 
@@ -47,6 +53,14 @@ export const ChatPanel: FC<TProps> = ({
   }, [conn]);
 
   useEffect(() => {
+    console.log("pagination: ", pagination);
+  }, [pagination]);
+
+  const handleChangePagination = (pagination: TPagination) => {
+    setPagination(pagination);
+  };
+
+  useEffect(() => {
     // if (textarea.current) {
     //   autosize(textarea.current)
     // }
@@ -57,18 +71,20 @@ export const ChatPanel: FC<TProps> = ({
     conn.addEventListener("message", (message) => {
       const m: WSContent = JSON.parse(message.data);
       console.log("addEventListener m: ", m);
-      // if (m.message.isJoined) {
-      //   setMessageList(m.messageListByRoom);
-      // }
-      // if (m.message.isLeft) {
-      //   setMessageList(m.messageListByRoom);
-      //   return;
-      // }
+      if (m.message.isJoined) {
+        setMessageList(m.messageListByRoom.content);
+      }
+      if (m.message.isLeft) {
+        setMessageList(m.messageListByRoom.content);
+        return;
+      }
       session?.user?.id === m.message.userId
         ? (m.message.type = "self")
         : (m.message.type = "recv");
       setRoomId(Number(m.message.roomId));
-      setMessageList(m.messageListByRoom);
+      setMessageList(m.messageListByRoom.content);
+      const { content, ...pagination } = m.messageListByRoom;
+      handleChangePagination(pagination);
     });
     conn.onclose = () => {
       console.log("conn.onclose");
@@ -99,6 +115,8 @@ export const ChatPanel: FC<TProps> = ({
     if ("value" in textareaRef.current) {
       const message = {
         content: textareaRef.current.value,
+        page: pagination?.page ?? DEFAULT_PAGE,
+        limit: pagination?.limit ?? DEFAULT_PAGE_LIMIT,
       };
       const json = JSON.stringify(message);
       conn.send(json);
