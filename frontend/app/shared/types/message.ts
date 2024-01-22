@@ -1,6 +1,14 @@
+import { TPagination } from "@/app/api/pagination";
+
+type TMessageListByRoom = {
+  content: TMessage[];
+} & TPagination;
+
 export type WSContent = {
   message: TMessage;
-  messageListByRoom: TMessage[];
+  messageListByRoom: TMessageListByRoom;
+  page: number;
+  limit: number;
 };
 
 export type TMessage = {

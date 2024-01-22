@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/pagination"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/logger"
 	"go.uber.org/zap"
@@ -16,6 +17,8 @@ type Client struct {
 	RoomID   int64  `json:"roomId"`
 	UserID   string `json:"userId"`
 	Username string `json:"username"`
+	Page     uint64 `json:"page"`
+	Limit    uint64 `json:"limit"`
 	Conn     *websocket.Conn
 	Content  chan *Content
 }
@@ -26,8 +29,10 @@ type ClientResponse struct {
 }
 
 type Content struct {
-	Message           *Message           `json:"message"`
-	MessageListByRoom []*ResponseMessage `json:"messageListByRoom"`
+	Message           *Message             `json:"message"`
+	MessageListByRoom *ResponseMessageList `json:"messageListByRoom"`
+	Page              uint64               `json:"page"`
+	Limit             uint64               `json:"limit"`
 }
 
 type MessageType string
@@ -68,6 +73,17 @@ type ResponseMessage struct {
 	Content   string                                  `json:"content"`
 }
 
+type ReadContent struct {
+	Content string `json:"content"`
+	Page    uint64 `json:"page"`
+	Limit   uint64 `json:"limit"`
+}
+
+type ResponseMessageList struct {
+	*pagination.Pagination
+	Content []*ResponseMessage `json:"content"`
+}
+
 func (c *Client) WriteMessage() {
 	defer func() {
 		c.Conn.Close()
@@ -96,8 +112,8 @@ func (c *Client) ReadMessage(h *Hub) {
 			}
 			break
 		}
-		messageData := &Message{}
-		err = json.Unmarshal(m, &messageData)
+		contentData := &ReadContent{}
+		err = json.Unmarshal(m, &contentData)
 		if err != nil {
 			logger.Log.Debug("error func ReadMessage,"+
 				" method Unmarshal by path internal/entity/ws/client.go",
@@ -112,10 +128,12 @@ func (c *Client) ReadMessage(h *Hub) {
 			UpdatedAt: time.Now(),
 			IsDeleted: false,
 			IsEdited:  false,
-			Content:   messageData.Content,
+			Content:   contentData.Content,
 		}
 		h.Broadcast <- &Content{
 			Message: msg,
+			Page:    contentData.Page,
+			Limit:   contentData.Limit,
 		}
 	}
 }

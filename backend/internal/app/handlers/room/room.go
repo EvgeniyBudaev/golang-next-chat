@@ -15,7 +15,7 @@ import (
 type UseCaseRoom interface {
 	CreateRoom(ctf *fiber.Ctx, r roomUseCase.CreateRoomRequest) (*ws.Room, error)
 	GetUserList(ctf *fiber.Ctx) ([]*ws.ClientResponse, error)
-	GetMessageList(ctf *fiber.Ctx, r roomUseCase.GetRoomMessagesRequest) ([]*ws.ResponseMessage, error)
+	GetMessageList(ctf *fiber.Ctx, r roomUseCase.GetRoomMessagesRequest) (*ws.ResponseMessageList, error)
 	GetRoomList(ctf *fiber.Ctx) ([]*ws.RoomWithProfileResponse, error)
 	GetRoomListByProfile(
 		ctf *fiber.Ctx, r roomUseCase.GetRoomListByProfileRequest) ([]*ws.RoomWithProfileResponse, error)

@@ -3,8 +3,8 @@ package room
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	errorEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/error"
+	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/pagination"
 	profileEntity "github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/profile"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/searching"
 	"github.com/EvgeniyBudaev/golang-next-chat/backend/internal/entity/ws"
@@ -23,7 +23,7 @@ type DBRoom interface {
 	FindProfile(ctx context.Context, userId string) (*profileEntity.Profile, error)
 	SelectUserList(ctx context.Context) ([]*ws.Client, error)
 	AddMessage(ctx context.Context, m *ws.Message) (*ws.Message, error)
-	SelectMessageList(ctx context.Context, roomId int64) ([]*ws.ResponseMessage, error)
+	SelectMessageList(ctx context.Context, roomId int64, page uint64, limit uint64) (*ws.ResponseMessageList, error)
 	CheckIfCommonRoomExists(ctx context.Context, senderId int64, receiverId int64) (bool, int64, error)
 }
 
@@ -51,10 +51,16 @@ func (pg *PGRoomDB) CreateRoom(ctx context.Context, r *ws.Room) (*ws.Room, error
 func (pg *PGRoomDB) InsertRoomProfiles(ctx context.Context, roomID int64, senderId int64, receiverId int64) error {
 	query := "INSERT INTO rooms_profiles (room_id, profile_id) VALUES ($1, $2), ($1, $3)"
 	_, err := pg.db.ExecContext(ctx, query, roomID, senderId, receiverId)
-	return err
+	if err != nil {
+		logger.Log.Debug("error func InsertRoomProfiles, method ExecContext by path internal/db/room/room.go",
+			zap.Error(err))
+		return err
+	}
+	return nil
 }
 
-func (pg *PGRoomDB) SelectRoomList(ctx context.Context, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
+func (pg *PGRoomDB) SelectRoomList(
+	ctx context.Context, qp *ws.QueryParamsRoomList) ([]*ws.RoomWithProfileResponse, error) {
 	query := "SELECT id, room_name, title FROM rooms"
 	query = searching.ApplySearch(query, "room_name", qp.Search) // search
 	rows, err := pg.db.QueryContext(ctx, query)
@@ -134,7 +140,6 @@ func (pg *PGRoomDB) AddRoomProfile(ctx context.Context, r *ws.RoomProfile) (*ws.
 }
 
 func (pg *PGRoomDB) FindProfile(ctx context.Context, userId string) (*profileEntity.Profile, error) {
-	fmt.Println("FindProfile userId: ", userId)
 	p := profileEntity.Profile{}
 	query := `SELECT id, user_id, username, first_name, last_name, email, created_at, updated_at, is_deleted,
        is_enabled
@@ -195,7 +200,8 @@ func (pg *PGRoomDB) AddMessage(ctx context.Context, m *ws.Message) (*ws.Message,
 	return m, nil
 }
 
-func (pg *PGRoomDB) SelectMessageList(ctx context.Context, roomId int64) ([]*ws.ResponseMessage, error) {
+func (pg *PGRoomDB) SelectMessageList(
+	ctx context.Context, roomId int64, page uint64, limit uint64) (*ws.ResponseMessageList, error) {
 	query := "SELECT rm.id, rm.room_id, rm.user_id, rm.type, rm.created_at, rm.updated_at, rm.is_deleted, " +
 		"rm.is_edited, rm.is_joined, rm.is_left, rm.content, " +
 		"p.id, p.first_name, p.last_name " +
@@ -203,6 +209,17 @@ func (pg *PGRoomDB) SelectMessageList(ctx context.Context, roomId int64) ([]*ws.
 		"JOIN profiles p ON rm.user_id = p.user_id " +
 		"WHERE rm.room_id = $1 " +
 		"ORDER BY rm.created_at ASC"
+	countQuery := "SELECT COUNT(*) FROM room_messages"
+	// get totalItems
+	totalItems, err := pagination.GetTotalItems(ctx, pg.db, countQuery)
+	if err != nil {
+		logger.Log.Debug("error while counting SelectList. error in method GetTotalItems", zap.Error(err))
+		return nil, err
+	}
+	// pagination
+	query = pagination.ApplyPagination(query, page, limit)
+	countQuery = pagination.ApplyPagination(countQuery, page, limit)
+	// get list
 	rows, err := pg.db.QueryContext(ctx, query, roomId)
 	if err != nil {
 		logger.Log.Debug("error func SelectMessageList, method QueryContext by path internal/db/room/room.go",
@@ -225,7 +242,12 @@ func (pg *PGRoomDB) SelectMessageList(ctx context.Context, roomId int64) ([]*ws.
 		data.Profile = &profile
 		list = append(list, &data)
 	}
-	return list, nil
+	paging := pagination.GetPagination(limit, page, totalItems)
+	response := ws.ResponseMessageList{
+		Pagination: paging,
+		Content:    list,
+	}
+	return &response, nil
 }
 
 // CheckIfCommonRoomExists - проверка на наличие общей комнаты

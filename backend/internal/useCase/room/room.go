@@ -38,6 +38,8 @@ type GetRoomListByProfileRequest struct {
 
 type GetRoomMessagesRequest struct {
 	RoomID string `json:"roomId"`
+	Limit  string `json:"limit"`
+	Page   string `json:"page"`
 }
 
 func (uc *UseCaseRoom) Run(ctx context.Context) {
@@ -60,6 +62,8 @@ func (uc *UseCaseRoom) Run(ctx context.Context) {
 			}
 			uc.hub.Broadcast <- &ws.Content{
 				Message: message,
+				Page:    cl.Page,
+				Limit:   cl.Limit,
 			}
 
 		case cl := <-uc.hub.Unregister:
@@ -86,6 +90,8 @@ func (uc *UseCaseRoom) Run(ctx context.Context) {
 			}
 			uc.hub.Broadcast <- &ws.Content{
 				Message: message,
+				Page:    cl.Page,
+				Limit:   cl.Limit,
 			}
 
 		case c := <-uc.hub.Broadcast:
@@ -98,10 +104,11 @@ func (uc *UseCaseRoom) Run(ctx context.Context) {
 				logger.Log.Debug("error func Run, method AddMessage by path internal/useCase/room/room.go",
 					zap.Error(err))
 			}
-			messageListByRoom, err := uc.db.SelectMessageList(ctx, c.Message.RoomID)
+			messageListByRoom, err := uc.db.SelectMessageList(
+				ctx, c.Message.RoomID, c.Page, c.Limit)
 			if err != nil {
 				logger.Log.Debug(
-					"error func Run, method SelectMessageListWithoutCtx by path internal/useCase/room/room.go",
+					"error func Run, method SelectMessageList by path internal/useCase/room/room.go",
 					zap.Error(err))
 			}
 			if _, ok := uc.hub.Clients[c.Message.RoomID]; ok {
@@ -109,6 +116,8 @@ func (uc *UseCaseRoom) Run(ctx context.Context) {
 					cl.Content <- &ws.Content{
 						Message:           c.Message,
 						MessageListByRoom: messageListByRoom,
+						Page:              c.Page,
+						Limit:             c.Limit,
 					}
 				}
 			}
@@ -204,14 +213,26 @@ func (uc *UseCaseRoom) GetUserList(ctx *fiber.Ctx) ([]*ws.ClientResponse, error)
 	return response, nil
 }
 
-func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) ([]*ws.ResponseMessage, error) {
+func (uc *UseCaseRoom) GetMessageList(ctx *fiber.Ctx, r GetRoomMessagesRequest) (*ws.ResponseMessageList, error) {
 	roomId, err := strconv.ParseInt(r.RoomID, 10, 64)
 	if err != nil {
-		logger.Log.Debug("error func GetMessageList, method ParseInt roomIdStr by path internal/useCase/room/room.go",
+		logger.Log.Debug("error func GetMessageList, method ParseInt by path internal/useCase/room/room.go",
 			zap.Error(err))
 		return nil, err
 	}
-	messageList, err := uc.db.SelectMessageList(ctx.Context(), roomId)
+	page, err := strconv.ParseUint(r.Page, 10, 64)
+	if err != nil {
+		logger.Log.Debug("error func GetMessageList, method ParseUint by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	limit, err := strconv.ParseUint(r.Limit, 10, 64)
+	if err != nil {
+		logger.Log.Debug("error func GetMessageList, method ParseUint by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return nil, err
+	}
+	messageList, err := uc.db.SelectMessageList(ctx.Context(), roomId, page, limit)
 	if err != nil {
 		logger.Log.Debug("error func GetMessageList, method SelectList by path internal/useCase/room/room.go",
 			zap.Error(err))
@@ -228,7 +249,6 @@ func (uc *UseCaseRoom) checkAndAddCommonRoom(
 		return nil, err
 	}
 	fmt.Println("checkAndAddCommonRoom exists: ", exists)
-	fmt.Println("checkAndAddCommonRoom roomID: ", roomID)
 	if !exists {
 		roomCreated, err := uc.db.CreateRoom(ctx, r)
 		if err != nil {
@@ -256,6 +276,20 @@ func (uc *UseCaseRoom) JoinRoom(ctx context.Context, conn *websocket.Conn) strin
 			zap.Error(err))
 		return ""
 	}
+	pageStr := conn.Query("page")
+	page, err := strconv.ParseUint(pageStr, 10, 64)
+	if err != nil {
+		logger.Log.Debug("error func JoinRoom, method ParseInt roomIdStr by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return ""
+	}
+	limitStr := conn.Query("limit")
+	limit, err := strconv.ParseUint(limitStr, 10, 64)
+	if err != nil {
+		logger.Log.Debug("error func JoinRoom, method ParseInt roomIdStr by path internal/useCase/room/room.go",
+			zap.Error(err))
+		return ""
+	}
 	profile, err := uc.db.FindProfile(ctx, userId)
 	if err != nil {
 		logger.Log.Debug("error func JoinRoom, method FindProfile by path internal/useCase/room/room.go",
@@ -275,6 +309,8 @@ func (uc *UseCaseRoom) JoinRoom(ctx context.Context, conn *websocket.Conn) strin
 		RoomID:   *roomID,
 		UserID:   userId,
 		Username: username,
+		Page:     page,
+		Limit:    limit,
 		Conn:     conn,
 		Content:  make(chan *ws.Content),
 	}
