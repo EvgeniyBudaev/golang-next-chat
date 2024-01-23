@@ -208,7 +208,7 @@ func (pg *PGRoomDB) SelectMessageList(
 		"FROM room_messages rm " +
 		"JOIN profiles p ON rm.user_id = p.user_id " +
 		"WHERE rm.room_id = $1 " +
-		"ORDER BY rm.created_at ASC"
+		"ORDER BY rm.created_at DESC"
 	countQuery := "SELECT COUNT(*) FROM room_messages"
 	// get totalItems
 	totalItems, err := pagination.GetTotalItems(ctx, pg.db, countQuery)
