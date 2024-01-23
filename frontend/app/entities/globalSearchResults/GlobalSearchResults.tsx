@@ -62,7 +62,7 @@ export const GlobalSearchResults: FC<TProps> = ({
     }
   };
 
-  const handleRoomChecked = (item: TProfileListItem) => {
+  const handleProfileChecked = (item: TProfileListItem) => {
     onItemChecked?.(item);
     joinRoom(item);
   };
@@ -84,7 +84,7 @@ export const GlobalSearchResults: FC<TProps> = ({
                   itemChecked?.id === item.id,
               })}
               key={item.id}
-              onClick={() => handleRoomChecked(item)}
+              onClick={() => handleProfileChecked(item)}
             >
               <Avatar
                 className="GlobalSearchResults-Avatar"

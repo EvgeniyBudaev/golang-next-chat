@@ -1,3 +1,4 @@
+import isEmpty from "lodash/isEmpty";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -27,9 +28,11 @@ async function loader() {
       profileId: profileResponse.data.id.toString(),
     });
     const roomListAllByProfile = roomListResponse.data as TRoomListItem[];
-    const roomListByProfile = roomListAllByProfile.filter(
-      (room) => room.roomName !== session?.user?.username,
-    );
+    const roomListByProfile = !isEmpty(roomListAllByProfile)
+      ? roomListAllByProfile.filter(
+          (room) => room?.roomName !== session?.user?.username,
+        )
+      : [];
     return { isSession: true, roomListByProfile };
   } catch (error) {
     throw new Error("errorBoundary.common.unexpectedError");

@@ -12,7 +12,7 @@ export type WSContent = {
 };
 
 export type TMessage = {
-  id: string;
+  id: number;
   roomId: number;
   userId: string;
   type: "recv" | "self" | "sys";
@@ -23,7 +23,7 @@ export type TMessage = {
   isJoined: boolean;
   isLeft: boolean;
   profile: {
-    id: string;
+    id: number;
     firstName: string;
     lastName?: string | null;
   };

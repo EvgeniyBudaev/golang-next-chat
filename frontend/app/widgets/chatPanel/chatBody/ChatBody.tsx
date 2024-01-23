@@ -1,18 +1,17 @@
 import { type FC } from "react";
-import { Message } from "@/app/entities/message";
 import { type TMessage } from "@/app/shared/types/message";
+import { InfiniteScrollMessages } from "@/app/widgets/chatPanel/infiniteScrollMessages";
 import "./ChatBody.scss";
 
 type TProps = {
-  messageList?: TMessage[] | undefined;
+  messageList: TMessage[];
+  roomId?: number;
 };
 
-export const ChatBody: FC<TProps> = ({ messageList }) => {
+export const ChatBody: FC<TProps> = ({ messageList, roomId }) => {
   return (
     <div className="ChatBody">
-      {(messageList ?? []).map((message: TMessage, index: number) => (
-        <Message key={`${message.content}-${index}`} message={message} />
-      ))}
+      <InfiniteScrollMessages initialMessages={messageList} roomId={roomId} />
     </div>
   );
 };
