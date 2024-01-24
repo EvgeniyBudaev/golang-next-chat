@@ -86,14 +86,22 @@ export const GlobalSearchResults: FC<TProps> = ({
               key={item.id}
               onClick={() => handleProfileChecked(item)}
             >
-              <Avatar
-                className="GlobalSearchResults-Avatar"
-                size={40}
-                user={item.firstName}
-              />
-              <div>
-                {item.firstName}&nbsp;{item.lastName}
+              <div className="GlobalSearchResults-ListItem-Left">
+                <Avatar
+                  className="GlobalSearchResults-Avatar"
+                  size={40}
+                  user={item.firstName}
+                />
+                <div className="GlobalSearchResults-ListItem-Right">
+                  {item.firstName}&nbsp;{item.lastName}
+                </div>
               </div>
+              <div>
+                <div className="GlobalSearchResults-ListItem-NotViewed">
+                  10000
+                </div>
+              </div>
+
               {/*{itemChecked && isCheckedRoomInProfile && !isConnection && (*/}
               {/*  <RoomJoinForm*/}
               {/*    button={*/}

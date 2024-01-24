@@ -4,4 +4,10 @@
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+
+  &-Info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }

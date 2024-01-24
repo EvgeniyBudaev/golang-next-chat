@@ -9,6 +9,7 @@ import { DEFAULT_PAGE_LIMIT } from "@/app/shared/constants/pagination";
 import { type TMessage } from "@/app/shared/types/message";
 import { getFormattedMessages } from "@/app/widgets/chatPanel/utils";
 import "./InfiniteScrollMessages.scss";
+import { Icon } from "@/app/uikit/components/icon";
 
 type TProps = {
   initialMessages: TMessage[];
@@ -88,8 +89,8 @@ export const InfiniteScrollMessages: FC<TProps> = ({
         <Message key={message.id} message={message} />
       ))}
       <div ref={ref}>
-        <div>
-          {isLoading && <p>Loading...</p>}
+        <div className="InfiniteScrollMessages-Info">
+          {isLoading && <Icon type="Spinner" />}
           {/*{!isLoading && !hasMore && <p>No more items to load.</p>}*/}
         </div>
       </div>

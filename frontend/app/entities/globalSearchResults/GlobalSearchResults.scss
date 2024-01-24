@@ -12,7 +12,19 @@
   &-ListItem {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 8px 16px;
+
+    &-Left {
+      display: flex;
+      align-items: center;
+    }
+
+    &-NotViewed {
+      background-color: $color-gray;
+      border-radius: $border-radius;
+      padding: 4px;
+    }
 
     &:hover {
       background-color: $color-gray;
