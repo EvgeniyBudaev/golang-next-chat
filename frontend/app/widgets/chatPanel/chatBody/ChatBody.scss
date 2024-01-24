@@ -1,11 +1,13 @@
 @import "@/app/styles";
 
 .ChatBody {
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-image: url("/assets/images/chat-bg.jpg");
   background-size: cover;
   background-repeat: no-repeat;
-  height: 100%;
   padding: 16px;
-  overflow-x: hidden;
-  overflow-y: auto;
 }

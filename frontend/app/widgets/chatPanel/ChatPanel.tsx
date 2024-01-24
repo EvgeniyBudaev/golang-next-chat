@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  type FC,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { type FC, useContext, useEffect, useRef, useState } from "react";
 import { type TPagination } from "@/app/api/pagination";
 import type { TRoomListItem } from "@/app/api/room/list/types";
 import {
@@ -16,13 +9,16 @@ import {
 } from "@/app/shared/constants/pagination";
 import { WebsocketContext } from "@/app/shared/context/webSocketContext";
 import { useSessionNext } from "@/app/shared/hooks";
-import { type TMessage, WSContent } from "@/app/shared/types/message";
-
+import {
+  ETypeMessage,
+  type TMessage,
+  WSContent,
+} from "@/app/shared/types/message";
+import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 import { ChatFooter } from "@/app/widgets/chatPanel/chatFooter";
 import { ChatHeader } from "@/app/widgets/chatPanel/chatHeader";
-import { InfiniteScrollMessages } from "@/app/widgets/chatPanel/infiniteScrollMessages";
+import { getFormattedMessages } from "@/app/widgets/chatPanel/utils";
 import "./ChatPanel.scss";
-import { ChatBody } from "@/app/widgets/chatPanel/chatBody";
 
 type TProps = {
   isCheckedRoomInProfile: boolean;
@@ -82,14 +78,20 @@ export const ChatPanel: FC<TProps> = ({
         setMessageList(m.messageListByRoom.content);
         return;
       }
-      session?.user?.id === m.message.userId
-        ? (m.message.type = "self")
-        : (m.message.type = "recv");
-      console.log("Number(m.message.roomId):", Number(m.message.roomId));
-      setRoomId(Number(m.message.roomId));
-      setMessageList(m.messageListByRoom.content);
-      const { content, ...pagination } = m.messageListByRoom;
-      handleChangePagination(pagination);
+      if (session?.user.id) {
+        session?.user.id === m.message.userId
+          ? (m.message.type = ETypeMessage.Self)
+          : (m.message.type = ETypeMessage.Recv);
+        console.log("Number(m.message.roomId):", Number(m.message.roomId));
+        setRoomId(Number(m.message.roomId));
+        const formattedMessages = getFormattedMessages(
+          m.messageListByRoom.content,
+          session?.user.id,
+        );
+        setMessageList(formattedMessages);
+        const { content, ...pagination } = m.messageListByRoom;
+        handleChangePagination(pagination);
+      }
     });
     conn.onclose = () => {
       console.log("conn.onclose");
@@ -105,7 +107,7 @@ export const ChatPanel: FC<TProps> = ({
   }, [
     textareaRef,
     conn,
-    session?.user?.id,
+    session?.user.id,
     onToggleConnection,
     messageList,
     roomId,
@@ -131,27 +133,14 @@ export const ChatPanel: FC<TProps> = ({
     }
   };
 
-  const formattedMessages: TMessage[] = useMemo(() => {
-    if (messageList) {
-      return messageList.map((message) => {
-        return {
-          ...message,
-          type:
-            message.type === "sys"
-              ? "sys"
-              : session?.user?.id === message.userId
-                ? "self"
-                : "recv",
-        };
-      });
-    }
-    return [];
-  }, [session?.user?.id, messageList]);
-
   return (
     <div className="ChatPanel">
       <ChatHeader />
-      <ChatBody messageList={formattedMessages} roomId={roomId} />
+      <ChatBody
+        messageList={messageList}
+        roomId={roomId}
+        userId={session?.user.id}
+      />
       <ChatFooter
         isCheckedRoomInProfile={isCheckedRoomInProfile}
         isConnection={isConnection}

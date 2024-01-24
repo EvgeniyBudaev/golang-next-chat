@@ -6,12 +6,17 @@ import "./ChatBody.scss";
 type TProps = {
   messageList: TMessage[];
   roomId?: number;
+  userId?: string;
 };
 
-export const ChatBody: FC<TProps> = ({ messageList, roomId }) => {
+export const ChatBody: FC<TProps> = ({ messageList, roomId, userId }) => {
   return (
     <div className="ChatBody">
-      <InfiniteScrollMessages initialMessages={messageList} roomId={roomId} />
+      <InfiniteScrollMessages
+        initialMessages={messageList}
+        roomId={roomId}
+        userId={userId}
+      />
     </div>
   );
 };

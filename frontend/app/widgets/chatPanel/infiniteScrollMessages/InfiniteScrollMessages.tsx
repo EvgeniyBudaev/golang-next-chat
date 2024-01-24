@@ -7,15 +7,18 @@ import { getMessageListByRoomAction } from "@/app/actions/message/listByRoom/get
 import { Message } from "@/app/entities/message";
 import { DEFAULT_PAGE_LIMIT } from "@/app/shared/constants/pagination";
 import { type TMessage } from "@/app/shared/types/message";
+import { getFormattedMessages } from "@/app/widgets/chatPanel/utils";
 import "./InfiniteScrollMessages.scss";
 
 type TProps = {
   initialMessages: TMessage[];
   roomId?: number;
+  userId?: string;
 };
 export const InfiniteScrollMessages: FC<TProps> = ({
   initialMessages,
   roomId,
+  userId,
 }) => {
   const initialState = {
     data: undefined,
@@ -25,6 +28,8 @@ export const InfiniteScrollMessages: FC<TProps> = ({
   };
   const [messageList, setMessageList] = useState<TMessage[]>(initialMessages);
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [ref, inView] = useInView();
   const [state, formAction] = useFormState(
     getMessageListByRoomAction,
@@ -32,7 +37,9 @@ export const InfiniteScrollMessages: FC<TProps> = ({
   );
 
   const loadMore = () => {
+    if (isLoading) return;
     if (roomId) {
+      setIsLoading(true);
       const nextPage = (page + 1).toString();
       const formDataDto = new FormData();
       roomId && formDataDto.append("roomId", roomId.toString());
@@ -53,13 +60,20 @@ export const InfiniteScrollMessages: FC<TProps> = ({
   }, [initialMessages]);
 
   useEffect(() => {
-    if (state?.success) {
+    if (state?.success && userId) {
+      if (state?.data?.content.length === 0) {
+        setHasMore(false);
+        setIsLoading(false);
+        return;
+      }
       const nextPage = page + 1;
       setPage(nextPage);
-      setMessageList((prev) => [
-        ...(prev?.length ? prev : []),
-        ...(state?.data?.content ?? []),
-      ]);
+      setMessageList((prev: TMessage[]) => {
+        const content = state?.data?.content ?? [];
+        const formattedMessages = getFormattedMessages(content, userId);
+        return [...(prev?.length ? prev : []), ...formattedMessages];
+      });
+      setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.data]);
@@ -69,14 +83,16 @@ export const InfiniteScrollMessages: FC<TProps> = ({
   }, [messageList]);
 
   return (
-    <div className="InfiniteScrollMessages">
-      {(messageList ?? []).map((message: TMessage, index: number) => (
-        <Message key={`${message.content}-${index}`} message={message} />
+    <>
+      {(messageList ?? []).map((message: TMessage) => (
+        <Message key={message.id} message={message} />
       ))}
       <div ref={ref}>
-        <div>Spinner</div>
-        <div>Loading...</div>
+        <div>
+          {isLoading && <p>Loading...</p>}
+          {/*{!isLoading && !hasMore && <p>No more items to load.</p>}*/}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

@@ -11,11 +11,17 @@ export type WSContent = {
   limit: number;
 };
 
+export enum ETypeMessage {
+  Recv = "recv",
+  Self = "self",
+  Sys = "sys",
+}
+
 export type TMessage = {
   id: number;
   roomId: number;
   userId: string;
-  type: "recv" | "self" | "sys";
+  type: ETypeMessage;
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;
